@@ -9,7 +9,7 @@ There are two contracts:
   1. `address` The bet creator
   2. `address` A participant
   3. `address` An arbitrator (one who selects the winner)
-  4. `uint256` An token amount
+  4. `uint256` A token amount
   5. `string` An attached message
   6. `address` The erc20 token contract with which the bet is using
 * `BetFactory.sol`, which creates new Bet contracts and holds the initial state of all bets created from it.
@@ -21,6 +21,8 @@ There are two contracts:
   - [ ] Add acceptBet, declineBet, and settleBet functions to factory contract, given a contract address as a param
   - [ ] Etherscan auto-verification of created `Bet.sol` contracts
   - [ ] Add time as a function parameter to `Bet.sol` (e.g. after x days, if no accept or decline, cancel bet and return tokens to bet creator)
+  - [ ] Add custom errors
+  - [ ] Add ability for participant to send tokens directly to the contract to accept, making it so they only need to execute one txn
 - [ ] Frame
   - [ ] Build V1
 - [ ] Farcaster Bot
