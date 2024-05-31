@@ -19,7 +19,6 @@ There are two contracts:
 - [ ] Contract
   - [x] Build V1
   - [ ] Add acceptBet, declineBet, and settleBet functions to factory contract, given a contract address as a param
-  - [ ] Etherscan auto-verification of created `Bet.sol` contracts
   - [ ] Add time as a function parameter to `Bet.sol` (e.g. after x days, if no accept or decline, cancel bet and return tokens to bet creator)
   - [ ] Add custom errors
   - [ ] Add ability for participant to send tokens directly to the contract to accept, making it so they only need to execute one txn
