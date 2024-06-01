@@ -26,6 +26,7 @@ export const createScreen = async (
       return c.res({
         image: (
           <div style={{ ...backgroundStyles }}>
+            <span style={{ color: "gray" }}>{pageNum}/7</span>
             <span>Who are you betting with?</span>
           </div>
         ),
@@ -38,6 +39,7 @@ export const createScreen = async (
       return c.res({
         image: (
           <div style={{ ...backgroundStyles }}>
+            <span style={{ color: "gray" }}>{pageNum}/7</span>
             <span>Who would you like to arbitrate?</span>
           </div>
         ),
@@ -50,6 +52,7 @@ export const createScreen = async (
       return c.res({
         image: (
           <div style={{ ...backgroundStyles }}>
+            <span style={{ color: "gray" }}>{pageNum}/7</span>
             <span>How much USDC do you want to bet?</span>
           </div>
         ),
@@ -62,6 +65,7 @@ export const createScreen = async (
       return c.res({
         image: (
           <div style={{ ...backgroundStyles }}>
+            <span style={{ color: "gray" }}>{pageNum}/7</span>
             <span>What are the terms?</span>
           </div>
         ),
@@ -74,6 +78,7 @@ export const createScreen = async (
       return c.res({
         image: (
           <div style={{ ...backgroundStyles }}>
+            <span style={{ color: "gray" }}>{pageNum}/7</span>
             <span>
               Authorize the contract to move your wager to the bet contract
             </span>
@@ -85,6 +90,7 @@ export const createScreen = async (
       return c.res({
         image: (
           <div style={{ ...backgroundStyles }}>
+            <span style={{ color: "gray" }}>{pageNum}/7</span>
             <span>Deploy your bet</span>
           </div>
         ),
@@ -94,6 +100,7 @@ export const createScreen = async (
       return c.res({
         image: (
           <div style={{ ...backgroundStyles }}>
+            <span style={{ color: "gray" }}>{pageNum}/7</span>
             <span>Bet created! Share.</span>
           </div>
         ),

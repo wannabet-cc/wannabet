@@ -3,7 +3,7 @@ export const backgroundStyles = {
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
-  alignItems: "center",
+  alignItems: "flex-start",
   lineHeight: 1.2,
   padding: 80,
   fontSize: 92,
