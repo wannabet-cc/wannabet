@@ -6,9 +6,13 @@ export const homeScreen = async (c: FrameContext) => {
     // browserLocation: "/frame",
     image: (
       <div style={{ ...backgroundStyles }}>
-        <span>Home</span>
+        <span>Wanna Bet?</span>
       </div>
     ),
-    intents: [<TextInput placeholder="ETH Amount" />],
+    intents: [
+      <Button action="/create/1" children={"Create new"} />,
+      <Button action="/bets" children={"My bets"} />,
+      <Button action="/help" children={"?"} />,
+    ],
   });
 };
