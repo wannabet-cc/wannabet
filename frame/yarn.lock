@@ -44,7 +44,7 @@
   resolved "https://registry.yarnpkg.com/@cloudflare/workerd-windows-64/-/workerd-windows-64-1.20240524.0.tgz#aad79b9f6fd53a769355605903481d699a8789ce"
   integrity sha512-G+ThDEx57g9mAEKqhWnHaaJgpeGYtyhkmwM/BDpLqPks/rAY5YEfZbY4YL1pNk1kkcZDXGrwIsY8xe9Apf5JdA==
 
-"@cloudflare/workers-types@^4.20240529.0":
+"@cloudflare/workers-types@^4.20240208.0":
   version "4.20240529.0"
   resolved "https://registry.yarnpkg.com/@cloudflare/workers-types/-/workers-types-4.20240529.0.tgz#1cdfe5e1c2263bf06061285b43f566d585ecfa02"
   integrity sha512-W5obfjAwCNdYk3feUHtDfUxtTU6WIq83k6gmrLLJv+HkgCkOTwwrDNs+3w1Qln0tMj+FQx/fbwxw3ZuHIoyzGg==
@@ -509,7 +509,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/node@*", "@types/node@^20.13.0":
+"@types/node@*", "@types/node@^20.11.28":
   version "20.13.0"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-20.13.0.tgz#011a76bc1e71ae9a026dddcfd7039084f752c4b6"
   integrity sha512-FM6AOb3khNkNIXPnHFDYaHerSv8uN22C91z098AnGccVu+Pcdhi+pNUFDi0iLmPIsVE0JBD0KVS7mzUYt4nRzQ==
@@ -783,7 +783,7 @@ fill-range@^7.1.1:
   dependencies:
     to-regex-range "^5.0.1"
 
-frog@latest:
+frog@^0.11.4:
   version "0.11.5"
   resolved "https://registry.yarnpkg.com/frog/-/frog-0.11.5.tgz#67fcac6ac8201dfb6cf5570ab0f855f4cbd16055"
   integrity sha512-CNNJ9ROXyG38hAigGO1HWWCHII0YKh79k2Y24qoSanbdTzMKU1QY2xy0EmvpOJIYPE/1zwL0bxQbjMqtCtC96Q==
@@ -871,7 +871,7 @@ hono-og@0.0.27:
     "@vercel/og" "~0.6.2"
     workers-og "~0.0.23"
 
-hono@^4:
+hono@^4.3.11:
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/hono/-/hono-4.4.2.tgz#41c46cab37c66ee6224cf063c4592442d271e45f"
   integrity sha512-bRhZ+BM9r04lRN2i9wiZ18yQNbZxHsmmRIItoAb43nRkHnIDsFhFh4mJ0seEs06FvenibpAgSVNHQ8ZzcDQx2A==
@@ -1326,7 +1326,7 @@ workers-og@~0.0.23:
     satori "^0.10.11"
     yoga-wasm-web "^0.3.3"
 
-wrangler@latest:
+wrangler@^3.25.0:
   version "3.58.0"
   resolved "https://registry.yarnpkg.com/wrangler/-/wrangler-3.58.0.tgz#b2ce3ac2d2b86f31f3b33a496ef9c9656f41f2ea"
   integrity sha512-h9gWER7LXLnmHABDNP1p3aqXtchlvSBN8Dp22ZurnkxaLMZ3L3H1Ze1ftiFSs0VRWv0BUnz7AWIUqZmzuBY4Nw==

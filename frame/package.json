@@ -6,12 +6,12 @@
     "wrangler:deploy": "wrangler deploy --minify src/index.tsx"
   },
   "dependencies": {
-    "frog": "latest",
-    "hono": "^4"
+    "frog": "^0.11.4",
+    "hono": "^4.3.11"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240529.0",
-    "@types/node": "^20.13.0",
-    "wrangler": "latest"
+    "@cloudflare/workers-types": "^4.20240208.0",
+    "@types/node": "^20.11.28",
+    "wrangler": "^3.25.0"
   }
 }
