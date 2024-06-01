@@ -1,8 +1,10 @@
 import { Frog } from "frog";
+import { devtools } from "frog/dev";
+import { serveStatic } from "frog/serve-static";
 
 import { Home } from "./web";
 import { getFont } from "./fonts";
-import { startScreen } from "./screens/start";
+import { homeScreen } from "./screens/home";
 
 export const app = new Frog({
   browserLocation: "/",
@@ -10,6 +12,7 @@ export const app = new Frog({
 });
 
 app.get("/", (ctx) => ctx.html(<Home />));
-app.frame("/start", startScreen);
+app.frame("/home", homeScreen);
 
+devtools(app, { serveStatic });
 export default app;
