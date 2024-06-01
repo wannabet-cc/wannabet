@@ -1,16 +1,12 @@
 import { Button, Env, FrameContext, TextInput } from "frog";
 import { backgroundStyles } from "../shared-styles";
+import { isIntInRange } from "./utils";
 
 export const createScreen = async (
   c: FrameContext<Env, "/create/:pageNum">
 ) => {
   const pageNum = Number(c.req.param().pageNum);
-  if (
-    !(typeof pageNum === "number") ||
-    pageNum % 1 !== 0 ||
-    pageNum < 1 ||
-    pageNum > 7
-  ) {
+  if (!isIntInRange(pageNum, 1, 7)) {
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
