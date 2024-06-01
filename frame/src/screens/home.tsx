@@ -12,7 +12,6 @@ export const homeScreen = async (c: FrameContext) => {
     intents: [
       <Button action="/create/1" children={"Create new"} />,
       <Button action="/bets" children={"My bets"} />,
-      <Button action="/help" children={"?"} />,
     ],
   });
 };
