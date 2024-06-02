@@ -28,7 +28,8 @@ export const createScreen = async (
         ),
         intents: [
           <TextInput placeholder="e.g. example.eth or 0xabc..." />,
-          <Button action={`/create/${2}`} children={"Continue"} />,
+          <Button action={`/home`} children={"Back"} />,
+          <Button action={`/create/${pageNum + 1}`} children={"Continue"} />,
         ],
       });
     case 2:
@@ -41,7 +42,8 @@ export const createScreen = async (
         ),
         intents: [
           <TextInput placeholder="e.g. example.eth or 0xabc..." />,
-          <Button action={`/create/${3}`} children={"Continue"} />,
+          <Button action={`/create/${pageNum - 1}`} children={"Back"} />,
+          <Button action={`/create/${pageNum + 1}`} children={"Continue"} />,
         ],
       });
     case 3:
@@ -54,7 +56,8 @@ export const createScreen = async (
         ),
         intents: [
           <TextInput placeholder="e.g. 5" />,
-          <Button action={`/create/${4}`} children={"Continue"} />,
+          <Button action={`/create/${pageNum - 1}`} children={"Back"} />,
+          <Button action={`/create/${pageNum + 1}`} children={"Continue"} />,
         ],
       });
     case 4:
@@ -67,7 +70,8 @@ export const createScreen = async (
         ),
         intents: [
           <TextInput placeholder="e.g. ETH price will be $5k by..." />,
-          <Button action={`/create/${5}`} children={"Continue"} />,
+          <Button action={`/create/${pageNum - 1}`} children={"Back"} />,
+          <Button action={`/create/${pageNum + 1}`} children={"Continue"} />,
         ],
       });
     case 5:
@@ -80,7 +84,10 @@ export const createScreen = async (
             </span>
           </div>
         ),
-        intents: [<Button action={`/create/${6}`} children={"Authorize"} />],
+        intents: [
+          <Button action={`/create/${pageNum - 1}`} children={"Back"} />,
+          <Button action={`/create/${pageNum + 1}`} children={"Continue"} />,
+        ],
       });
     case 6:
       return c.res({
@@ -90,7 +97,10 @@ export const createScreen = async (
             <span>Deploy your bet</span>
           </div>
         ),
-        intents: [<Button action={`/create/${7}`} children={"Deploy"} />],
+        intents: [
+          <Button action={`/create/${pageNum - 1}`} children={"Back"} />,
+          <Button action={`/create/${pageNum + 1}`} children={"Continue"} />,
+        ],
       });
     case 7:
       return c.res({
