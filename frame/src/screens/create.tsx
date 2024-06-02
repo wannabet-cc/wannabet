@@ -1,9 +1,17 @@
 import { Button, Env, FrameContext, TextInput } from "frog";
 import { backgroundStyles } from "../shared-styles";
 import { isIntInRange } from "./utils";
+import { Address } from "viem";
+
+type BetInfoState = Env & {
+  participant: Address;
+  arbitrator: Address;
+  amount: number;
+  terms: string;
+};
 
 export const createScreen = async (
-  c: FrameContext<Env, "/create/:pageNum">
+  c: FrameContext<{ State: BetInfoState }, "/create/:pageNum">
 ) => {
   const pageNum = Number(c.req.param().pageNum);
   if (!isIntInRange(pageNum, 1, 7)) {
