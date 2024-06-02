@@ -1,4 +1,4 @@
-import { Frog } from "frog";
+import { Env, Frog } from "frog";
 import { devtools } from "frog/dev";
 import { serveStatic } from "frog/serve-static";
 
@@ -10,6 +10,12 @@ import { createScreen } from "./screens/create";
 export const app = new Frog({
   browserLocation: "/",
   imageOptions: async () => ({ fonts: [await getFont("satoshi")] }),
+  initialState: {
+    participant: "",
+    arbitrator: "",
+    amount: 0,
+    message: "",
+  },
 });
 
 app.get("/", (ctx) => ctx.html(<Home />));
