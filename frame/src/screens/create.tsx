@@ -1,7 +1,7 @@
 import { Button, Env, FrameContext, TextInput } from "frog";
 import { backgroundStyles } from "../shared-styles";
-import { isIntInRange } from "./utils";
-import { Address } from "viem";
+import { Address, isAddress } from "viem";
+import { z } from "zod";
 
 type BetInfoState = Env & {
   participant: Address;
@@ -14,7 +14,9 @@ export const createScreen = async (
   c: FrameContext<{ State: BetInfoState }, "/create/:pageNum">
 ) => {
   const pageNum = Number(c.req.param().pageNum);
-  if (!isIntInRange(pageNum, 1, 7)) {
+  const PageNumberSchema = z.number().positive().int().gte(1).lte(7);
+  const { success } = PageNumberSchema.safeParse(pageNum);
+  if (!success) {
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
@@ -26,6 +28,7 @@ export const createScreen = async (
   }
 
   if (pageNum === 1) {
+    // Return frame
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
@@ -40,6 +43,21 @@ export const createScreen = async (
       ],
     });
   } else if (pageNum === 2) {
+    // Check if input is valid, go back if not
+    const { inputText, deriveState } = c;
+    const AddressSchema = z.custom<string>(isAddress, "Invalid Address");
+    const { success } = AddressSchema.safeParse(inputText);
+    if (!success)
+      return c.res({
+        image: (
+          <div style={{ ...backgroundStyles }}>
+            <span style={{ color: "gray" }}>{pageNum - 1}/7</span>
+            <span>error - Input needs to be a valid address</span>
+          </div>
+        ),
+        intents: [<Button action={`/create/${pageNum - 1}`} children="Back" />],
+      });
+    // Return frame
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
@@ -54,6 +72,21 @@ export const createScreen = async (
       ],
     });
   } else if (pageNum === 3) {
+    // Check if input is valid, go back if not
+    const { inputText, deriveState } = c;
+    const AddressSchema = z.custom<string>(isAddress, "Invalid Address");
+    const { success } = AddressSchema.safeParse(inputText);
+    if (!success)
+      return c.res({
+        image: (
+          <div style={{ ...backgroundStyles }}>
+            <span style={{ color: "gray" }}>{pageNum - 1}/7</span>
+            <span>error - Input needs to be a valid address</span>
+          </div>
+        ),
+        intents: [<Button action={`/create/${pageNum - 1}`} children="Back" />],
+      });
+    // Return frame
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
@@ -68,6 +101,26 @@ export const createScreen = async (
       ],
     });
   } else if (pageNum === 4) {
+    // Check if input is valid, go back if not
+    const { inputText } = c;
+    const NumberSchema = z
+      .number()
+      .positive()
+      .int()
+      .safe()
+      .lte(5000, "For the moment, the max bet is $5k");
+    const { success } = NumberSchema.safeParse(Number(inputText));
+    if (!success)
+      return c.res({
+        image: (
+          <div style={{ ...backgroundStyles }}>
+            <span style={{ color: "gray" }}>{pageNum - 1}/7</span>
+            <span>{"error - Input needs to be a positive integer <= $5k"}</span>
+          </div>
+        ),
+        intents: [<Button action={`/create/${pageNum - 1}`} children="Back" />],
+      });
+    // Return frame
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
@@ -82,6 +135,7 @@ export const createScreen = async (
       ],
     });
   } else if (pageNum === 5) {
+    // Return frame
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
@@ -97,6 +151,7 @@ export const createScreen = async (
       ],
     });
   } else if (pageNum === 6) {
+    // Return frame
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
@@ -110,6 +165,7 @@ export const createScreen = async (
       ],
     });
   } else if (pageNum === 7) {
+    // Return frame
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
