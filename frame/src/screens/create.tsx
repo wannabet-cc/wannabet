@@ -4,10 +4,10 @@ import { Address, isAddress } from "viem";
 import { z } from "zod";
 
 type BetInfoState = Env & {
-  participant: Address | undefined;
-  arbitrator: Address | undefined;
-  amount: number | undefined;
-  message: string | undefined;
+  participant: Address | string;
+  arbitrator: Address | string;
+  amount: number;
+  message: string;
 };
 
 export const createScreen = async (
@@ -28,6 +28,16 @@ export const createScreen = async (
   }
 
   if (pageNum === 1) {
+    // Reset state if coming from home page
+    const { buttonValue, deriveState } = c;
+    if (buttonValue === "create") {
+      const state = deriveState((previousState) => {
+        previousState.participant = "";
+        previousState.arbitrator = "";
+        previousState.amount = 0;
+        previousState.message = "";
+      });
+    }
     // Return frame
     return c.res({
       image: (
@@ -151,7 +161,7 @@ export const createScreen = async (
     const { inputText, deriveState } = c;
     // Update state
     const state = deriveState((previousState) => {
-      previousState.message = inputText;
+      previousState.message = inputText ? inputText : "";
     });
     // Return frame
     return c.res({
