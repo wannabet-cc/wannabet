@@ -4,10 +4,10 @@ import { Address, isAddress } from "viem";
 import { z } from "zod";
 
 type BetInfoState = Env & {
-  participant: Address;
-  arbitrator: Address;
-  amount: number;
-  terms: string;
+  participant: Address | undefined;
+  arbitrator: Address | undefined;
+  amount: number | undefined;
+  message: string | undefined;
 };
 
 export const createScreen = async (
@@ -45,9 +45,9 @@ export const createScreen = async (
   } else if (pageNum === 2) {
     // Check if input is valid, go back if not
     const { inputText, deriveState } = c;
-    const AddressSchema = z.custom<string>(isAddress, "Invalid Address");
-    const { success } = AddressSchema.safeParse(inputText);
-    if (!success)
+    const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
+    const { success, data } = AddressSchema.safeParse(inputText);
+    if (!success) {
       return c.res({
         image: (
           <div style={{ ...backgroundStyles }}>
@@ -56,6 +56,11 @@ export const createScreen = async (
           </div>
         ),
         intents: [<Button action={`/create/${pageNum - 1}`} children="Back" />],
+      });
+    }
+    // Update state
+    const state = deriveState((previousState) => {
+      previousState.participant = data;
       });
     // Return frame
     return c.res({
@@ -74,8 +79,8 @@ export const createScreen = async (
   } else if (pageNum === 3) {
     // Check if input is valid, go back if not
     const { inputText, deriveState } = c;
-    const AddressSchema = z.custom<string>(isAddress, "Invalid Address");
-    const { success } = AddressSchema.safeParse(inputText);
+    const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
+    const { success, data } = AddressSchema.safeParse(inputText);
     if (!success)
       return c.res({
         image: (
@@ -85,6 +90,10 @@ export const createScreen = async (
           </div>
         ),
         intents: [<Button action={`/create/${pageNum - 1}`} children="Back" />],
+      });
+    // Update state
+    const state = deriveState((previousState) => {
+      previousState.arbitrator = data;
       });
     // Return frame
     return c.res({
@@ -102,14 +111,14 @@ export const createScreen = async (
     });
   } else if (pageNum === 4) {
     // Check if input is valid, go back if not
-    const { inputText } = c;
+    const { inputText, deriveState } = c;
     const NumberSchema = z
       .number()
       .positive()
       .int()
       .safe()
       .lte(5000, "For the moment, the max bet is $5k");
-    const { success } = NumberSchema.safeParse(Number(inputText));
+    const { success, data } = NumberSchema.safeParse(Number(inputText));
     if (!success)
       return c.res({
         image: (
@@ -119,6 +128,10 @@ export const createScreen = async (
           </div>
         ),
         intents: [<Button action={`/create/${pageNum - 1}`} children="Back" />],
+      });
+    // Update state
+    const state = deriveState((previousState) => {
+      previousState.amount = data;
       });
     // Return frame
     return c.res({
@@ -135,6 +148,11 @@ export const createScreen = async (
       ],
     });
   } else if (pageNum === 5) {
+    const { inputText, deriveState } = c;
+    // Update state
+    const state = deriveState((previousState) => {
+      previousState.message = inputText;
+    });
     // Return frame
     return c.res({
       image: (
