@@ -41,19 +41,19 @@ contract Bet {
     event BetSettled(address indexed winner);
 
     modifier onlyCreator() {
-        if (msg.sender == creator) {
+        if (msg.sender != creator) {
             revert Unauthorized();
         }
         _;
     }
     modifier onlyParticipant() {
-        if (msg.sender == participant) {
+        if (msg.sender != participant) {
             revert Unauthorized();
         }
         _;
     }
     modifier onlyArbitrator() {
-        if (msg.sender == arbitrator) {
+        if (msg.sender != arbitrator) {
             revert Unauthorized();
         }
         _;
