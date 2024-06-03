@@ -1,15 +1,28 @@
-import { Frog } from "frog";
+import { Env, Frog } from "frog";
+import { devtools } from "frog/dev";
+import { serveStatic } from "frog/serve-static";
 
 import { Home } from "./web";
 import { getFont } from "./fonts";
-import { startScreen } from "./screens/start";
+import { homeScreen } from "./screens/home";
+import { createScreen } from "./screens/create";
+import { FROG_SECRET } from "./config";
 
 export const app = new Frog({
   browserLocation: "/",
   imageOptions: async () => ({ fonts: [await getFont("satoshi")] }),
+  initialState: {
+    participant: "",
+    arbitrator: "",
+    amount: 0,
+    message: "",
+  },
+  secret: FROG_SECRET,
 });
 
 app.get("/", (ctx) => ctx.html(<Home />));
-app.frame("/start", startScreen);
+app.frame("/home", homeScreen);
+app.frame("/create/:pageNum", createScreen);
 
+devtools(app, { serveStatic });
 export default app;

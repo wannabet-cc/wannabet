@@ -1,14 +1,15 @@
 import { Button, FrameContext } from "frog";
-
 import { backgroundStyles } from "../shared-styles";
 
-export const startScreen = async (c: FrameContext) => {
+export const homeScreen = async (c: FrameContext) => {
   return c.res({
     image: (
       <div style={{ ...backgroundStyles }}>
-        <span>Start</span>
+        <span>Wanna Bet?</span>
       </div>
     ),
-    intents: [<Button action="/start">Next</Button>],
+    intents: [
+      <Button action="/create/1" value="create" children={"Create new"} />,
+    ],
   });
 };
