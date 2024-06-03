@@ -3,6 +3,8 @@ pragma solidity ^0.8.24;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+error Unauthorized();
+
 contract Bet {
     address public immutable creator;
     address public immutable participant;
@@ -39,24 +41,21 @@ contract Bet {
     event BetSettled(address indexed winner);
 
     modifier onlyCreator() {
-        require(
-            msg.sender == creator,
-            "Must be the creator to perform this action"
-        );
+        if (msg.sender == creator) {
+            revert Unauthorized();
+        }
         _;
     }
     modifier onlyParticipant() {
-        require(
-            msg.sender == participant,
-            "Must be the participant to perform this action"
-        );
+        if (msg.sender == participant) {
+            revert Unauthorized();
+        }
         _;
     }
     modifier onlyArbitrator() {
-        require(
-            msg.sender == arbitrator,
-            "Must be the arbitrator to perform this action"
-        );
+        if (msg.sender == arbitrator) {
+            revert Unauthorized();
+        }
         _;
     }
 
