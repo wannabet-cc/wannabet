@@ -30,6 +30,10 @@ contract BetFactory {
         string message
     );
 
+    function getBetsLength() public view returns (uint256) {
+        return bets.length;
+    }
+
     function createBet(
         address _participant,
         uint256 _amount,

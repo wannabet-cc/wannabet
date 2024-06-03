@@ -23,7 +23,8 @@ There are two contracts:
   - [x] Add time as a function parameter to `Bet.sol` (e.g. after x days, if no accept or decline, cancel bet and return tokens to bet creator)
   - [ ] Add custom errors
   - [ ] Add ability for participant to send tokens directly to the contract to accept, making it so they only need to execute one txn
-  - [ ] Add getter functions for the array lengths
+  - [x] Add getter function for the length of the bets array (all bets)
+  - [ ] Add getter functions for the various array lengths
   - [ ] Add ability to cancel a bet (i.e. prior to participant acceptance, giving the option for the bet creator and/or the arbitrator to return the funds without selecting a winner)
 - [ ] Frame
   - [ ] 'Create new' flow
