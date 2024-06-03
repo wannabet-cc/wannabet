@@ -22,7 +22,12 @@ There are two contracts:
   - [ ] Add time as a function parameter to `Bet.sol` (e.g. after x days, if no accept or decline, cancel bet and return tokens to bet creator)
   - [ ] Add custom errors
   - [ ] Add ability for participant to send tokens directly to the contract to accept, making it so they only need to execute one txn
+  - [ ] Add NFT to signify live and closed bets (Similar to Uniswao liquidity positions)
 - [ ] Frame
   - [ ] Build V1
 - [ ] Farcaster Bot
   - [ ] Build V1
+- [ ] WannaBet App
+  - [ ] App lets yours and others bet historys
+  - [ ] Social style betting feed a la venmo
+  - [ ] Initate bets, view pending and live bets
