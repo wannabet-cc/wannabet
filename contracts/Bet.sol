@@ -38,15 +38,33 @@ contract Bet {
     event BetDeclined();
     event BetSettled(address indexed winner);
 
+    modifier onlyCreator() {
+        require(
+            msg.sender == creator,
+            "Must be the creator to perform this action"
+        );
+        _;
+    }
+    modifier onlyParticipant() {
+        require(
+            msg.sender == participant,
+            "Must be the participant to perform this action"
+        );
+        _;
+    }
+    modifier onlyArbitrator() {
+        require(
+            msg.sender == arbitrator,
+            "Must be the arbitrator to perform this action"
+        );
+        _;
+    }
+
     function isValid() public view returns (bool) {
         return block.timestamp < validUntil;
     }
 
-    function acceptBet() public {
-        require(
-            msg.sender == participant,
-            "Must be the participant to accept bet"
-        );
+    function acceptBet() public onlyParticipant {
         require(!accepted, "Bet has already been accepted");
         require(!settled, "Bet has already been settled");
         require(isValid(), "Bet is no longer valid");
@@ -64,11 +82,7 @@ contract Bet {
         emit BetAccepted();
     }
 
-    function declineBet() public {
-        require(
-            msg.sender == participant,
-            "Must be the participant to decline bet"
-        );
+    function declineBet() public onlyParticipant {
         require(!accepted, "Bet has already been accepted");
         require(!settled, "Bet has already been settled");
         require(isValid(), "Bet is no longer valid");
@@ -82,8 +96,7 @@ contract Bet {
         emit BetDeclined();
     }
 
-    function retrieveTokens() public {
-        require(msg.sender == creator, "Must be creator to retrieve tokens");
+    function retrieveTokens() public onlyCreator {
         require(!accepted, "Bet has already been accepted");
         require(!settled, "Bet has already been settled");
         require(!isValid(), "Bet is still currently valid");
@@ -95,8 +108,7 @@ contract Bet {
         settled = true;
     }
 
-    function settleBet(address _winner) public {
-        require(msg.sender == arbitrator, "Must be arbitrator to settle bet");
+    function settleBet(address _winner) public onlyArbitrator {
         require(
             _winner == creator ||
                 _winner == participant ||
