@@ -47,7 +47,7 @@ export const createScreen = async (
         </div>
       ),
       intents: [
-        <TextInput placeholder="e.g. example.eth or 0xabc..." />,
+        <TextInput placeholder="e.g. 0xabc..." />,
         <Button action={`/home`} value="back" children={"Back"} />,
         <Button
           action={`/create/${pageNum + 1}`}
@@ -90,7 +90,7 @@ export const createScreen = async (
         </div>
       ),
       intents: [
-        <TextInput placeholder="e.g. example.eth or 0xabc..." />,
+        <TextInput placeholder="e.g. 0xabc..." />,
         <Button
           action={`/create/${pageNum - 1}`}
           value="back"
