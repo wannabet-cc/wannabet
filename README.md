@@ -27,10 +27,10 @@ There are two contracts:
   - [ ] Add ability to cancel a bet (i.e. prior to participant acceptance, giving the option for the bet creator and/or the arbitrator to return the funds without selecting a winner)
 - [ ] Frame
   - [ ] 'Create new' flow
-    - [ ] Add state
-    - [ ] Add bet info that builds as state is filled in from user input
+    - [x] Add state
+    - [x] Add bet info that builds as state is filled in from user input
     - [ ] Add validation for contract rules (e.g. creator can't be participant, etc.)
-    - [ ] Add tx for authorizing usdc transfer
+    - [x] Add tx for authorizing usdc transfer
     - [ ] Add tx for creating the bet
   - [ ] 'My bets' flow
     - [ ] Add bet view that allows the user to view their active bets in reverse chronological
