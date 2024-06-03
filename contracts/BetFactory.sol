@@ -32,13 +32,15 @@ contract BetFactory {
 
     function createBet(
         address _participant,
-        address _arbitrator,
         uint256 _amount,
+        address _token,
         string memory _message,
-        address _token
+        address _arbitrator,
+        uint256 _validFor
     ) public {
         require(msg.sender != _participant, "Cannot bet against yourself");
         require(_amount > 0, "Bet amount must be greater than 0");
+        require(_validFor >= 3600, "Bet must be valid for at least 1 hour");
         require(
             _amount <= IERC20(_token).allowance(msg.sender, address(this)),
             "Must give approval to send tokens"
@@ -48,10 +50,11 @@ contract BetFactory {
             new Bet(
                 msg.sender,
                 _participant,
-                _arbitrator,
                 _amount,
+                _token,
                 _message,
-                _token
+                _arbitrator,
+                _validFor
             )
         returns (Bet newBet) {
             // Transfer tokens to new contract

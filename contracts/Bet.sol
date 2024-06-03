@@ -6,34 +6,41 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract Bet {
     address public immutable creator;
     address public immutable participant;
-    address public immutable arbitrator;
     uint256 public immutable amount;
+    IERC20 public immutable token;
     string public message;
+    address public immutable arbitrator;
+    uint256 public immutable validUntil;
+
     bool public accepted = false;
     bool public settled = false;
     address public winner;
 
-    IERC20 public immutable token;
-
     constructor(
         address _creator,
         address _participant,
-        address _arbitrator,
         uint256 _amount,
+        address _token,
         string memory _message,
-        address _token
+        address _arbitrator,
+        uint256 _validFor
     ) {
         creator = _creator;
         participant = _participant;
-        arbitrator = _arbitrator;
         amount = _amount;
-        message = _message;
         token = IERC20(_token);
+        message = _message;
+        arbitrator = _arbitrator;
+        validUntil = block.timestamp + _validFor;
     }
 
     event BetAccepted();
     event BetDeclined();
     event BetSettled(address indexed winner);
+
+    function isValid() public view returns (bool) {
+        return block.timestamp < validUntil;
+    }
 
     function acceptBet() public {
         require(
@@ -42,6 +49,7 @@ contract Bet {
         );
         require(!accepted, "Bet has already been accepted");
         require(!settled, "Bet has already been settled");
+        require(isValid(), "Bet is no longer valid");
         require(
             amount <= IERC20(token).allowance(msg.sender, address(this)),
             "Must give approval to send tokens"
@@ -63,6 +71,7 @@ contract Bet {
         );
         require(!accepted, "Bet has already been accepted");
         require(!settled, "Bet has already been settled");
+        require(isValid(), "Bet is no longer valid");
 
         // Return tokens to original party
         bool success = token.transfer(creator, amount);
@@ -71,6 +80,19 @@ contract Bet {
         settled = true;
         // Emit event
         emit BetDeclined();
+    }
+
+    function retrieveTokens() public {
+        require(msg.sender == creator, "Must be creator to retrieve tokens");
+        require(!accepted, "Bet has already been accepted");
+        require(!settled, "Bet has already been settled");
+        require(!isValid(), "Bet is still currently valid");
+
+        // Return tokens to bet creator
+        bool success = token.transfer(creator, amount);
+        require(success, "Token transfer failed");
+        // Update state variables
+        settled = true;
     }
 
     function settleBet(address _winner) public {

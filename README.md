@@ -4,7 +4,7 @@ An onchain peer-to-peer betting tool. Whitepaper and development is currently in
 
 ## How it works
 
-There are two contracts: 
+There are two contracts:
 
 - `Bet.sol`, which is initiated with 6 parameters:
   1. `address` The bet creator
@@ -20,7 +20,7 @@ There are two contracts:
 - [ ] Contract
   - [x] Build basic functionality
   - [ ] Add acceptBet, declineBet, and settleBet functions to factory contract, given a contract address as a param
-  - [ ] Add time as a function parameter to `Bet.sol` (e.g. after x days, if no accept or decline, cancel bet and return tokens to bet creator)
+  - [x] Add time as a function parameter to `Bet.sol` (e.g. after x days, if no accept or decline, cancel bet and return tokens to bet creator)
   - [ ] Add custom errors
   - [ ] Add ability for participant to send tokens directly to the contract to accept, making it so they only need to execute one txn
   - [ ] Add getter functions for the array lengths
