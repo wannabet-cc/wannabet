@@ -1,5 +1,5 @@
 import { Button, FrameContext, TextInput } from "frog";
-import { backgroundStyles } from "../shared-styles";
+import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { Address, isAddress } from "viem";
 import { z } from "zod";
 import type { BetInfoState } from "../types";

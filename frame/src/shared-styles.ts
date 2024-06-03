@@ -12,3 +12,8 @@ export const backgroundStyles = {
   backgroundColor: "#0D0915",
   backgroundImage: "url(https://i.imgur.com/9llZeZd.png)",
 };
+
+export const subTextStyles = {
+  color: "gray",
+  fontSize: 42,
+};
