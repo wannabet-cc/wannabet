@@ -51,6 +51,7 @@ export const createScreen = async (
       ],
     });
   } else if (pageNum === 2) {
+    // Validate address and set state
     const { buttonValue } = c;
     if (buttonValue === "continue") {
       // Check if input is valid, go back if not
@@ -80,52 +81,6 @@ export const createScreen = async (
       image: (
         <div style={{ ...backgroundStyles }}>
           <span style={{ color: "gray" }}>{pageNum}/7</span>
-          <span>Who would you like to arbitrate?</span>
-        </div>
-      ),
-      intents: [
-        <TextInput placeholder="e.g. 0xabc..." />,
-        <Button
-          action={`/create/${pageNum - 1}`}
-          value="back"
-          children={"Back"}
-        />,
-        <Button
-          action={`/create/${pageNum + 1}`}
-          value="continue"
-          children={"Continue"}
-        />,
-      ],
-    });
-  } else if (pageNum === 3) {
-    const { buttonValue } = c;
-    if (buttonValue === "continue") {
-      // Check if input is valid, go back if not
-      const { inputText, deriveState } = c;
-      const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
-      const { success, data } = AddressSchema.safeParse(inputText);
-      if (!success)
-        return c.res({
-          image: (
-            <div style={{ ...backgroundStyles }}>
-              <span style={{ color: "gray" }}>{pageNum - 1}/7</span>
-              <span>error - Input needs to be a valid address</span>
-            </div>
-          ),
-          intents: [
-            <Button action={`/create/${pageNum - 1}`} children="Back" />,
-          ],
-        });
-      // Update state
-      const state = deriveState((previousState) => {
-        previousState.arbitrator = data;
-      });
-    }
-    // Return frame
-    return c.res({
-      image: (
-        <div style={{ ...backgroundStyles }}>
-          <span style={{ color: "gray" }}>{pageNum}/7</span>
           <span>How much USDC do you want to bet?</span>
         </div>
       ),
@@ -143,7 +98,8 @@ export const createScreen = async (
         />,
       ],
     });
-  } else if (pageNum === 4) {
+  } else if (pageNum === 3) {
+    // Validate amount and set state
     const { buttonValue } = c;
     if (buttonValue === "continue") {
       // Check if input is valid, go back if not
@@ -196,13 +152,61 @@ export const createScreen = async (
         />,
       ],
     });
-  } else if (pageNum === 5) {
+  } else if (pageNum === 4) {
+    // Validate message and set state
     const { buttonValue } = c;
     if (buttonValue === "continue") {
       const { inputText, deriveState } = c;
       // Update state
       const state = deriveState((previousState) => {
         previousState.message = inputText ? inputText : "";
+      });
+    }
+    // Return frame
+    return c.res({
+      image: (
+        <div style={{ ...backgroundStyles }}>
+          <span style={{ color: "gray" }}>{pageNum}/7</span>
+          <span>Who would you like to arbitrate?</span>
+        </div>
+      ),
+      intents: [
+        <TextInput placeholder="e.g. 0xabc..." />,
+        <Button
+          action={`/create/${pageNum - 1}`}
+          value="back"
+          children={"Back"}
+        />,
+        <Button
+          action={`/create/${pageNum + 1}`}
+          value="continue"
+          children={"Continue"}
+        />,
+      ],
+    });
+  } else if (pageNum === 5) {
+    // Validate address and set state
+    const { buttonValue } = c;
+    if (buttonValue === "continue") {
+      // Check if input is valid, go back if not
+      const { inputText, deriveState } = c;
+      const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
+      const { success, data } = AddressSchema.safeParse(inputText);
+      if (!success)
+        return c.res({
+          image: (
+            <div style={{ ...backgroundStyles }}>
+              <span style={{ color: "gray" }}>{pageNum - 1}/7</span>
+              <span>error - Input needs to be a valid address</span>
+            </div>
+          ),
+          intents: [
+            <Button action={`/create/${pageNum - 1}`} children="Back" />,
+          ],
+        });
+      // Update state
+      const state = deriveState((previousState) => {
+        previousState.arbitrator = data;
       });
     }
     // Return frame
@@ -235,6 +239,7 @@ export const createScreen = async (
         <div style={{ ...backgroundStyles }}>
           <span style={{ color: "gray" }}>{pageNum}/7</span>
           <span>Deploy your bet</span>
+          <span style={{ ...subTextStyles }}></span>
         </div>
       ),
       intents: [
