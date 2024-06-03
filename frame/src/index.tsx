@@ -6,6 +6,7 @@ import { Home } from "./web";
 import { getFont } from "./fonts";
 import { homeScreen } from "./screens/home";
 import { createScreen } from "./screens/create";
+import { FROG_SECRET } from "./config";
 
 export const app = new Frog({
   browserLocation: "/",
@@ -16,6 +17,7 @@ export const app = new Frog({
     amount: 0,
     message: "",
   },
+  secret: FROG_SECRET,
 });
 
 app.get("/", (ctx) => ctx.html(<Home />));
