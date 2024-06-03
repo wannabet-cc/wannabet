@@ -266,7 +266,7 @@ export const createScreen = async (
       image: (
         <div style={{ ...backgroundStyles }}>
           <span style={{ color: "gray" }}>{pageNum}/7</span>
-          <span>Bet created! Share.</span>
+          <span>Bet created!</span>
         </div>
       ),
       intents: [<Button action="/home" children={"Home"} />],
