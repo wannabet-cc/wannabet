@@ -1,14 +1,8 @@
-import { Button, Env, FrameContext, TextInput } from "frog";
+import { Button, FrameContext, TextInput } from "frog";
 import { backgroundStyles } from "../shared-styles";
 import { Address, isAddress } from "viem";
 import { z } from "zod";
-
-type BetInfoState = Env & {
-  participant: Address | string;
-  arbitrator: Address | string;
-  amount: number;
-  message: string;
-};
+import type { BetInfoState } from "../types";
 
 export const createScreen = async (
   c: FrameContext<{ State: BetInfoState }, "/create/:pageNum">
@@ -227,10 +221,10 @@ export const createScreen = async (
           value="back"
           children={"Back"}
         />,
-        <Button
+        <Button.Transaction
           action={`/create/${pageNum + 1}`}
-          value="continue"
-          children={"Continue"}
+          target="/tx/authorize"
+          children={"Authorize"}
         />,
       ],
     });
