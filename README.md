@@ -19,13 +19,13 @@ There are two contracts:
 
 - [ ] Contract
   - [x] Build basic functionality
-  - [ ] Add acceptBet, declineBet, and settleBet functions to factory contract, given a contract address as a param
   - [x] Add time as a function parameter to `Bet.sol` (e.g. after x days, if no accept or decline, cancel bet and return tokens to bet creator)
-  - [ ] Add custom errors
-  - [ ] Add ability for participant to send tokens directly to the contract to accept, making it so they only need to execute one txn
-  - [x] Add getter function for the length of the bets array (all bets)
-  - [ ] Add getter functions for the various array lengths
-  - [ ] Add ability to cancel a bet (i.e. prior to participant acceptance, giving the option for the bet creator and/or the arbitrator to return the funds without selecting a winner)
+  - [x] Add custom errors
+  - [x] Add getter functions bet arrays
+  - [ ] Allow getting/reading bets with a betId, contract address, or user address
+  - [ ] ~~Add acceptBet, declineBet, and settleBet functions to factory contract, given a contract address as a param~~
+  - [ ] ~~Add ability for participant to send tokens directly to the contract to accept, making it so they only need to execute one txn~~
+  - [ ] ~~Add ability to cancel a bet (i.e. prior to participant acceptance, giving the option for the bet creator and/or the arbitrator to return the funds without selecting a winner)~~
 - [ ] Frame
   - [ ] 'Create new' flow
     - [x] Add state
