@@ -225,6 +225,11 @@ export const createScreen = async (
           value="back"
           children={"Back"}
         />,
+        <Button
+          action={`/create/${pageNum + 1}`}
+          value="continue"
+          children={"Continue"}
+        />, // Temporary button for bypassing the transaction frame in the create bet workflow
         <Button.Transaction
           action={`/create/${pageNum + 1}`}
           target="/tx/authorize"
