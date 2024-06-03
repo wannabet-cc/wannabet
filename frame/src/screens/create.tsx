@@ -48,30 +48,39 @@ export const createScreen = async (
       ),
       intents: [
         <TextInput placeholder="e.g. example.eth or 0xabc..." />,
-        <Button action={`/home`} children={"Back"} />,
-        <Button action={`/create/${pageNum + 1}`} children={"Continue"} />,
+        <Button action={`/home`} value="back" children={"Back"} />,
+        <Button
+          action={`/create/${pageNum + 1}`}
+          value="continue"
+          children={"Continue"}
+        />,
       ],
     });
   } else if (pageNum === 2) {
-    // Check if input is valid, go back if not
-    const { inputText, deriveState } = c;
-    const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
-    const { success, data } = AddressSchema.safeParse(inputText);
-    if (!success) {
-      return c.res({
-        image: (
-          <div style={{ ...backgroundStyles }}>
-            <span style={{ color: "gray" }}>{pageNum - 1}/7</span>
-            <span>error - Input needs to be a valid address</span>
-          </div>
-        ),
-        intents: [<Button action={`/create/${pageNum - 1}`} children="Back" />],
+    const { buttonValue } = c;
+    if (buttonValue === "continue") {
+      // Check if input is valid, go back if not
+      const { inputText, deriveState } = c;
+      const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
+      const { success, data } = AddressSchema.safeParse(inputText);
+      if (!success) {
+        return c.res({
+          image: (
+            <div style={{ ...backgroundStyles }}>
+              <span style={{ color: "gray" }}>{pageNum - 1}/7</span>
+              <span>error - Input needs to be a valid address</span>
+            </div>
+          ),
+          intents: [
+            <Button action={`/create/${pageNum - 1}`} children="Back" />,
+          ],
+        });
+      }
+      // Update state
+      const state = deriveState((previousState) => {
+        previousState.participant = data;
       });
     }
-    // Update state
-    const state = deriveState((previousState) => {
-      previousState.participant = data;
-      });
     // Return frame
     return c.res({
       image: (
@@ -82,29 +91,42 @@ export const createScreen = async (
       ),
       intents: [
         <TextInput placeholder="e.g. example.eth or 0xabc..." />,
-        <Button action={`/create/${pageNum - 1}`} children={"Back"} />,
-        <Button action={`/create/${pageNum + 1}`} children={"Continue"} />,
+        <Button
+          action={`/create/${pageNum - 1}`}
+          value="back"
+          children={"Back"}
+        />,
+        <Button
+          action={`/create/${pageNum + 1}`}
+          value="continue"
+          children={"Continue"}
+        />,
       ],
     });
   } else if (pageNum === 3) {
-    // Check if input is valid, go back if not
-    const { inputText, deriveState } = c;
-    const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
-    const { success, data } = AddressSchema.safeParse(inputText);
-    if (!success)
-      return c.res({
-        image: (
-          <div style={{ ...backgroundStyles }}>
-            <span style={{ color: "gray" }}>{pageNum - 1}/7</span>
-            <span>error - Input needs to be a valid address</span>
-          </div>
-        ),
-        intents: [<Button action={`/create/${pageNum - 1}`} children="Back" />],
+    const { buttonValue } = c;
+    if (buttonValue === "continue") {
+      // Check if input is valid, go back if not
+      const { inputText, deriveState } = c;
+      const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
+      const { success, data } = AddressSchema.safeParse(inputText);
+      if (!success)
+        return c.res({
+          image: (
+            <div style={{ ...backgroundStyles }}>
+              <span style={{ color: "gray" }}>{pageNum - 1}/7</span>
+              <span>error - Input needs to be a valid address</span>
+            </div>
+          ),
+          intents: [
+            <Button action={`/create/${pageNum - 1}`} children="Back" />,
+          ],
+        });
+      // Update state
+      const state = deriveState((previousState) => {
+        previousState.arbitrator = data;
       });
-    // Update state
-    const state = deriveState((previousState) => {
-      previousState.arbitrator = data;
-      });
+    }
     // Return frame
     return c.res({
       image: (
@@ -115,34 +137,49 @@ export const createScreen = async (
       ),
       intents: [
         <TextInput placeholder="e.g. 5" />,
-        <Button action={`/create/${pageNum - 1}`} children={"Back"} />,
-        <Button action={`/create/${pageNum + 1}`} children={"Continue"} />,
+        <Button
+          action={`/create/${pageNum - 1}`}
+          value="back"
+          children={"Back"}
+        />,
+        <Button
+          action={`/create/${pageNum + 1}`}
+          value="continue"
+          children={"Continue"}
+        />,
       ],
     });
   } else if (pageNum === 4) {
-    // Check if input is valid, go back if not
-    const { inputText, deriveState } = c;
-    const NumberSchema = z
-      .number()
-      .positive()
-      .int()
-      .safe()
-      .lte(5000, "For the moment, the max bet is $5k");
-    const { success, data } = NumberSchema.safeParse(Number(inputText));
-    if (!success)
-      return c.res({
-        image: (
-          <div style={{ ...backgroundStyles }}>
-            <span style={{ color: "gray" }}>{pageNum - 1}/7</span>
-            <span>{"error - Input needs to be a positive integer <= $5k"}</span>
-          </div>
-        ),
-        intents: [<Button action={`/create/${pageNum - 1}`} children="Back" />],
+    const { buttonValue } = c;
+    if (buttonValue === "continue") {
+      // Check if input is valid, go back if not
+      const { inputText, deriveState } = c;
+      const NumberSchema = z
+        .number()
+        .positive()
+        .int()
+        .safe()
+        .lte(5000, "For the moment, the max bet is $5k");
+      const { success, data } = NumberSchema.safeParse(Number(inputText));
+      if (!success)
+        return c.res({
+          image: (
+            <div style={{ ...backgroundStyles }}>
+              <span style={{ color: "gray" }}>{pageNum - 1}/7</span>
+              <span>
+                {"error - Input needs to be a positive integer <= $5k"}
+              </span>
+            </div>
+          ),
+          intents: [
+            <Button action={`/create/${pageNum - 1}`} children="Back" />,
+          ],
+        });
+      // Update state
+      const state = deriveState((previousState) => {
+        previousState.amount = data;
       });
-    // Update state
-    const state = deriveState((previousState) => {
-      previousState.amount = data;
-      });
+    }
     // Return frame
     return c.res({
       image: (
@@ -153,16 +190,27 @@ export const createScreen = async (
       ),
       intents: [
         <TextInput placeholder="e.g. ETH price will be $5k by..." />,
-        <Button action={`/create/${pageNum - 1}`} children={"Back"} />,
-        <Button action={`/create/${pageNum + 1}`} children={"Continue"} />,
+        <Button
+          action={`/create/${pageNum - 1}`}
+          value="back"
+          children={"Back"}
+        />,
+        <Button
+          action={`/create/${pageNum + 1}`}
+          value="continue"
+          children={"Continue"}
+        />,
       ],
     });
   } else if (pageNum === 5) {
-    const { inputText, deriveState } = c;
-    // Update state
-    const state = deriveState((previousState) => {
-      previousState.message = inputText ? inputText : "";
-    });
+    const { buttonValue } = c;
+    if (buttonValue === "continue") {
+      const { inputText, deriveState } = c;
+      // Update state
+      const state = deriveState((previousState) => {
+        previousState.message = inputText ? inputText : "";
+      });
+    }
     // Return frame
     return c.res({
       image: (
@@ -174,8 +222,16 @@ export const createScreen = async (
         </div>
       ),
       intents: [
-        <Button action={`/create/${pageNum - 1}`} children={"Back"} />,
-        <Button action={`/create/${pageNum + 1}`} children={"Continue"} />,
+        <Button
+          action={`/create/${pageNum - 1}`}
+          value="back"
+          children={"Back"}
+        />,
+        <Button
+          action={`/create/${pageNum + 1}`}
+          value="continue"
+          children={"Continue"}
+        />,
       ],
     });
   } else if (pageNum === 6) {
@@ -188,8 +244,16 @@ export const createScreen = async (
         </div>
       ),
       intents: [
-        <Button action={`/create/${pageNum - 1}`} children={"Back"} />,
-        <Button action={`/create/${pageNum + 1}`} children={"Continue"} />,
+        <Button
+          action={`/create/${pageNum - 1}`}
+          value="back"
+          children={"Back"}
+        />,
+        <Button
+          action={`/create/${pageNum + 1}`}
+          value="continue"
+          children={"Continue"}
+        />,
       ],
     });
   } else if (pageNum === 7) {
