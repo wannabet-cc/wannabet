@@ -59,14 +59,14 @@ contract Bet {
         _;
     }
 
-    function isValid() public view returns (bool) {
-        return block.timestamp < validUntil;
+    function isOfferExpired() public view returns (bool) {
+        return block.timestamp >= validUntil && (!accepted || !settled);
     }
 
     function acceptBet() public onlyParticipant {
         require(!accepted, "Bet has already been accepted");
         require(!settled, "Bet has already been settled");
-        require(isValid(), "Bet is no longer valid");
+        require(!isOfferExpired(), "Bet expired");
         require(
             amount <= IERC20(token).allowance(msg.sender, address(this)),
             "Must give approval to send tokens"
@@ -84,7 +84,7 @@ contract Bet {
     function declineBet() public onlyParticipant {
         require(!accepted, "Bet has already been accepted");
         require(!settled, "Bet has already been settled");
-        require(isValid(), "Bet is no longer valid");
+        require(!isOfferExpired(), "Bet expired");
 
         // Return tokens to original party
         bool success = token.transfer(creator, amount);
@@ -98,7 +98,7 @@ contract Bet {
     function retrieveTokens() public onlyCreator {
         require(!accepted, "Bet has already been accepted");
         require(!settled, "Bet has already been settled");
-        require(!isValid(), "Bet is still currently valid");
+        require(isOfferExpired(), "Bet is still valid");
 
         // Return tokens to bet creator
         bool success = token.transfer(creator, amount);
