@@ -6,13 +6,13 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 error Unauthorized();
 
 contract Bet {
-    address public immutable creator;
-    address public immutable participant;
-    uint256 public immutable amount;
-    IERC20 public immutable token;
-    string public message;
-    address public immutable arbitrator;
-    uint256 public immutable validUntil;
+    address public immutable CREATOR;
+    address public immutable PARTICIPANT;
+    uint256 public immutable AMOUNT;
+    IERC20 public immutable TOKEN;
+    string public MESSAGE;
+    address public immutable ARBITRATOR;
+    uint256 public immutable VALID_UNTIL;
 
     bool public accepted = false;
     bool public settled = false;
@@ -27,13 +27,13 @@ contract Bet {
         address _arbitrator,
         uint256 _validFor
     ) {
-        creator = _creator;
-        participant = _participant;
-        amount = _amount;
-        token = IERC20(_token);
-        message = _message;
-        arbitrator = _arbitrator;
-        validUntil = block.timestamp + _validFor;
+        CREATOR = _creator;
+        PARTICIPANT = _participant;
+        AMOUNT = _amount;
+        TOKEN = IERC20(_token);
+        MESSAGE = _message;
+        ARBITRATOR = _arbitrator;
+        VALID_UNTIL = block.timestamp + _validFor;
     }
 
     event BetAccepted();
@@ -41,39 +41,43 @@ contract Bet {
     event BetSettled(address indexed winner);
 
     modifier onlyCreator() {
-        if (msg.sender != creator) {
+        if (msg.sender != CREATOR) {
             revert Unauthorized();
         }
         _;
     }
     modifier onlyParticipant() {
-        if (msg.sender != participant) {
+        if (msg.sender != PARTICIPANT) {
             revert Unauthorized();
         }
         _;
     }
     modifier onlyArbitrator() {
-        if (msg.sender != arbitrator) {
+        if (msg.sender != ARBITRATOR) {
             revert Unauthorized();
         }
         _;
     }
 
-    function isValid() public view returns (bool) {
-        return block.timestamp < validUntil;
+    function isOfferExpired() public view returns (bool) {
+        return block.timestamp >= VALID_UNTIL && (!accepted || !settled);
+    }
+
+    function isBetActive() public view returns (bool) {
+        return !settled && !isOfferExpired();
     }
 
     function acceptBet() public onlyParticipant {
         require(!accepted, "Bet has already been accepted");
         require(!settled, "Bet has already been settled");
-        require(isValid(), "Bet is no longer valid");
+        require(!isOfferExpired(), "Bet expired");
         require(
-            amount <= IERC20(token).allowance(msg.sender, address(this)),
+            AMOUNT <= IERC20(TOKEN).allowance(msg.sender, address(this)),
             "Must give approval to send tokens"
         );
 
         // Transfer tokens to contract
-        bool success = token.transferFrom(msg.sender, address(this), amount);
+        bool success = TOKEN.transferFrom(msg.sender, address(this), AMOUNT);
         require(success, "Token transfer failed");
         // Update state variables
         accepted = true;
@@ -84,10 +88,10 @@ contract Bet {
     function declineBet() public onlyParticipant {
         require(!accepted, "Bet has already been accepted");
         require(!settled, "Bet has already been settled");
-        require(isValid(), "Bet is no longer valid");
+        require(!isOfferExpired(), "Bet expired");
 
         // Return tokens to original party
-        bool success = token.transfer(creator, amount);
+        bool success = TOKEN.transfer(CREATOR, AMOUNT);
         require(success, "Token transfer failed");
         // Update state variables
         settled = true;
@@ -98,10 +102,10 @@ contract Bet {
     function retrieveTokens() public onlyCreator {
         require(!accepted, "Bet has already been accepted");
         require(!settled, "Bet has already been settled");
-        require(!isValid(), "Bet is still currently valid");
+        require(isOfferExpired(), "Bet is still valid");
 
         // Return tokens to bet creator
-        bool success = token.transfer(creator, amount);
+        bool success = TOKEN.transfer(CREATOR, AMOUNT);
         require(success, "Token transfer failed");
         // Update state variables
         settled = true;
@@ -109,8 +113,8 @@ contract Bet {
 
     function settleBet(address _winner) public onlyArbitrator {
         require(
-            _winner == creator ||
-                _winner == participant ||
+            _winner == CREATOR ||
+                _winner == PARTICIPANT ||
                 _winner == 0x0000000000000000000000000000000000000000,
             "Winner must be a betting party"
         );
@@ -120,13 +124,13 @@ contract Bet {
         // Transfer tokens to winner
         if (_winner == 0x0000000000000000000000000000000000000000) {
             // In tie event, the funds are returned
-            bool success1 = token.transfer(creator, amount);
+            bool success1 = TOKEN.transfer(CREATOR, AMOUNT);
             require(success1, "Token transfer failed");
-            bool success2 = token.transfer(participant, amount);
+            bool success2 = TOKEN.transfer(PARTICIPANT, AMOUNT);
             require(success2, "Token transfer failed");
         } else {
             // In winning event, all funds are transfered to the winner
-            bool success = token.transfer(_winner, amount * 2);
+            bool success = TOKEN.transfer(_winner, AMOUNT * 2);
             require(success, "Token transfer failed");
         }
 
