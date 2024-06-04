@@ -31,13 +31,23 @@ There are two contracts:
   - [ ] 'Create new' flow
     - [x] Add state
     - [x] Add bet info that builds as state is filled in from user input
-    - [ ] Add validation for contract rules (e.g. creator can't be participant, etc.)
     - [x] Add tx for authorizing usdc transfer
     - [ ] Add tx for creating the bet
-  - [ ] 'My bets' flow
-    - [ ] Add bet view that allows the user to view their active bets in reverse chronological
-  - [ ] 'Help' flow
+    - [ ] Add step for inputting expiration period
+    - [ ] Add validation for contract rules (e.g. creator can't be participant, etc.)
+  - [ ] Homescreen
+    - [ ] Every frame is unique to a specific bet (i.e. https://example.com/[:betId]/home)
+  - [ ] Bet actions
+    - [ ] Participants can accept or decline a bet
+    - [ ] Arbitrators can select a winner or tie
+    - [ ] Creators can retrieve their funds if their offer expired
+  - [ ] Add ens compatibility
 - [ ] Farcaster Bot
   - [ ] Generate signer
   - [ ] Set up webhooks for when a bet is created, accepted, and settled
-  - [ ] Set up casts for when an event is received
+  - [ ] Cast when:
+    - [ ] A new bet is created (tag @creator and @participant)
+    - [ ] A bet is accepted or declined (tag @arbitrator)
+    - [ ] A bet ties or a winner is chosen (tag @winner)
+    - [ ] A bet is almost expired (reply to creation cast; tag @participant)
+    - [ ] A bet is expired (reply to creation cast; tag @creator)
