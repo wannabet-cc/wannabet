@@ -5,19 +5,26 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Bet} from "contracts/Bet.sol";
 
 contract BetFactory {
-    struct BetDetails {
+    uint256 public betCount = 0;
+    // bet id -> contract address
+    mapping(uint256 betId => address contractAddress) public betAddresses;
+    // contract address -> bet id
+    mapping(address contractAddress => uint256 betId) public betIds;
+    // user address -> bet
+    struct BetInfo {
+        uint256 betId;
         address contractAddress;
-        address creator;
-        address participant;
-        address arbitrator;
-        uint256 amount;
-        string message;
+        bool isCreator;
+        bool isParticipant;
+        bool isArbitrator;
     }
-    BetDetails[] public bets;
+    mapping(address userAddress => BetInfo[] betInfo) public userBets;
 
-    mapping(address => BetDetails[]) public betsAsCreator;
-    mapping(address => BetDetails[]) public betsAsParticipant;
-    mapping(address => BetDetails[]) public betsAsArbitrator;
+    function getUserBetCount(
+        address _userAddress
+    ) public view returns (uint256) {
+        return userBets[_userAddress].length;
+    }
 
     constructor() {}
 
@@ -29,10 +36,6 @@ contract BetFactory {
         uint256 amount,
         string message
     );
-
-    function getBetsLength() public view returns (uint256) {
-        return bets.length;
-    }
 
     function createBet(
         address _participant,
@@ -69,18 +72,31 @@ contract BetFactory {
             );
             require(success, "Token transfer failed");
             // Update state variables
-            BetDetails memory bet = BetDetails(
-                address(newBet),
-                msg.sender,
-                _participant,
-                _arbitrator,
-                _amount,
-                _message
+            betCount++;
+            betAddresses[betCount] = address(newBet);
+            betIds[address(newBet)] = betCount;
+            userBets[msg.sender].push(
+                BetInfo(
+                    betCount,
+                    address(newBet),
+                    true,
+                    false,
+                    msg.sender == _arbitrator
+                )
             );
-            bets.push(bet);
-            betsAsCreator[msg.sender].push(bet);
-            betsAsParticipant[_participant].push(bet);
-            betsAsArbitrator[_arbitrator].push(bet);
+            userBets[_participant].push(
+                BetInfo(
+                    betCount,
+                    address(newBet),
+                    false,
+                    true,
+                    _participant == _arbitrator
+                )
+            );
+            if (_arbitrator != msg.sender && _arbitrator != _participant)
+                userBets[_arbitrator].push(
+                    BetInfo(betCount, address(newBet), false, false, true)
+                );
             // Emit event
             emit BetCreated(
                 address(newBet),
