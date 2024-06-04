@@ -63,6 +63,10 @@ contract Bet {
         return block.timestamp >= validUntil && (!accepted || !settled);
     }
 
+    function isBetActive() public view returns (bool) {
+        return !settled && !isOfferExpired();
+    }
+
     function acceptBet() public onlyParticipant {
         require(!accepted, "Bet has already been accepted");
         require(!settled, "Bet has already been settled");
