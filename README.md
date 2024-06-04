@@ -6,13 +6,14 @@ An onchain peer-to-peer betting tool. Whitepaper and development is currently in
 
 There are two contracts:
 
-- `Bet.sol`, which is initiated with 6 parameters:
-  1. `address` The bet creator
-  2. `address` A participant
-  3. `address` An arbitrator (one who selects the winner)
-  4. `uint256` A token amount
-  5. `string` An attached message
-  6. `address` The erc20 token contract with which the bet is using
+- `Bet.sol`, which is initiated with the following parameters:
+  1. `address` _creator - The bet creator
+  2. `address` _participant - A participant
+  3. `uint256` _amount - A token amount
+  4. `address` _token - The erc20 token contract with which the bet is using
+  5. `string` _message - An attached message
+  6. `address` _arbitrator - An arbitrator (one who selects the winner)
+  7. `uint256` _validFor - Time in seconds that the _participant has to accept or decline after bet creation
 - `BetFactory.sol`, which creates new Bet contracts and holds the initial state of all bets created from it.
 
 ## Features
