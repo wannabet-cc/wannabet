@@ -13,7 +13,7 @@ export const createScreen = async (
   const { success: betIdSuccess, data: parsedBetId } = BetIdSchema.safeParse(
     Number(betId)
   );
-  const PageNumSchema = z.number().positive().int().lte(7);
+  const PageNumSchema = z.number().positive().int().lte(8);
   const { success: pageNumSuccess, data: parsedPageNum } =
     PageNumSchema.safeParse(Number(pageNum));
   const betUrl = `/bet/${parsedBetId}`;
@@ -45,13 +45,14 @@ export const createScreen = async (
         previousState.arbitrator = "";
         previousState.amount = 0;
         previousState.message = "";
+        previousState.validForDays = 7;
       });
     }
     // Return frame
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
-          <span style={{ color: "gray" }}>{parsedPageNum}/7</span>
+          <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
           <span>Who are you betting with?</span>
         </div>
       ),
@@ -73,7 +74,7 @@ export const createScreen = async (
         return c.res({
           image: (
             <div style={{ ...backgroundStyles }}>
-              <span style={{ color: "gray" }}>{parsedPageNum - 1}/7</span>
+              <span style={{ color: "gray" }}>{parsedPageNum - 1}/8</span>
               <span>error - Input needs to be a valid address</span>
             </div>
           ),
@@ -89,7 +90,7 @@ export const createScreen = async (
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
-          <span style={{ color: "gray" }}>{parsedPageNum}/7</span>
+          <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
           <span>How much USDC do you want to bet?</span>
         </div>
       ),
@@ -116,7 +117,7 @@ export const createScreen = async (
         return c.res({
           image: (
             <div style={{ ...backgroundStyles }}>
-              <span style={{ color: "gray" }}>{parsedPageNum - 1}/7</span>
+              <span style={{ color: "gray" }}>{parsedPageNum - 1}/8</span>
               <span>
                 {"error - Input needs to be a positive integer <= $5k"}
               </span>
@@ -133,7 +134,7 @@ export const createScreen = async (
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
-          <span style={{ color: "gray" }}>{parsedPageNum}/7</span>
+          <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
           <span>What are the terms?</span>
         </div>
       ),
@@ -157,7 +158,46 @@ export const createScreen = async (
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
-          <span style={{ color: "gray" }}>{parsedPageNum}/7</span>
+          <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
+          <span>How many days should the offer be valid for?</span>
+        </div>
+      ),
+      intents: [
+        <TextInput placeholder="e.g. 7" />,
+        <Button action={prevPageUrl} value="back" children={"Back"} />,
+        <Button action={nextPageUrl} value="continue" children={"Continue"} />,
+      ],
+    });
+  } else if (parsedPageNum === 5) {
+    // Validate amount and set state
+    const { buttonValue } = c;
+    if (buttonValue === "continue") {
+      // Check if input is valid, go back if not
+      const { inputText, deriveState } = c;
+      const NumberSchema = z.number().positive().int().lte(14);
+      const { success, data } = NumberSchema.safeParse(Number(inputText));
+      if (!success)
+        return c.res({
+          image: (
+            <div style={{ ...backgroundStyles }}>
+              <span style={{ color: "gray" }}>{parsedPageNum - 1}/8</span>
+              <span>
+                {"error - Input needs to be a positive integer <= 14"}
+              </span>
+            </div>
+          ),
+          intents: [<Button action={prevPageUrl} children="Back" />],
+        });
+      // Update state
+      const state = deriveState((previousState) => {
+        previousState.validForDays = data;
+      });
+    }
+    // Return frame
+    return c.res({
+      image: (
+        <div style={{ ...backgroundStyles }}>
+          <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
           <span>Who would you like to arbitrate?</span>
         </div>
       ),
@@ -167,7 +207,7 @@ export const createScreen = async (
         <Button action={nextPageUrl} value="continue" children={"Continue"} />,
       ],
     });
-  } else if (parsedPageNum === 5) {
+  } else if (parsedPageNum === 6) {
     // Validate address and set state
     const { buttonValue } = c;
     if (buttonValue === "continue") {
@@ -179,7 +219,7 @@ export const createScreen = async (
         return c.res({
           image: (
             <div style={{ ...backgroundStyles }}>
-              <span style={{ color: "gray" }}>{parsedPageNum - 1}/7</span>
+              <span style={{ color: "gray" }}>{parsedPageNum - 1}/8</span>
               <span>error - Input needs to be a valid address</span>
             </div>
           ),
@@ -194,7 +234,7 @@ export const createScreen = async (
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
-          <span style={{ color: "gray" }}>{parsedPageNum}/7</span>
+          <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
           <span>
             Authorize the contract to move your wager to the bet contract
           </span>
@@ -210,12 +250,12 @@ export const createScreen = async (
         />,
       ],
     });
-  } else if (parsedPageNum === 6) {
+  } else if (parsedPageNum === 7) {
     // Return frame
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
-          <span style={{ color: "gray" }}>{parsedPageNum}/7</span>
+          <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
           <span>Deploy your bet</span>
           <span style={{ ...subTextStyles }}></span>
         </div>
@@ -230,7 +270,7 @@ export const createScreen = async (
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
-          <span style={{ color: "gray" }}>{parsedPageNum}/7</span>
+          <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
           <span>Bet created!</span>
         </div>
       ),

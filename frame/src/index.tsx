@@ -17,6 +17,7 @@ export const app = new Frog({
     arbitrator: "",
     amount: 0,
     message: "",
+    validForDays: 7,
   },
   secret: FROG_SECRET,
 });
