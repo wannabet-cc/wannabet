@@ -5,24 +5,39 @@ import { z } from "zod";
 import type { BetInfoState } from "../types";
 
 export const createScreen = async (
-  c: FrameContext<{ State: BetInfoState }, "/create/:pageNum">
+  c: FrameContext<{ State: BetInfoState }, "/bet/:betId/create/:pageNum">
 ) => {
-  const pageNum = Number(c.req.param().pageNum);
-  const PageNumberSchema = z.number().positive().int().gte(1).lte(7);
-  const { success } = PageNumberSchema.safeParse(pageNum);
-  if (!success) {
+  // Validate params
+  const { betId, pageNum } = c.req.param();
+  const BetIdSchema = z.number().positive().int();
+  const { success: betIdSuccess, data: parsedBetId } = BetIdSchema.safeParse(
+    Number(betId)
+  );
+  const PageNumSchema = z.number().positive().int().lte(7);
+  const { success: pageNumSuccess, data: parsedPageNum } =
+    PageNumSchema.safeParse(Number(pageNum));
+  const betUrl = `/bet/${parsedBetId}`;
+  const nextPageUrl = parsedPageNum
+    ? `${betUrl}/create/${parsedPageNum + 1}`
+    : betUrl;
+  const prevPageUrl = parsedPageNum
+    ? `${betUrl}/create/${parsedPageNum - 1}`
+    : betUrl;
+  if (!betIdSuccess || !pageNumSuccess) {
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
           <span>Bad url</span>
         </div>
       ),
-      intents: [<Button action={`/home`} children={"Home"} />],
+      intents: [
+        <Button action={betIdSuccess ? betUrl : "/home"} children={"Back"} />,
+      ],
     });
   }
 
-  if (pageNum === 1) {
-    // Reset state if coming from home page
+  if (parsedPageNum === 1) {
+    // Reset state if going forward
     const { buttonValue, deriveState } = c;
     if (buttonValue === "create") {
       const state = deriveState((previousState) => {
@@ -36,21 +51,17 @@ export const createScreen = async (
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
-          <span style={{ color: "gray" }}>{pageNum}/7</span>
+          <span style={{ color: "gray" }}>{parsedPageNum}/7</span>
           <span>Who are you betting with?</span>
         </div>
       ),
       intents: [
         <TextInput placeholder="e.g. 0xabc..." />,
-        <Button action={`/home`} value="back" children={"Back"} />,
-        <Button
-          action={`/create/${pageNum + 1}`}
-          value="continue"
-          children={"Continue"}
-        />,
+        <Button action={betUrl} value="back" children={"Back"} />,
+        <Button action={nextPageUrl} value="continue" children={"Continue"} />,
       ],
     });
-  } else if (pageNum === 2) {
+  } else if (parsedPageNum === 2) {
     // Validate address and set state
     const { buttonValue } = c;
     if (buttonValue === "continue") {
@@ -62,13 +73,11 @@ export const createScreen = async (
         return c.res({
           image: (
             <div style={{ ...backgroundStyles }}>
-              <span style={{ color: "gray" }}>{pageNum - 1}/7</span>
+              <span style={{ color: "gray" }}>{parsedPageNum - 1}/7</span>
               <span>error - Input needs to be a valid address</span>
             </div>
           ),
-          intents: [
-            <Button action={`/create/${pageNum - 1}`} children="Back" />,
-          ],
+          intents: [<Button action={prevPageUrl} children="Back" />],
         });
       }
       // Update state
@@ -80,25 +89,17 @@ export const createScreen = async (
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
-          <span style={{ color: "gray" }}>{pageNum}/7</span>
+          <span style={{ color: "gray" }}>{parsedPageNum}/7</span>
           <span>How much USDC do you want to bet?</span>
         </div>
       ),
       intents: [
         <TextInput placeholder="e.g. 5" />,
-        <Button
-          action={`/create/${pageNum - 1}`}
-          value="back"
-          children={"Back"}
-        />,
-        <Button
-          action={`/create/${pageNum + 1}`}
-          value="continue"
-          children={"Continue"}
-        />,
+        <Button action={prevPageUrl} value="back" children={"Back"} />,
+        <Button action={nextPageUrl} value="continue" children={"Continue"} />,
       ],
     });
-  } else if (pageNum === 3) {
+  } else if (parsedPageNum === 3) {
     // Validate amount and set state
     const { buttonValue } = c;
     if (buttonValue === "continue") {
@@ -115,15 +116,13 @@ export const createScreen = async (
         return c.res({
           image: (
             <div style={{ ...backgroundStyles }}>
-              <span style={{ color: "gray" }}>{pageNum - 1}/7</span>
+              <span style={{ color: "gray" }}>{parsedPageNum - 1}/7</span>
               <span>
                 {"error - Input needs to be a positive integer <= $5k"}
               </span>
             </div>
           ),
-          intents: [
-            <Button action={`/create/${pageNum - 1}`} children="Back" />,
-          ],
+          intents: [<Button action={prevPageUrl} children="Back" />],
         });
       // Update state
       const state = deriveState((previousState) => {
@@ -134,25 +133,17 @@ export const createScreen = async (
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
-          <span style={{ color: "gray" }}>{pageNum}/7</span>
+          <span style={{ color: "gray" }}>{parsedPageNum}/7</span>
           <span>What are the terms?</span>
         </div>
       ),
       intents: [
         <TextInput placeholder="e.g. ETH price will be $5k by..." />,
-        <Button
-          action={`/create/${pageNum - 1}`}
-          value="back"
-          children={"Back"}
-        />,
-        <Button
-          action={`/create/${pageNum + 1}`}
-          value="continue"
-          children={"Continue"}
-        />,
+        <Button action={prevPageUrl} value="back" children={"Back"} />,
+        <Button action={nextPageUrl} value="continue" children={"Continue"} />,
       ],
     });
-  } else if (pageNum === 4) {
+  } else if (parsedPageNum === 4) {
     // Validate message and set state
     const { buttonValue } = c;
     if (buttonValue === "continue") {
@@ -166,25 +157,17 @@ export const createScreen = async (
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
-          <span style={{ color: "gray" }}>{pageNum}/7</span>
+          <span style={{ color: "gray" }}>{parsedPageNum}/7</span>
           <span>Who would you like to arbitrate?</span>
         </div>
       ),
       intents: [
         <TextInput placeholder="e.g. 0xabc..." />,
-        <Button
-          action={`/create/${pageNum - 1}`}
-          value="back"
-          children={"Back"}
-        />,
-        <Button
-          action={`/create/${pageNum + 1}`}
-          value="continue"
-          children={"Continue"}
-        />,
+        <Button action={prevPageUrl} value="back" children={"Back"} />,
+        <Button action={nextPageUrl} value="continue" children={"Continue"} />,
       ],
     });
-  } else if (pageNum === 5) {
+  } else if (parsedPageNum === 5) {
     // Validate address and set state
     const { buttonValue } = c;
     if (buttonValue === "continue") {
@@ -196,13 +179,11 @@ export const createScreen = async (
         return c.res({
           image: (
             <div style={{ ...backgroundStyles }}>
-              <span style={{ color: "gray" }}>{pageNum - 1}/7</span>
+              <span style={{ color: "gray" }}>{parsedPageNum - 1}/7</span>
               <span>error - Input needs to be a valid address</span>
             </div>
           ),
-          intents: [
-            <Button action={`/create/${pageNum - 1}`} children="Back" />,
-          ],
+          intents: [<Button action={prevPageUrl} children="Back" />],
         });
       // Update state
       const state = deriveState((previousState) => {
@@ -213,75 +194,47 @@ export const createScreen = async (
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
-          <span style={{ color: "gray" }}>{pageNum}/7</span>
+          <span style={{ color: "gray" }}>{parsedPageNum}/7</span>
           <span>
             Authorize the contract to move your wager to the bet contract
           </span>
         </div>
       ),
       intents: [
-        <Button
-          action={`/create/${pageNum - 1}`}
-          value="back"
-          children={"Back"}
-        />,
-        <Button
-          action={`/create/${pageNum + 1}`}
-          value="continue"
-          children={"Continue"}
-        />, // Temporary button for bypassing the transaction frame in the create bet workflow
+        <Button action={prevPageUrl} value="back" children={"Back"} />,
+        <Button action={nextPageUrl} value="continue" children={"Continue"} />, // Temporary button for bypassing the transaction frame in the create bet workflow
         <Button.Transaction
-          action={`/create/${pageNum + 1}`}
+          action={nextPageUrl}
           target="/tx/authorize"
           children={"Authorize"}
         />,
       ],
     });
-  } else if (pageNum === 6) {
+  } else if (parsedPageNum === 6) {
     // Return frame
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
-          <span style={{ color: "gray" }}>{pageNum}/7</span>
+          <span style={{ color: "gray" }}>{parsedPageNum}/7</span>
           <span>Deploy your bet</span>
           <span style={{ ...subTextStyles }}></span>
         </div>
       ),
       intents: [
-        <Button
-          action={`/create/${pageNum - 1}`}
-          value="back"
-          children={"Back"}
-        />,
-        <Button
-          action={`/create/${pageNum + 1}`}
-          value="continue"
-          children={"Continue"}
-        />,
+        <Button action={prevPageUrl} value="back" children={"Back"} />,
+        <Button action={nextPageUrl} value="continue" children={"Continue"} />,
       ],
     });
-  } else if (pageNum === 7) {
+  } else {
     // Return frame
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
-          <span style={{ color: "gray" }}>{pageNum}/7</span>
+          <span style={{ color: "gray" }}>{parsedPageNum}/7</span>
           <span>Bet created!</span>
         </div>
       ),
-      intents: [<Button action="/home" children={"Home"} />],
+      intents: [<Button action={betUrl} children={"Finish"} />],
     });
   }
-
-  return c.res({
-    image: (
-      <div style={{ ...backgroundStyles }}>
-        <span></span>
-      </div>
-    ),
-    intents: [
-      <TextInput placeholder="" />,
-      <Button action="/home" children={"Continue"} />,
-    ],
-  });
 };
