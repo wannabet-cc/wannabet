@@ -25,7 +25,7 @@ export const homeScreen = async (c: FrameContext) => {
     return c.res({
       image: (
         <div style={{ ...backgroundStyles }}>
-          <span>Go to bet {parsedBetId}?</span>
+          <span>Go to bet #{parsedBetId}?</span>
         </div>
       ),
       intents: [
