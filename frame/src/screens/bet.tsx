@@ -151,13 +151,7 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
           target={`/tx/authorize/${contractAddress}`}
           children={"Authorize"}
         />
-      ) : (
-        <Button
-          action={`${url}/accept`}
-          value="create"
-          children={"Authorize"}
-        />
-      ), // Added to bypass txn for testing,
+      ) : null,
       isParticipant && !accepted && isActive ? (
         <Button.Transaction
           action={url}

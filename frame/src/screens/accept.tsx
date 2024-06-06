@@ -38,7 +38,6 @@ export const acceptScreen = async (
       </div>
     ),
     intents: [
-      <Button action={`/bet/${parsedBetId}`} children={"Accept"} />, // Added to bypass txn for testing
       <Button.Transaction
         action={`/bet/${parsedBetId}`}
         target={`/tx/accept/${contractAddress}`}
