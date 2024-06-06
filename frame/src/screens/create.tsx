@@ -68,13 +68,15 @@ export const createScreen = async (
     });
   } else if (parsedPageNum === 2) {
     // Validate address and set state
-    const { buttonValue } = c;
+    const { buttonValue, frameData } = c;
     if (buttonValue === "continue") {
       // Check if input is valid, go back if not
       const { inputText, deriveState } = c;
       const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
-      const { success, data } = AddressSchema.safeParse(inputText);
-      if (!success) {
+      const { success, data: parsedParticipant } =
+        AddressSchema.safeParse(inputText);
+      const isBetWithSelf = frameData?.address == parsedParticipant;
+      if (!success || isBetWithSelf) {
         return c.res({
           image: (
             <div style={{ ...backgroundStyles }}>
@@ -87,7 +89,7 @@ export const createScreen = async (
       }
       // Update state
       const state = deriveState((previousState) => {
-        previousState.participant = data;
+        previousState.participant = parsedParticipant;
       });
     }
     // Return frame
