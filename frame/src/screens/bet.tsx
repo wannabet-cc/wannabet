@@ -74,6 +74,11 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
     abi: betAbi,
     functionName: "ARBITRATOR",
   });
+  const winner = await arbitrumSepoliaClient.readContract({
+    address: contractAddress,
+    abi: betAbi,
+    functionName: "winner",
+  });
 
   const { frameData, url } = c;
 
@@ -118,25 +123,47 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
           {message}.
         </span>
         {isActive ? (
-          <span style={{ ...subTextStyles, marginTop: 50 }}>
-            <span style={{ marginRight: 10 }}>
-              {shortenHexAddress(participant)}
+          accepted ? (
+            <span style={{ ...subTextStyles, marginTop: 50 }}>
+              <span style={{ marginRight: 10 }}>
+                {shortenHexAddress(participant)}
+              </span>
+              accepted! Awaiting result.
             </span>
-            can accept or decline.
-          </span>
+          ) : (
+            <span style={{ ...subTextStyles, marginTop: 50 }}>
+              <span style={{ marginRight: 10 }}>
+                {shortenHexAddress(participant)}
+              </span>
+              can accept or decline.
+            </span>
+          )
         ) : isExpired ? (
           <span style={{ ...subTextStyles, marginTop: 50 }}>
             <span style={{ marginRight: 10 }}>
               {shortenHexAddress(participant)}
             </span>
-            failed to accept before the deadline.
+            failed to accept in time. The bet creator can retrieve their funds.
+          </span>
+        ) : accepted ? (
+          <span style={{ ...subTextStyles, marginTop: 50 }}>
+            {winner === "0x0000000000000000000000000000000000000000" ? (
+              <>The bet was a tie</>
+            ) : (
+              <>
+                <span style={{ marginRight: 10 }}>
+                  {shortenHexAddress(winner)}
+                </span>
+                won the bet!
+              </>
+            )}
           </span>
         ) : (
           <span style={{ ...subTextStyles, marginTop: 50 }}>
             <span style={{ marginRight: 10 }}>
               {shortenHexAddress(participant)}
             </span>
-            failed to accept before the deadline.
+            Declined the bet.
           </span>
         )}
       </div>
