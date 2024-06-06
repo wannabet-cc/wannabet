@@ -43,6 +43,11 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
     abi: betAbi,
     functionName: "accepted",
   });
+  const settled = await arbitrumSepoliaClient.readContract({
+    address: contractAddress,
+    abi: betAbi,
+    functionName: "settled",
+  });
   const creator = await arbitrumSepoliaClient.readContract({
     address: contractAddress,
     abi: betAbi,
@@ -72,6 +77,7 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
 
   const { frameData, url } = c;
 
+  const isCreator = frameData?.address === creator;
   const isParticipant = frameData?.address === participant;
   const isArbitrator = frameData?.address === arbitrator;
 
@@ -161,6 +167,12 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
       ) : null,
       isArbitrator && accepted && isActive ? (
         <Button action={`${url}/settle`} children={"Settle"} />
+      ) : null,
+      isCreator && isExpired && !settled ? (
+        <Button.Transaction
+          target={`/tx/retrieve/${contractAddress}`}
+          children={"Retrieve funds"}
+        />
       ) : null,
     ],
   });

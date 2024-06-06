@@ -17,6 +17,7 @@ import { createTxn } from "./tx/create";
 import { acceptTxn } from "./tx/accept";
 import { declineTxn } from "./tx/decline";
 import { settleTxn } from "./tx/settle";
+import { retrieveTxn } from "./tx/retrieve";
 
 export const app = new Frog({
   browserLocation: "/",
@@ -44,6 +45,7 @@ app.transaction("/tx/create", createTxn);
 app.transaction("/tx/accept/:contractAddress", acceptTxn);
 app.transaction("/tx/decline/:contractAddress", declineTxn);
 app.transaction("/tx/settle/:contractAddress/:winnerAddress", settleTxn);
+app.transaction("/tx/retrieve/:contractAddress", retrieveTxn);
 
 devtools(app, { serveStatic });
 export default app;
