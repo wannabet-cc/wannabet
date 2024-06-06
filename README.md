@@ -28,19 +28,19 @@ There are two contracts:
   - [ ] ~~Add ability for participant to send tokens directly to the contract to accept, making it so they only need to execute one txn~~
   - [ ] ~~Add ability to cancel a bet (i.e. prior to participant acceptance, giving the option for the bet creator and/or the arbitrator to return the funds without selecting a winner)~~
 - [ ] Frame
-  - [ ] 'Create new' flow
+  - [x] 'Create new' flow
     - [x] Add state
     - [x] Add bet info that builds as state is filled in from user input
     - [x] Add tx for authorizing usdc transfer
     - [x] Add step for inputting expiration period
-    - [ ] Add tx for creating the bet
-    - [ ] Add validation for contract rules (e.g. creator can't be participant, etc.)
+    - [x] Add tx for creating the bet
+    - [x] Add validation for contract rules (e.g. creator can't be participant, etc.)
   - [x] Homescreen
     - [x] Every frame is unique to a specific bet (i.e. https://example.com/[:betId]/home)
-  - [ ] Bet actions
+  - [x] Bet actions
     - [x] Participants can accept or decline a bet
-    - [ ] Arbitrators can select a winner or tie
-    - [ ] Creators can retrieve their funds if their offer expired
+    - [x] Arbitrators can select a winner or tie
+    - [x] Creators can retrieve their funds if their offer expired
   - [ ] Add ens compatibility
 - [ ] Farcaster Bot
   - [ ] Generate signer
