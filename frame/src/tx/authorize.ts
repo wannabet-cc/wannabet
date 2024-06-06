@@ -5,7 +5,7 @@ import type { BetInfoState } from "../types";
 import { Address, isAddress } from "viem";
 import { z } from "zod";
 
-export const authorize = async (
+export const authorizeTxn = async (
   c: TransactionContext<{ State: BetInfoState }, "/tx/authorize/:spender">
 ) => {
   const { spender } = c.req.param();

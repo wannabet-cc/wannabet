@@ -60,7 +60,7 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
     functionName: "PARTICIPANT",
   });
 
-  const { frameData } = c;
+  const { frameData, url } = c;
 
   const isParticipant = frameData?.address === participant;
 
@@ -130,10 +130,18 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
         children={"Etherscan"}
       />,
       <Button
-        action={`/bet/${betId}/create/1`}
+        action={`${url}/create/1`}
         value="create"
         children={"Create new"}
       />,
+      <Button action={`${url}/accept`} value="create" children={"Authorize"} />, // Added to bypass txn for testing
+      isParticipant ? (
+        <Button.Transaction
+          action={`${url}/accept`}
+          target={`/tx/authorize/${contractAddress}`}
+          children={"Authorize"}
+        />
+      ) : null,
     ],
   });
 };
