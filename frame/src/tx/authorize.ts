@@ -1,9 +1,6 @@
 import { TransactionContext } from "frog";
 import { FiatTokenProxyAbi } from "../contracts/usdcAbi";
-import {
-  TESTNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
-  TESTNET_BET_FACTORY_CONTRACT_ADDRESS,
-} from "../contracts/addresses";
+import { MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS } from "../contracts/addresses";
 import type { BetInfoState } from "../types";
 import { Address, isAddress } from "viem";
 import { z } from "zod";
@@ -20,7 +17,7 @@ export const authorize = async (
   const usdcAmount = BigInt(previousState.amount * 10 ** 6);
   return c.contract({
     abi: FiatTokenProxyAbi,
-    to: TESTNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
+    to: MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
     chainId: "eip155:42161",
     functionName: "approve",
     args: [
