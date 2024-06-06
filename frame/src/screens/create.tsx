@@ -3,7 +3,10 @@ import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { Address, isAddress } from "viem";
 import { z } from "zod";
 import type { BetInfoState } from "../types";
-import { TESTNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
+import {
+  MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
+  TESTNET_BET_FACTORY_CONTRACT_ADDRESS,
+} from "../contracts/addresses";
 
 export const createScreen = async (
   c: FrameContext<{ State: BetInfoState }, "/bet/:betId/create/:pageNum">
@@ -246,7 +249,7 @@ export const createScreen = async (
         <Button action={nextPageUrl} value="continue" children={"Continue"} />, // Temporary button for bypassing the transaction frame in the create bet workflow
         <Button.Transaction
           action={nextPageUrl}
-          target={`/tx/authorize/${TESTNET_BET_FACTORY_CONTRACT_ADDRESS}`}
+          target={`/tx/authorize/${MAINNET_BET_FACTORY_CONTRACT_ADDRESS}`}
           children={"Authorize"}
         />,
       ],
@@ -263,7 +266,12 @@ export const createScreen = async (
       ),
       intents: [
         <Button action={prevPageUrl} value="back" children={"Back"} />,
-        <Button action={nextPageUrl} value="continue" children={"Continue"} />,
+        <Button action={nextPageUrl} value="continue" children={"Continue"} />, // Temporary button for bypassing the transaction frame in the create bet workflow
+        <Button.Transaction
+          action={nextPageUrl}
+          target="/tx/create"
+          children={"Create bet"}
+        />,
       ],
     });
   } else {
