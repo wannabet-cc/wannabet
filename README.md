@@ -7,13 +7,13 @@ An onchain peer-to-peer betting tool. Whitepaper and development is currently in
 There are two contracts:
 
 - `Bet.sol`, which is initiated with the following parameters:
-  1. `address` _creator - The bet creator
-  2. `address` _participant - A participant
-  3. `uint256` _amount - A token amount
-  4. `address` _token - The erc20 token contract with which the bet is using
-  5. `string` _message - An attached message
-  6. `address` _arbitrator - An arbitrator (one who selects the winner)
-  7. `uint256` _validFor - Time in seconds that the _participant has to accept or decline after bet creation
+  1. `address` \_creator - The bet creator
+  2. `address` \_participant - A participant
+  3. `uint256` \_amount - A token amount
+  4. `address` \_token - The erc20 token contract with which the bet is using
+  5. `string` \_message - An attached message
+  6. `address` \_arbitrator - An arbitrator (one who selects the winner)
+  7. `uint256` \_validFor - Time in seconds that the \_participant has to accept or decline after bet creation
 - `BetFactory.sol`, which creates new Bet contracts and holds the initial state of all bets created from it.
 
 ## Features
@@ -31,19 +31,19 @@ There are two contracts:
   - [ ] ~~Add ability for participant to send tokens directly to the contract to accept, making it so they only need to execute one txn~~
   - [ ] ~~Add ability to cancel a bet (i.e. prior to participant acceptance, giving the option for the bet creator and/or the arbitrator to return the funds without selecting a winner)~~
 - [ ] Frame
-  - [ ] 'Create new' flow
+  - [x] 'Create new' flow
     - [x] Add state
     - [x] Add bet info that builds as state is filled in from user input
     - [x] Add tx for authorizing usdc transfer
-    - [ ] Add tx for creating the bet
-    - [ ] Add step for inputting expiration period
-    - [ ] Add validation for contract rules (e.g. creator can't be participant, etc.)
-  - [ ] Homescreen
-    - [ ] Every frame is unique to a specific bet (i.e. https://example.com/[:betId]/home)
-  - [ ] Bet actions
-    - [ ] Participants can accept or decline a bet
-    - [ ] Arbitrators can select a winner or tie
-    - [ ] Creators can retrieve their funds if their offer expired
+    - [x] Add step for inputting expiration period
+    - [x] Add tx for creating the bet
+    - [x] Add validation for contract rules (e.g. creator can't be participant, etc.)
+  - [x] Homescreen
+    - [x] Every frame is unique to a specific bet (i.e. https://example.com/[:betId]/home)
+  - [x] Bet actions
+    - [x] Participants can accept or decline a bet
+    - [x] Arbitrators can select a winner or tie
+    - [x] Creators can retrieve their funds if their offer expired
   - [ ] Add ens compatibility
 - [ ] Farcaster Bot
   - [ ] Generate signer

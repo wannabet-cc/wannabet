@@ -6,4 +6,5 @@ export type BetInfoState = Env & {
   arbitrator: Address | string;
   amount: number;
   message: string;
+  validForDays: number;
 };
