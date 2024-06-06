@@ -11,6 +11,7 @@ import { acceptScreen } from "./screens/accept";
 import { createScreen } from "./screens/create";
 import { authorizeTxn } from "./tx/authorize";
 import { acceptTxn } from "./tx/accept";
+import { declineTxn } from "./tx/decline";
 
 export const app = new Frog({
   browserLocation: "/",
@@ -32,6 +33,7 @@ app.frame("/bet/:betId/accept", acceptScreen);
 app.frame("/bet/:betId/create/:pageNum", createScreen);
 app.transaction("/tx/authorize/:sender", authorizeTxn);
 app.transaction("/tx/accept/:contractAddress", acceptTxn);
+app.transaction("/tx/decline/:contractAddress", declineTxn);
 
 devtools(app, { serveStatic });
 export default app;

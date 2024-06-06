@@ -38,6 +38,11 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
     abi: betAbi,
     functionName: "isOfferExpired",
   });
+  const accepted = await arbitrumSepoliaClient.readContract({
+    address: contractAddress,
+    abi: betAbi,
+    functionName: "accepted",
+  });
   const creator = await arbitrumSepoliaClient.readContract({
     address: contractAddress,
     abi: betAbi,
@@ -134,12 +139,24 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
         value="create"
         children={"Create new"}
       />,
-      <Button action={`${url}/accept`} value="create" children={"Authorize"} />, // Added to bypass txn for testing
-      isParticipant ? (
+      isParticipant && !accepted && isActive ? (
         <Button.Transaction
           action={`${url}/accept`}
           target={`/tx/authorize/${contractAddress}`}
           children={"Authorize"}
+        />
+      ) : (
+        <Button
+          action={`${url}/accept`}
+          value="create"
+          children={"Authorize"}
+        />
+      ), // Added to bypass txn for testing,
+      isParticipant && !accepted && isActive ? (
+        <Button.Transaction
+          action={url}
+          target={`/tx/decline/${contractAddress}`}
+          children={"Decline"}
         />
       ) : null,
     ],
