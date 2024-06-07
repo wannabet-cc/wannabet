@@ -11,14 +11,14 @@ error FundsAlreadyWithdrawn();
 error BadInput();
 
 contract Bet {
-    uint256 public immutable BET_ID;
-    address public immutable CREATOR;
-    address public immutable PARTICIPANT;
-    uint256 public immutable AMOUNT;
-    IERC20 public immutable TOKEN;
-    string public MESSAGE;
-    address public immutable ARBITRATOR;
-    uint256 public immutable VALID_UNTIL;
+    uint256 private immutable BET_ID;
+    address private immutable CREATOR;
+    address private immutable PARTICIPANT;
+    uint256 private immutable AMOUNT;
+    IERC20 private immutable TOKEN;
+    string private MESSAGE;
+    address private immutable ARBITRATOR;
+    uint256 private immutable VALID_UNTIL;
 
     enum Status {
         Pending,
@@ -68,26 +68,30 @@ contract Bet {
         _;
     }
 
-    struct BetDetails {
-        uint256 betId;
-        address creator;
-        address participant;
-        uint256 amount;
-        IERC20 token;
-        string message;
-        address arbitrator;
-    }
-    function getBetDetails() public view returns (BetDetails memory) {
-        return
-            BetDetails(
-                BET_ID,
-                CREATOR,
-                PARTICIPANT,
-                AMOUNT,
-                TOKEN,
-                MESSAGE,
-                ARBITRATOR
-            );
+    function getBetDetails()
+        public
+        view
+        returns (
+            uint256 betId,
+            address creator,
+            address participant,
+            uint256 amount,
+            IERC20 token,
+            string memory message,
+            address arbitrator,
+            uint256 validUntil
+        )
+    {
+        return (
+            BET_ID,
+            CREATOR,
+            PARTICIPANT,
+            AMOUNT,
+            TOKEN,
+            MESSAGE,
+            ARBITRATOR,
+            VALID_UNTIL
+        );
     }
     function isExpired() private view returns (bool) {
         return block.timestamp >= VALID_UNTIL && status == Status.Pending;
