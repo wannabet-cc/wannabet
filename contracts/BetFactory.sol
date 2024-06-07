@@ -55,6 +55,7 @@ contract BetFactory {
 
         try
             new Bet(
+                betCount + 1,
                 msg.sender,
                 _participant,
                 _amount,

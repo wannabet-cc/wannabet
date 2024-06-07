@@ -6,6 +6,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 error Unauthorized();
 
 contract Bet {
+    uint256 public immutable BET_ID;
     address public immutable CREATOR;
     address public immutable PARTICIPANT;
     uint256 public immutable AMOUNT;
@@ -45,6 +46,7 @@ contract Bet {
     }
 
     constructor(
+        uint256 _betId,
         address _creator,
         address _participant,
         uint256 _amount,
@@ -53,6 +55,7 @@ contract Bet {
         address _arbitrator,
         uint256 _validFor
     ) {
+        BET_ID = _betId;
         CREATOR = _creator;
         PARTICIPANT = _participant;
         AMOUNT = _amount;
