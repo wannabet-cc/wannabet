@@ -4,6 +4,10 @@ pragma solidity ^0.8.24;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 error Unauthorized();
+error Expired();
+error InvalidStatus();
+error FailedTransfer();
+error FundsAlreadyWithdrawn();
 
 contract Bet {
     uint256 public immutable BET_ID;
@@ -51,21 +55,15 @@ contract Bet {
     event BetSettled(address indexed winner);
 
     modifier onlyCreator() {
-        if (msg.sender != CREATOR) {
-            revert Unauthorized();
-        }
+        if (msg.sender != CREATOR) revert Unauthorized();
         _;
     }
     modifier onlyParticipant() {
-        if (msg.sender != PARTICIPANT) {
-            revert Unauthorized();
-        }
+        if (msg.sender != PARTICIPANT) revert Unauthorized();
         _;
     }
     modifier onlyArbitrator() {
-        if (msg.sender != ARBITRATOR) {
-            revert Unauthorized();
-        }
+        if (msg.sender != ARBITRATOR) revert Unauthorized();
         _;
     }
 
@@ -108,16 +106,13 @@ contract Bet {
     }
 
     function acceptBet() public onlyParticipant {
-        require(!isExpired(), "Bet expired");
-        require(status == Status.Pending, "Bet must be pending");
-        require(
-            AMOUNT <= IERC20(TOKEN).allowance(msg.sender, address(this)),
-            "Must give approval to send tokens"
-        );
+        if (isExpired()) revert Expired();
+        if (status != Status.Pending) revert InvalidStatus();
 
         // Transfer tokens to contract
         bool success = TOKEN.transferFrom(msg.sender, address(this), AMOUNT);
-        require(success, "Token transfer failed");
+        if (!success) revert FailedTransfer();
+
         // Update state variables
         status = Status.Accepted;
         // Emit event
@@ -125,12 +120,13 @@ contract Bet {
     }
 
     function declineBet() public onlyParticipant {
-        require(!isExpired(), "Bet expired");
-        require(status == Status.Pending, "Bet must be pending");
+        if (isExpired()) revert Expired();
+        if (status != Status.Pending) revert InvalidStatus();
 
         // Return tokens to original party
         bool success = TOKEN.transfer(CREATOR, AMOUNT);
-        require(success, "Token transfer failed");
+        if (!success) revert FailedTransfer();
+
         // Update state variables
         status = Status.Declined;
         // Emit event
@@ -138,36 +134,42 @@ contract Bet {
     }
 
     function retrieveTokens() public onlyCreator {
-        require(isExpired(), "Bet must be expired");
-        require(!fundsWithdrawn, "Funds already withdrawn");
+        if (!isExpired()) revert Expired();
+        if (fundsWithdrawn) revert FundsAlreadyWithdrawn();
 
         // Return tokens to bet creator
         bool success = TOKEN.transfer(CREATOR, AMOUNT);
-        require(success, "Token transfer failed");
+        if (!success) revert FailedTransfer();
+
         // Update state
         fundsWithdrawn = true;
     }
 
     function settleBet(address _winner) public onlyArbitrator {
-        require(status == Status.Accepted, "Bet must be accepted");
-        require(
-            _winner == CREATOR ||
-                _winner == PARTICIPANT ||
-                _winner == 0x0000000000000000000000000000000000000000,
-            "Winner must be a betting party"
-        );
+        if (status != Status.Accepted) revert InvalidStatus();
+        if (
+            _winner != CREATOR &&
+            _winner != PARTICIPANT &&
+            _winner != 0x0000000000000000000000000000000000000000
+        ) revert BadInput();
 
         // Transfer tokens to winner
         if (_winner == 0x0000000000000000000000000000000000000000) {
             // In tie event, the funds are returned
             bool success1 = TOKEN.transfer(CREATOR, AMOUNT);
-            require(success1, "Token transfer failed");
+            if (!success1) {
+                revert FailedTransfer();
+            }
             bool success2 = TOKEN.transfer(PARTICIPANT, AMOUNT);
-            require(success2, "Token transfer failed");
+            if (!success2) {
+                revert FailedTransfer();
+            }
         } else {
             // In winning event, all funds are transfered to the winner
             bool success = TOKEN.transfer(_winner, AMOUNT * 2);
-            require(success, "Token transfer failed");
+            if (!success) {
+                revert FailedTransfer();
+            }
         }
 
         // Update state variables
