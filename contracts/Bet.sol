@@ -134,7 +134,7 @@ contract Bet {
     }
 
     function retrieveTokens() public onlyCreator {
-        if (!isExpired()) revert Expired();
+        if (!isExpired()) revert Unauthorized();
         if (fundsWithdrawn) revert FundsAlreadyWithdrawn();
 
         // Return tokens to bet creator
