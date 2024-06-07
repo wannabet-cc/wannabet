@@ -24,9 +24,9 @@ There are two contracts:
   - [x] Add custom errors
   - [x] Add getter functions bet arrays
   - [x] Allow getting/reading bets with a betId, contract address, or user address
-  - [ ] Add function to `Bet.sol` that returns all relevant bet info in one call
-  - [ ] Add a `status` state that includes a string of the bet status rather than looking to booleans (e.g. could include "pending response", "accepted", "declined", "expired", "settled", etc.)
-  - [ ] Add bet id to each deployed bet contract
+  - [x] Add function to `Bet.sol` that returns all relevant bet info in one call
+  - [x] Add a `status` state that includes a string of the bet status rather than looking to booleans (e.g. could include "pending response", "accepted", "declined", "expired", "settled", etc.)
+  - [x] Add bet id to each deployed bet contract
   - [ ] ~~Add acceptBet, declineBet, and settleBet functions to factory contract, given a contract address as a param~~
   - [ ] ~~Add ability for participant to send tokens directly to the contract to accept, making it so they only need to execute one txn~~
   - [ ] ~~Add ability to cancel a bet (i.e. prior to participant acceptance, giving the option for the bet creator and/or the arbitrator to return the funds without selecting a winner)~~
