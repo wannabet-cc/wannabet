@@ -19,32 +19,6 @@ contract Bet {
     bool public settled = false;
     address public winner;
 
-    struct BetDetails {
-        address creator;
-        address participant;
-        uint256 amount;
-        IERC20 token;
-        string message;
-        address arbitrator;
-        bool accepted;
-        bool settled;
-        address winner;
-    }
-    function getBetDetails() public view returns (BetDetails memory) {
-        return
-            BetDetails(
-                CREATOR,
-                PARTICIPANT,
-                AMOUNT,
-                TOKEN,
-                MESSAGE,
-                ARBITRATOR,
-                accepted,
-                settled,
-                winner
-            );
-    }
-
     constructor(
         uint256 _betId,
         address _creator,
@@ -94,6 +68,28 @@ contract Bet {
 
     function isBetActive() public view returns (bool) {
         return !settled && !isOfferExpired();
+    }
+
+    struct BetDetails {
+        uint256 betId;
+        address creator;
+        address participant;
+        uint256 amount;
+        IERC20 token;
+        string message;
+        address arbitrator;
+    }
+    function getBetDetails() public view returns (BetDetails memory) {
+        return
+            BetDetails(
+                BET_ID,
+                CREATOR,
+                PARTICIPANT,
+                AMOUNT,
+                TOKEN,
+                MESSAGE,
+                ARBITRATOR
+            );
     }
 
     function acceptBet() public onlyParticipant {
