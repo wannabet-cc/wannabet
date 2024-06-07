@@ -4,21 +4,35 @@ pragma solidity ^0.8.24;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 error Unauthorized();
+error Expired();
+error InvalidStatus();
+error FailedTransfer();
+error FundsAlreadyWithdrawn();
+error BadInput();
 
 contract Bet {
-    address public immutable CREATOR;
-    address public immutable PARTICIPANT;
-    uint256 public immutable AMOUNT;
-    IERC20 public immutable TOKEN;
-    string public MESSAGE;
-    address public immutable ARBITRATOR;
-    uint256 public immutable VALID_UNTIL;
+    uint256 private immutable BET_ID;
+    address private immutable CREATOR;
+    address private immutable PARTICIPANT;
+    uint256 private immutable AMOUNT;
+    IERC20 private immutable TOKEN;
+    string private MESSAGE;
+    address private immutable ARBITRATOR;
+    uint256 private immutable VALID_UNTIL;
 
-    bool public accepted = false;
-    bool public settled = false;
+    enum Status {
+        Pending,
+        Declined,
+        Accepted,
+        Settled
+    }
+    Status private status = Status.Pending;
+
+    bool private fundsWithdrawn = false;
     address public winner;
 
     constructor(
+        uint256 _betId,
         address _creator,
         address _participant,
         uint256 _amount,
@@ -27,6 +41,7 @@ contract Bet {
         address _arbitrator,
         uint256 _validFor
     ) {
+        BET_ID = _betId;
         CREATOR = _creator;
         PARTICIPANT = _participant;
         AMOUNT = _amount;
@@ -41,102 +56,130 @@ contract Bet {
     event BetSettled(address indexed winner);
 
     modifier onlyCreator() {
-        if (msg.sender != CREATOR) {
-            revert Unauthorized();
-        }
+        if (msg.sender != CREATOR) revert Unauthorized();
         _;
     }
     modifier onlyParticipant() {
-        if (msg.sender != PARTICIPANT) {
-            revert Unauthorized();
-        }
+        if (msg.sender != PARTICIPANT) revert Unauthorized();
         _;
     }
     modifier onlyArbitrator() {
-        if (msg.sender != ARBITRATOR) {
-            revert Unauthorized();
-        }
+        if (msg.sender != ARBITRATOR) revert Unauthorized();
         _;
     }
 
-    function isOfferExpired() public view returns (bool) {
-        return block.timestamp >= VALID_UNTIL && (!accepted || !settled);
+    function getBetDetails()
+        public
+        view
+        returns (
+            uint256 betId,
+            address creator,
+            address participant,
+            uint256 amount,
+            IERC20 token,
+            string memory message,
+            address arbitrator,
+            uint256 validUntil
+        )
+    {
+        return (
+            BET_ID,
+            CREATOR,
+            PARTICIPANT,
+            AMOUNT,
+            TOKEN,
+            MESSAGE,
+            ARBITRATOR,
+            VALID_UNTIL
+        );
     }
-
-    function isBetActive() public view returns (bool) {
-        return !settled && !isOfferExpired();
+    function isExpired() private view returns (bool) {
+        return block.timestamp >= VALID_UNTIL && status == Status.Pending;
+    }
+    function getStatus() public view returns (string memory) {
+        if (isExpired()) {
+            return "expired";
+        } else if (status == Status.Pending) {
+            return "pending";
+        } else if (status == Status.Declined) {
+            return "declined";
+        } else if (status == Status.Accepted) {
+            return "accepted";
+        } else {
+            return "settled";
+        }
     }
 
     function acceptBet() public onlyParticipant {
-        require(!accepted, "Bet has already been accepted");
-        require(!settled, "Bet has already been settled");
-        require(!isOfferExpired(), "Bet expired");
-        require(
-            AMOUNT <= IERC20(TOKEN).allowance(msg.sender, address(this)),
-            "Must give approval to send tokens"
-        );
+        if (isExpired()) revert Expired();
+        if (status != Status.Pending) revert InvalidStatus();
 
         // Transfer tokens to contract
         bool success = TOKEN.transferFrom(msg.sender, address(this), AMOUNT);
-        require(success, "Token transfer failed");
+        if (!success) revert FailedTransfer();
+
         // Update state variables
-        accepted = true;
+        status = Status.Accepted;
         // Emit event
         emit BetAccepted();
     }
 
     function declineBet() public onlyParticipant {
-        require(!accepted, "Bet has already been accepted");
-        require(!settled, "Bet has already been settled");
-        require(!isOfferExpired(), "Bet expired");
+        if (isExpired()) revert Expired();
+        if (status != Status.Pending) revert InvalidStatus();
 
         // Return tokens to original party
         bool success = TOKEN.transfer(CREATOR, AMOUNT);
-        require(success, "Token transfer failed");
+        if (!success) revert FailedTransfer();
+
         // Update state variables
-        settled = true;
+        status = Status.Declined;
         // Emit event
         emit BetDeclined();
     }
 
     function retrieveTokens() public onlyCreator {
-        require(!accepted, "Bet has already been accepted");
-        require(!settled, "Bet has already been settled");
-        require(isOfferExpired(), "Bet is still valid");
+        if (!isExpired()) revert Unauthorized();
+        if (fundsWithdrawn) revert FundsAlreadyWithdrawn();
 
         // Return tokens to bet creator
         bool success = TOKEN.transfer(CREATOR, AMOUNT);
-        require(success, "Token transfer failed");
-        // Update state variables
-        settled = true;
+        if (!success) revert FailedTransfer();
+
+        // Update state
+        fundsWithdrawn = true;
     }
 
     function settleBet(address _winner) public onlyArbitrator {
-        require(
-            _winner == CREATOR ||
-                _winner == PARTICIPANT ||
-                _winner == 0x0000000000000000000000000000000000000000,
-            "Winner must be a betting party"
-        );
-        require(accepted, "Bet has not been accepted yet");
-        require(!settled, "Bet has already been settled");
+        if (status != Status.Accepted) revert InvalidStatus();
+        if (
+            _winner != CREATOR &&
+            _winner != PARTICIPANT &&
+            _winner != 0x0000000000000000000000000000000000000000
+        ) revert BadInput();
 
         // Transfer tokens to winner
         if (_winner == 0x0000000000000000000000000000000000000000) {
             // In tie event, the funds are returned
             bool success1 = TOKEN.transfer(CREATOR, AMOUNT);
-            require(success1, "Token transfer failed");
+            if (!success1) {
+                revert FailedTransfer();
+            }
             bool success2 = TOKEN.transfer(PARTICIPANT, AMOUNT);
-            require(success2, "Token transfer failed");
+            if (!success2) {
+                revert FailedTransfer();
+            }
         } else {
             // In winning event, all funds are transfered to the winner
             bool success = TOKEN.transfer(_winner, AMOUNT * 2);
-            require(success, "Token transfer failed");
+            if (!success) {
+                revert FailedTransfer();
+            }
         }
 
         // Update state variables
+        status = Status.Settled;
         winner = _winner;
-        settled = true;
         // Emit event
         emit BetSettled(_winner);
     }
