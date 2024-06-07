@@ -15,8 +15,15 @@ contract Bet {
     address public immutable ARBITRATOR;
     uint256 public immutable VALID_UNTIL;
 
-    bool public accepted = false;
-    bool public settled = false;
+    enum Status {
+        Pending,
+        Declined,
+        Accepted,
+        Settled
+    }
+    Status private status = Status.Pending;
+
+    bool private fundsWithdrawn = false;
     address public winner;
 
     constructor(
@@ -62,14 +69,6 @@ contract Bet {
         _;
     }
 
-    function isOfferExpired() public view returns (bool) {
-        return block.timestamp >= VALID_UNTIL && (!accepted || !settled);
-    }
-
-    function isBetActive() public view returns (bool) {
-        return !settled && !isOfferExpired();
-    }
-
     struct BetDetails {
         uint256 betId;
         address creator;
@@ -91,11 +90,26 @@ contract Bet {
                 ARBITRATOR
             );
     }
+    function isExpired() private view returns (bool) {
+        return block.timestamp >= VALID_UNTIL && status == Status.Pending;
+    }
+    function getStatus() public view returns (string memory) {
+        if (isExpired()) {
+            return "expired";
+        } else if (status == Status.Pending) {
+            return "pending";
+        } else if (status == Status.Declined) {
+            return "declined";
+        } else if (status == Status.Accepted) {
+            return "accepted";
+        } else {
+            return "settled";
+        }
+    }
 
     function acceptBet() public onlyParticipant {
-        require(!accepted, "Bet has already been accepted");
-        require(!settled, "Bet has already been settled");
-        require(!isOfferExpired(), "Bet expired");
+        require(!isExpired(), "Bet expired");
+        require(status == Status.Pending, "Bet must be pending");
         require(
             AMOUNT <= IERC20(TOKEN).allowance(msg.sender, address(this)),
             "Must give approval to send tokens"
@@ -105,46 +119,43 @@ contract Bet {
         bool success = TOKEN.transferFrom(msg.sender, address(this), AMOUNT);
         require(success, "Token transfer failed");
         // Update state variables
-        accepted = true;
+        status = Status.Accepted;
         // Emit event
         emit BetAccepted();
     }
 
     function declineBet() public onlyParticipant {
-        require(!accepted, "Bet has already been accepted");
-        require(!settled, "Bet has already been settled");
-        require(!isOfferExpired(), "Bet expired");
+        require(!isExpired(), "Bet expired");
+        require(status == Status.Pending, "Bet must be pending");
 
         // Return tokens to original party
         bool success = TOKEN.transfer(CREATOR, AMOUNT);
         require(success, "Token transfer failed");
         // Update state variables
-        settled = true;
+        status = Status.Declined;
         // Emit event
         emit BetDeclined();
     }
 
     function retrieveTokens() public onlyCreator {
-        require(!accepted, "Bet has already been accepted");
-        require(!settled, "Bet has already been settled");
-        require(isOfferExpired(), "Bet is still valid");
+        require(isExpired(), "Bet must be expired");
+        require(!fundsWithdrawn, "Funds already withdrawn");
 
         // Return tokens to bet creator
         bool success = TOKEN.transfer(CREATOR, AMOUNT);
         require(success, "Token transfer failed");
-        // Update state variables
-        settled = true;
+        // Update state
+        fundsWithdrawn = true;
     }
 
     function settleBet(address _winner) public onlyArbitrator {
+        require(status == Status.Accepted, "Bet must be accepted");
         require(
             _winner == CREATOR ||
                 _winner == PARTICIPANT ||
                 _winner == 0x0000000000000000000000000000000000000000,
             "Winner must be a betting party"
         );
-        require(accepted, "Bet has not been accepted yet");
-        require(!settled, "Bet has already been settled");
 
         // Transfer tokens to winner
         if (_winner == 0x0000000000000000000000000000000000000000) {
@@ -160,8 +171,8 @@ contract Bet {
         }
 
         // Update state variables
+        status = Status.Settled;
         winner = _winner;
-        settled = true;
         // Emit event
         emit BetSettled(_winner);
     }
