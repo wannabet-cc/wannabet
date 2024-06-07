@@ -20,9 +20,7 @@ contract BetFactory {
     }
     mapping(address userAddress => BetInfo[] betInfo) public userBets;
 
-    function getUserBetCount(
-        address _userAddress
-    ) public view returns (uint256) {
+    function userBetCount(address _userAddress) public view returns (uint256) {
         return userBets[_userAddress].length;
     }
 
