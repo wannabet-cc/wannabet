@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) ([github](https://github.com/olivierlacan/keep-a-changelog/tree/main))
 
+## [0.4.0] - 2024-06-06
+
+### Added
+
+- Bet homepage
+- Frame transactions for creating, accepting, declining, and settling a bet
+- Frame transaction for authorizing a transfer of tokens to the bet contract
+- Frame transaction for recovering your funds if a bet offer expires
+
 ## [0.3.0] - 2024-06-03
 
 ### Added
