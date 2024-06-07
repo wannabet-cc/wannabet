@@ -30,22 +30,22 @@ export const settleScreen = async (
     functionName: "betAddresses",
     args: [BigInt(betId)],
   });
-  const creator = await arbitrumSepoliaClient.readContract({
+  const [
+    _betId,
+    creator,
+    participant,
+    amount,
+    token,
+    message,
+    arbitrator,
+    validUntil,
+  ] = await arbitrumSepoliaClient.readContract({
     address: contractAddress,
     abi: betAbi,
-    functionName: "CREATOR",
-  });
-  const participant = await arbitrumSepoliaClient.readContract({
-    address: contractAddress,
-    abi: betAbi,
-    functionName: "PARTICIPANT",
+    functionName: "getBetDetails",
+    args: [],
   });
   const burnAddress = "0x0000000000000000000000000000000000000000"; // Selecting the burn address as winner means tie
-  const message = await arbitrumSepoliaClient.readContract({
-    address: contractAddress,
-    abi: betAbi,
-    functionName: "MESSAGE",
-  });
 
   return c.res({
     image: (

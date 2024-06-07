@@ -3,9 +3,13 @@ import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { z } from "zod";
 import { arbitrumSepoliaClient } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
-import { TESTNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
+import {
+  TESTNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
+  TESTNET_BET_FACTORY_CONTRACT_ADDRESS,
+} from "../contracts/addresses";
 import { betAbi } from "../contracts/betAbi";
-import { shortenHexAddress } from "../utils";
+import { capitalizeFirstLetter, shortenHexAddress } from "../utils";
+import { FiatTokenProxyAbi } from "../contracts/usdcAbi";
 
 export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
   const { betId } = c.req.param();
@@ -28,51 +32,31 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
     functionName: "betAddresses",
     args: [BigInt(betId)],
   });
-  const isActive = await arbitrumSepoliaClient.readContract({
-    address: contractAddress,
-    abi: betAbi,
-    functionName: "isBetActive",
+  const contractAmount = await arbitrumSepoliaClient.readContract({
+    address: TESTNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
+    abi: FiatTokenProxyAbi,
+    functionName: "balanceOf",
+    args: [contractAddress],
   });
-  const isExpired = await arbitrumSepoliaClient.readContract({
+  const [
+    _betId,
+    creator,
+    participant,
+    amount,
+    token,
+    message,
+    arbitrator,
+    validUntil,
+  ] = await arbitrumSepoliaClient.readContract({
     address: contractAddress,
     abi: betAbi,
-    functionName: "isOfferExpired",
+    functionName: "getBetDetails",
+    args: [],
   });
-  const accepted = await arbitrumSepoliaClient.readContract({
+  const status = await arbitrumSepoliaClient.readContract({
     address: contractAddress,
     abi: betAbi,
-    functionName: "accepted",
-  });
-  const settled = await arbitrumSepoliaClient.readContract({
-    address: contractAddress,
-    abi: betAbi,
-    functionName: "settled",
-  });
-  const creator = await arbitrumSepoliaClient.readContract({
-    address: contractAddress,
-    abi: betAbi,
-    functionName: "CREATOR",
-  });
-  const amount = await arbitrumSepoliaClient.readContract({
-    address: contractAddress,
-    abi: betAbi,
-    functionName: "AMOUNT",
-  });
-  const convertedAmount = Number(amount) / 10 ** 6;
-  const message = await arbitrumSepoliaClient.readContract({
-    address: contractAddress,
-    abi: betAbi,
-    functionName: "MESSAGE",
-  });
-  const participant = await arbitrumSepoliaClient.readContract({
-    address: contractAddress,
-    abi: betAbi,
-    functionName: "PARTICIPANT",
-  });
-  const arbitrator = await arbitrumSepoliaClient.readContract({
-    address: contractAddress,
-    abi: betAbi,
-    functionName: "ARBITRATOR",
+    functionName: "getStatus",
   });
   const winner = await arbitrumSepoliaClient.readContract({
     address: contractAddress,
@@ -86,12 +70,15 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
   const isParticipant = frameData?.address === participant;
   const isArbitrator = frameData?.address === arbitrator;
 
+  const isTie = winner !== creator && winner !== participant;
+
+  const convertedAmount = Number(amount) / 10 ** 6;
+
   return c.res({
     image: (
       <div style={{ ...backgroundStyles }}>
         <span>
-          WannaBet #{betId}
-          {isActive ? " - Active" : isExpired ? " - Expired" : " - Settled"}
+          WannaBet #{betId} - {capitalizeFirstLetter(status)}
         </span>
         <span style={{ ...subTextStyles, marginTop: 20 }}>
           <span style={{ textDecorationLine: "underline", marginRight: 10 }}>
@@ -122,48 +109,32 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
         >
           {message}.
         </span>
-        {isActive ? (
-          accepted ? (
-            <span style={{ ...subTextStyles, marginTop: 50 }}>
-              <span style={{ marginRight: 10 }}>
-                {shortenHexAddress(participant)}
-              </span>
-              accepted! Awaiting result.
-            </span>
-          ) : (
-            <span style={{ ...subTextStyles, marginTop: 50 }}>
-              <span style={{ marginRight: 10 }}>
-                {shortenHexAddress(participant)}
-              </span>
-              can accept or decline.
-            </span>
-          )
-        ) : isExpired ? (
-          <span style={{ ...subTextStyles, marginTop: 50 }}>
-            <span style={{ marginRight: 10 }}>
-              {shortenHexAddress(participant)}
-            </span>
-            failed to accept in time. The bet creator can retrieve their funds.
+        {status === "pending" && (
+          <span style={{ ...subTextStyles, marginTop: 30 }}>
+            ${shortenHexAddress(participant)} can accept or decline
           </span>
-        ) : accepted ? (
-          <span style={{ ...subTextStyles, marginTop: 50 }}>
-            {winner === "0x0000000000000000000000000000000000000000" ? (
-              <>The bet was a tie</>
-            ) : (
-              <>
-                <span style={{ marginRight: 10 }}>
-                  {shortenHexAddress(winner)}
-                </span>
-                won the bet!
-              </>
-            )}
+        )}
+        {status === "expired" && (
+          <span style={{ ...subTextStyles, marginTop: 30 }}>
+            ${shortenHexAddress(participant)} didn't accept in time. The bet
+            creator can retrieve their funds.
           </span>
-        ) : (
-          <span style={{ ...subTextStyles, marginTop: 50 }}>
-            <span style={{ marginRight: 10 }}>
-              {shortenHexAddress(participant)}
-            </span>
-            Declined the bet.
+        )}
+        {status === "declined" && (
+          <span style={{ ...subTextStyles, marginTop: 30 }}>
+            ${shortenHexAddress(participant)} declined the bet
+          </span>
+        )}
+        {status === "accepted" && (
+          <span style={{ ...subTextStyles, marginTop: 30 }}>
+            ${shortenHexAddress(participant)} accepted! Awaiting the result
+          </span>
+        )}
+        {status === "settled" && (
+          <span style={{ ...subTextStyles, marginTop: 30 }}>
+            {isTie
+              ? "The bet was a tie! The pot was split."
+              : `Bet settled! ${shortenHexAddress(winner)} won.`}
           </span>
         )}
       </div>
@@ -178,24 +149,24 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
         value="create"
         children={"Create new"}
       />,
-      isParticipant && !accepted && isActive ? (
+      isParticipant && status === "pending" ? (
         <Button.Transaction
           action={`${url}/accept`}
           target={`/tx/authorize/${contractAddress}`}
           children={"Authorize"}
         />
       ) : null,
-      isParticipant && !accepted && isActive ? (
+      isParticipant && status === "pending" ? (
         <Button.Transaction
           action={url}
           target={`/tx/decline/${contractAddress}`}
           children={"Decline"}
         />
       ) : null,
-      isArbitrator && accepted && isActive ? (
+      isArbitrator && status === "accepted" ? (
         <Button action={`${url}/settle`} children={"Settle"} />
       ) : null,
-      isCreator && isExpired && !settled ? (
+      isCreator && status === "expired" && Number(contractAmount) > 0 ? (
         <Button.Transaction
           target={`/tx/retrieve/${contractAddress}`}
           children={"Retrieve funds"}
