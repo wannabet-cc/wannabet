@@ -7,9 +7,9 @@ import {Bet} from "contracts/Bet.sol";
 contract BetFactory {
     uint256 public betCount = 0;
     // bet id -> contract address
-    mapping(uint256 betId => address contractAddress) public betAddresses;
+    mapping(uint256 _betId => address contractAddress) public betAddresses;
     // contract address -> bet id
-    mapping(address contractAddress => uint256 betId) public betIds;
+    mapping(address _contractAddress => uint256 betId) public betIds;
     // user address -> bet
     struct BetInfo {
         uint256 betId;
@@ -18,7 +18,7 @@ contract BetFactory {
         bool isParticipant;
         bool isArbitrator;
     }
-    mapping(address userAddress => BetInfo[] betInfo) public userBets;
+    mapping(address _userAddress => BetInfo[] betInfo) public userBets;
 
     function userBetCount(address _userAddress) public view returns (uint256) {
         return userBets[_userAddress].length;
