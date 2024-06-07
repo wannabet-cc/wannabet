@@ -8,6 +8,7 @@ error Expired();
 error InvalidStatus();
 error FailedTransfer();
 error FundsAlreadyWithdrawn();
+error BadInput();
 
 contract Bet {
     uint256 public immutable BET_ID;
