@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) ([github](https://github.com/olivierlacan/keep-a-changelog/tree/main))
 
+## [0.5.0] - 2024-06-07
+
+### Added
+
+- Status enum & getStatus function
+- Function for getting all bet details at once, 'getBetDetails'
+- Custom errors for gas efficiency
+- Bet id state to each contract
+
+### Changed
+
+- Immutable contract vars changed from public to private for gas efficiency and simplicity; data can be fetched from 'getBetDetails' function
+- 'require' statements changed to 'if / revert' for gas efficiency
+- 'isOfferExpired' changed to 'isExpired'
+
+### Removed
+
+- Status boolean variables & return functions (i.e. 'accepted', 'settled', and 'isBetActive'); replaced with one 'getStatus' function
+
 ## [0.4.0] - 2024-06-06
 
 ### Added
