@@ -9,7 +9,7 @@ export const backgroundStyles = {
   paddingBottom: 40,
   paddingLeft: 80,
   paddingRight: 80,
-  fontSize: 92,
+  fontSize: 76,
   width: "100%",
   height: "100%",
   backgroundColor: "#0D0915",
