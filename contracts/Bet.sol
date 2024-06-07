@@ -18,6 +18,32 @@ contract Bet {
     bool public settled = false;
     address public winner;
 
+    struct BetDetails {
+        address creator;
+        address participant;
+        uint256 amount;
+        IERC20 token;
+        string message;
+        address arbitrator;
+        bool accepted;
+        bool settled;
+        address winner;
+    }
+    function getBetDetails() public view returns (BetDetails memory) {
+        return
+            BetDetails(
+                CREATOR,
+                PARTICIPANT,
+                AMOUNT,
+                TOKEN,
+                MESSAGE,
+                ARBITRATOR,
+                accepted,
+                settled,
+                winner
+            );
+    }
+
     constructor(
         address _creator,
         address _participant,
