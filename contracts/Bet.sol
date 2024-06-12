@@ -19,6 +19,7 @@ contract Bet {
     string private MESSAGE;
     address private immutable ARBITRATOR;
     uint256 private immutable VALID_UNTIL;
+    address private immutable FACTORY_CONTRACT;
 
     enum Status {
         Pending,
@@ -39,7 +40,8 @@ contract Bet {
         address _token,
         string memory _message,
         address _arbitrator,
-        uint256 _validFor
+        uint256 _validFor,
+        address _factoryContract
     ) {
         BET_ID = _betId;
         CREATOR = _creator;
@@ -49,11 +51,12 @@ contract Bet {
         MESSAGE = _message;
         ARBITRATOR = _arbitrator;
         VALID_UNTIL = block.timestamp + _validFor;
+        FACTORY_CONTRACT = _factoryContract;
     }
 
-    event BetAccepted();
-    event BetDeclined();
-    event BetSettled(address indexed winner);
+    event BetAccepted(address indexed factoryContract);
+    event BetDeclined(address indexed factoryContract);
+    event BetSettled(address indexed factoryContract, address indexed winner);
 
     modifier onlyCreator() {
         if (msg.sender != CREATOR) revert Unauthorized();
@@ -68,7 +71,7 @@ contract Bet {
         _;
     }
 
-    function getBetDetails()
+    function betDetails()
         public
         view
         returns (
@@ -121,7 +124,7 @@ contract Bet {
         // Update state variables
         status = Status.Accepted;
         // Emit event
-        emit BetAccepted();
+        emit BetAccepted(FACTORY_CONTRACT);
     }
 
     function declineBet() public onlyParticipant {
@@ -135,7 +138,7 @@ contract Bet {
         // Update state variables
         status = Status.Declined;
         // Emit event
-        emit BetDeclined();
+        emit BetDeclined(FACTORY_CONTRACT);
     }
 
     function retrieveTokens() public onlyCreator {
@@ -181,6 +184,6 @@ contract Bet {
         status = Status.Settled;
         winner = _winner;
         // Emit event
-        emit BetSettled(_winner);
+        emit BetSettled(FACTORY_CONTRACT, _winner);
     }
 }

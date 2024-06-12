@@ -27,12 +27,10 @@ contract BetFactory {
     constructor() {}
 
     event BetCreated(
-        address contractAddress,
+        address indexed contractAddress,
         address indexed creator,
-        address indexed participant,
-        address indexed arbitrator,
-        uint256 amount,
-        string message
+        address participant,
+        uint256 indexed amount
     );
 
     function createBet(
@@ -97,14 +95,7 @@ contract BetFactory {
                     BetInfo(betCount, address(newBet), false, false, true)
                 );
             // Emit event
-            emit BetCreated(
-                address(newBet),
-                msg.sender,
-                _participant,
-                _arbitrator,
-                _amount,
-                _message
-            );
+            emit BetCreated(address(newBet), msg.sender, _participant, _amount);
         } catch {
             revert("Deployment or token transfer failed");
         }
