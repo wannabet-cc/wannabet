@@ -58,7 +58,8 @@ contract BetFactory {
                 _token,
                 _message,
                 _arbitrator,
-                _validFor
+                _validFor,
+                address(this)
             )
         returns (Bet newBet) {
             // Transfer tokens to new contract
