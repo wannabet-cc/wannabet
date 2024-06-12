@@ -111,23 +111,23 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
         </span>
         {status === "pending" && (
           <span style={{ ...subTextStyles, marginTop: 30 }}>
-            ${shortenHexAddress(participant)} can accept or decline
+            {shortenHexAddress(participant)} can accept or decline
           </span>
         )}
         {status === "expired" && (
           <span style={{ ...subTextStyles, marginTop: 30 }}>
-            ${shortenHexAddress(participant)} didn't accept in time. The bet
+            {shortenHexAddress(participant)} didn't accept in time. The bet
             creator can retrieve their funds.
           </span>
         )}
         {status === "declined" && (
           <span style={{ ...subTextStyles, marginTop: 30 }}>
-            ${shortenHexAddress(participant)} declined the bet
+            {shortenHexAddress(participant)} declined the bet
           </span>
         )}
         {status === "accepted" && (
           <span style={{ ...subTextStyles, marginTop: 30 }}>
-            ${shortenHexAddress(participant)} accepted! Awaiting the result
+            {shortenHexAddress(participant)} accepted! Awaiting the result
           </span>
         )}
         {status === "settled" && (
