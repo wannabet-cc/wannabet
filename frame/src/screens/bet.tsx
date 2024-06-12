@@ -26,6 +26,22 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
     });
   }
 
+  const betCount = await arbitrumSepoliaClient.readContract({
+    address: TESTNET_BET_FACTORY_CONTRACT_ADDRESS,
+    abi: betFactoryAbi,
+    functionName: "betCount",
+  });
+  if (parsedBetId > betCount) {
+    return c.res({
+      image: (
+        <div style={{ ...backgroundStyles }}>
+          <span>Bet doesn't exist yet</span>
+        </div>
+      ),
+      intents: [<Button action={`/home`} children={"Home"} />],
+    });
+  }
+
   const contractAddress = await arbitrumSepoliaClient.readContract({
     address: TESTNET_BET_FACTORY_CONTRACT_ADDRESS,
     abi: betFactoryAbi,
