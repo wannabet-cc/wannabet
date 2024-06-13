@@ -2,6 +2,7 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import { Address } from "viem";
+import { ethers } from "ethers";
 import neynarClient from "./neynarClient";
 import { isApiErrorResponse } from "@neynar/nodejs-sdk";
 import { arbitrumSepoliaClient } from "./viem";
