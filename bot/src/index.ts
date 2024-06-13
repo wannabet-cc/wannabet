@@ -86,7 +86,7 @@ app.post("/webhooks", (req: Request, res: Response) => {
         castMap.delete(betId);
       } catch (err) {
         // -> handle error
-        console.log(err);
+        console.error(err);
       }
     } else if (eventSignature === BET_SETTLED_EVENT_SIGNATURE) {
       // HANDLE BET SETTLED
