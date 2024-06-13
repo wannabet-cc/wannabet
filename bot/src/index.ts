@@ -90,22 +90,27 @@ app.post("/webhooks", (req: Request, res: Response) => {
       }
     } else if (eventSignature === BET_SETTLED_EVENT_SIGNATURE) {
       // HANDLE BET SETTLED
-      // -> parse contract address
-      const betAddress = log.account.address;
-      // -> remove contract address from webhook
-      removeAddress(betAddress);
-      // -> get bet info
-      const { betId, arbitrator } = await getBetDetails(betAddress);
-      const winner = await getBetWinner(betAddress);
-      const isTie = winner === "0x0000000000000000000000000000000000000000";
-      // -> cast about bet settled
-      const castHash = castMap.get(Number(betId));
-      const castMessage = `${arbitrator} settled the bet. ${
-        isTie ? "Both parties tied!" : `${winner} won!`
-      }`;
-      publishCast(castMessage, { replyToCastHash: castHash });
-      // -> remove from cast directory
-      castMap.delete(betId);
+      try {
+        // -> parse contract address
+        const betAddress = log.account.address;
+        // -> remove contract address from webhook
+        removeAddress(betAddress);
+        // -> get bet info
+        const { betId, arbitrator } = await getBetDetails(betAddress);
+        const winner = await getBetWinner(betAddress);
+        const isTie = winner === "0x0000000000000000000000000000000000000000";
+        // -> cast about bet settled
+        const castHash = castMap.get(Number(betId));
+        const castMessage = `${arbitrator} settled the bet. ${
+          isTie ? "Both parties tied!" : `${winner} won!`
+        }`;
+        publishCast(castMessage, { replyToCastHash: castHash });
+        // -> remove from cast directory
+        castMap.delete(betId);
+      } catch (err) {
+        // -> handle error
+        console.error(err);
+      }
     } else {
       // handle error... unexpected scenario
     }
