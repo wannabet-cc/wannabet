@@ -28,6 +28,8 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Express Server");
 });
 
+const castMap = new Map();
+
 app.post("/webhooks", (req: Request, res: Response) => {
   const eventData = req.body as EventData;
   const logData = eventData.event.data.block.logs;
@@ -39,6 +41,8 @@ app.post("/webhooks", (req: Request, res: Response) => {
       try {
         // -> parse new contract address
         const newContractAddress = ethers.getAddress(log.topics[1]) as Address;
+        // -> add new contract address to webhook
+        addAddress(newContractAddress);
         // -> get bet info
         const { betId, creator, participant, amount } = await getBetDetails(
           newContractAddress
@@ -46,9 +50,9 @@ app.post("/webhooks", (req: Request, res: Response) => {
         // -> cast about the bet creation
         const castMessage = `${creator} offered a new ${amount} USDC bet to ${participant}`;
         const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
-        publishCast(castMessage, frameUrl);
-        // -> add new contract address to webhook
-        addAddress(newContractAddress);
+        const parentHash = await publishCast(castMessage, frameUrl);
+        // -> add to cast directory
+        castMap.set(betId, parentHash);
       } catch (err) {
         // -> handle error
         console.error(err);
@@ -150,8 +154,9 @@ const publishCast = async (
       channel_id: WANNA_BET_CHANNEL_ID,
       embeds: frameUrl ? [{ url: frameUrl }] : undefined,
     };
-    await neynarClient.publishCast(SIGNER_UUID, message, options);
+    const res = await neynarClient.publishCast(SIGNER_UUID, message, options);
     console.log("Cast published successfully");
+    return res.hash;
   } catch (err) {
     // Error handling, checking if it's an API response error.
     if (isApiErrorResponse(err)) {
