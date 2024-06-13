@@ -57,13 +57,21 @@ app.post("/webhooks", (req: Request, res: Response) => {
         console.error(err);
       }
     } else if (eventSignature === betAcceptedSignature) {
-      // handle bet accepted
+      // HANDLE BET ACCEPTED
+      // -> parse contract address
+      // -> cast about bet acceptance
     } else if (eventSignature === betDeclinedSignature) {
-      // handle bet declined
+      // HANDLE BET DECLINED
+      // -> parse contract address
+      // -> cast about bet decline
+      // -> remove contract address from webhook
     } else if (eventSignature === betSettledSignature) {
-      // handle bet settled
+      // HANDLE BET SETTLED
+      // -> parse contract address
+      // -> cast about bet settled
+      // -> remove contract address from webhook
     } else {
-      // handle error
+      // handle error... unexpected scenario
     }
   });
 
