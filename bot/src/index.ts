@@ -3,8 +3,7 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import { Address } from "viem";
 import { ethers } from "ethers";
-import neynarClient from "./neynar";
-import { isApiErrorResponse } from "@neynar/nodejs-sdk";
+import { publishCast } from "./neynar";
 import { arbitrumSepoliaClient } from "./viem";
 import { betAbi } from "./contracts/betAbi";
 import {
@@ -13,8 +12,6 @@ import {
   BET_DECLINED_EVENT_SIGNATURE,
   BET_SETTLED_EVENT_SIGNATURE,
   FRAME_BASE_URL,
-  SIGNER_UUID,
-  WANNA_BET_CHANNEL_ID,
 } from "./config";
 import { addAddress } from "./webhook";
 
@@ -154,35 +151,6 @@ async function getBetDetails(betContractAddress: Address) {
     validUntil,
   };
 }
-
-const publishCast = async (
-  message: string,
-  options: {
-    replyToCastHash?: string;
-    frameUrl?: string;
-  }
-) => {
-  try {
-    // -> use neynarClient to publish the cast
-    const neynarOptions = {
-      replyTo: options.replyToCastHash,
-      channelId: WANNA_BET_CHANNEL_ID,
-      embeds: options.frameUrl ? [{ url: options.frameUrl }] : undefined,
-    };
-    const res = await neynarClient.publishCast(
-      SIGNER_UUID,
-      message,
-      neynarOptions
-    );
-    console.log("Cast published successfully");
-    return res.hash;
-  } catch (err) {
-    // -> check if API response error
-    if (isApiErrorResponse(err)) {
-      console.log(err.response.data);
-    } else console.log(err);
-  }
-};
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
