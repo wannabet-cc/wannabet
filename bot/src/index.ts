@@ -50,7 +50,7 @@ app.post("/webhooks", (req: Request, res: Response) => {
         // -> cast about the bet creation
         const castMessage = `${creator} offered a new ${amount} USDC bet to ${participant}`;
         const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
-        const parentHash = await publishCast(castMessage, frameUrl);
+        const parentHash = await publishCast(castMessage, { frameUrl });
         // -> add to cast directory
         castMap.set(betId, parentHash);
       } catch (err) {
@@ -59,8 +59,19 @@ app.post("/webhooks", (req: Request, res: Response) => {
       }
     } else if (eventSignature === BET_ACCEPTED_EVENT_SIGNATURE) {
       // HANDLE BET ACCEPTED
+      try {
       // -> parse contract address
-      // -> cast about bet acceptance
+        const betAddress = log.account.address;
+        // -> get bet info
+        const { betId, participant } = await getBetDetails(betAddress);
+        // -> cast about the bet acceptance
+        const castHash = castMap.get(Number(betId));
+        const castMessage = `${participant} accepted the bet! Awaiting the results...`;
+        publishCast(castMessage, { replyToCastHash: castHash });
+      } catch (err) {
+        // -> handle error
+        console.error(err);
+      }
     } else if (eventSignature === BET_DECLINED_EVENT_SIGNATURE) {
       // HANDLE BET DECLINED
       // -> parse contract address
@@ -146,19 +157,27 @@ async function getBetDetails(betContractAddress: Address) {
 
 const publishCast = async (
   message: string,
-  frameUrl: string | undefined = undefined
+  options: {
+    replyToCastHash?: string;
+    frameUrl?: string;
+  }
 ) => {
   try {
-    // Using the neynarClient to publish the cast.
-    const options = {
-      channel_id: WANNA_BET_CHANNEL_ID,
-      embeds: frameUrl ? [{ url: frameUrl }] : undefined,
+    // -> use neynarClient to publish the cast
+    const neynarOptions = {
+      replyTo: options.replyToCastHash,
+      channelId: WANNA_BET_CHANNEL_ID,
+      embeds: options.frameUrl ? [{ url: options.frameUrl }] : undefined,
     };
-    const res = await neynarClient.publishCast(SIGNER_UUID, message, options);
+    const res = await neynarClient.publishCast(
+      SIGNER_UUID,
+      message,
+      neynarOptions
+    );
     console.log("Cast published successfully");
     return res.hash;
   } catch (err) {
-    // Error handling, checking if it's an API response error.
+    // -> check if API response error
     if (isApiErrorResponse(err)) {
       console.log(err.response.data);
     } else console.log(err);
