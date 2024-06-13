@@ -8,7 +8,8 @@ const FARCASTER_BOT_MNEMONIC = process.env.FARCASTER_BOT_MNEMONIC!;
 const SIGNER_UUID = process.env.SIGNER_UUID!;
 
 // Farcaster constants
-const WANNA_BET_CHANNEL_ID = "https://warpcast.com/~/channel/wannabet";
+const WANNA_BET_CHANNEL_ID = "wannabet";
+const WANNA_BET_CHANNEL_URL = "https://warpcast.com/~/channel/wannabet";
 
 // Smart contract constants
 const BET_CREATED_EVENT_SIGNATURE =
@@ -29,6 +30,7 @@ export {
   FARCASTER_BOT_MNEMONIC,
   SIGNER_UUID,
   WANNA_BET_CHANNEL_ID,
+  WANNA_BET_CHANNEL_URL,
   BET_CREATED_EVENT_SIGNATURE,
   BET_ACCEPTED_EVENT_SIGNATURE,
   BET_DECLINED_EVENT_SIGNATURE,
