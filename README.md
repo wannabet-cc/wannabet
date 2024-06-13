@@ -46,11 +46,12 @@ There are two contracts:
     - [x] Creators can retrieve their funds if their offer expired
   - [ ] Add ens compatibility
 - [ ] Farcaster Bot
-  - [ ] Generate signer
-  - [ ] Set up webhooks for when a bet is created, accepted, and settled
-  - [ ] Cast when:
-    - [ ] A new bet is created (tag @creator and @participant)
-    - [ ] A bet is accepted or declined (tag @arbitrator)
-    - [ ] A bet ties or a winner is chosen (tag @winner)
+  - [x] Generate signer
+  - [x] Set up webhooks for when a bet is created, accepted, and settled
+  - [x] Cast when:
+    - [x] A new bet is created ~~(tag @creator and @participant)~~
+    - [x] A bet is accepted or declined ~~(tag @arbitrator)~~
+    - [x] A bet ties or a winner is chosen ~~(tag @winner)~~
     - [ ] A bet is almost expired (reply to creation cast; tag @participant)
     - [ ] A bet is expired (reply to creation cast; tag @creator)
+  - [ ] Tag users when casting
