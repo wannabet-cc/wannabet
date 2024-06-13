@@ -8,7 +8,6 @@ import { isApiErrorResponse } from "@neynar/nodejs-sdk";
 import { arbitrumSepoliaClient } from "./viem";
 import { betAbi } from "./contracts/betAbi";
 import {
-  ALCHEMY_TOKEN,
   BET_ACCEPTED_EVENT_SIGNATURE,
   BET_CREATED_EVENT_SIGNATURE,
   BET_DECLINED_EVENT_SIGNATURE,
@@ -17,6 +16,7 @@ import {
   SIGNER_UUID,
   WANNA_BET_CHANNEL_ID,
 } from "./config";
+import { addAddress } from "./webhook";
 
 dotenv.config();
 
@@ -183,48 +183,6 @@ const publishCast = async (
     } else console.log(err);
   }
 };
-
-async function addAddress(new_address: Address) {
-  console.log("Adding address " + new_address);
-
-  const url = "https://dashboard.alchemy.com/api/graphql/variables/addressList";
-  const body = { add: [new_address] };
-  try {
-    const res = await fetch(url, {
-      method: "PATCH",
-      body: JSON.stringify(body),
-      headers: {
-        "content-type": "application/json",
-        "X-Alchemy-Token": ALCHEMY_TOKEN,
-      },
-    });
-    const data = await res.json();
-    console.log(data);
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-async function removeAddress(old_address: Address) {
-  console.log("Removing address " + old_address);
-
-  const url = "https://dashboard.alchemy.com/api/graphql/variables/addressList";
-  const body = { delete: [old_address] };
-  try {
-    const res = await fetch(url, {
-      method: "PATCH",
-      body: JSON.stringify(body),
-      headers: {
-        "content-type": "application/json",
-        "X-Alchemy-Token": ALCHEMY_TOKEN,
-      },
-    });
-    const data = await res.json();
-    console.log(data);
-  } catch (err) {
-    console.error(err);
-  }
-}
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
