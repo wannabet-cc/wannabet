@@ -43,21 +43,9 @@ app.post("/webhooks", (req: Request, res: Response) => {
         const factoryAddress = log.account.address;
         const newContractAddress = ethers.getAddress(log.topics[1]) as Address;
         // -> get bet info
-        const [
-          betId,
-          creator,
-          participant,
-          amount,
-          token,
-          message,
-          arbitrator,
-          validUntil,
-        ] = await arbitrumSepoliaClient.readContract({
-          address: newContractAddress,
-          abi: betAbi,
-          functionName: "getBetDetails",
-          args: [],
-        });
+        const { betId, creator, participant } = await getBetDetails(
+          newContractAddress
+        );
         // -> cast about the bet creation
         const castMessage = `${creator} offered a new bet to ${participant}`;
         const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
@@ -118,6 +106,34 @@ type Log = {
     value: string;
   };
 };
+
+async function getBetDetails(betContractAddress: Address) {
+  const [
+    betId,
+    creator,
+    participant,
+    amount,
+    token,
+    message,
+    arbitrator,
+    validUntil,
+  ] = await arbitrumSepoliaClient.readContract({
+    address: betContractAddress,
+    abi: betAbi,
+    functionName: "getBetDetails",
+    args: [],
+  });
+  return {
+    betId,
+    creator,
+    participant,
+    amount,
+    token,
+    message,
+    arbitrator,
+    validUntil,
+  };
+}
 
 const publishCast = async (
   message: string,
