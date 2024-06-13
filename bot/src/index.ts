@@ -3,7 +3,7 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import { Address } from "viem";
 import { ethers } from "ethers";
-import neynarClient from "./neynarClient";
+import neynarClient from "./neynar";
 import { isApiErrorResponse } from "@neynar/nodejs-sdk";
 import { arbitrumSepoliaClient } from "./viem";
 import { betAbi } from "./contracts/betAbi";
