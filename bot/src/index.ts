@@ -57,7 +57,7 @@ app.post("/webhooks", (req: Request, res: Response) => {
     } else if (eventSignature === BET_ACCEPTED_EVENT_SIGNATURE) {
       // HANDLE BET ACCEPTED
       try {
-      // -> parse contract address
+        // -> parse contract address
         const betAddress = log.account.address;
         // -> get bet info
         const { betId, participant } = await getBetDetails(betAddress);
@@ -72,13 +72,13 @@ app.post("/webhooks", (req: Request, res: Response) => {
     } else if (eventSignature === BET_DECLINED_EVENT_SIGNATURE) {
       // HANDLE BET DECLINED
       try {
-      // -> parse contract address
+        // -> parse contract address
         const betAddress = log.account.address;
         // -> remove contract address from webhook
         removeAddress(betAddress);
         // -> get bet info
         const { betId, participant } = await getBetDetails(betAddress);
-      // -> cast about bet decline
+        // -> cast about bet decline
         const castHash = castMap.get(Number(betId));
         const castMessage = `${participant} declined the bet! Funds have been returned.`;
         publishCast(castMessage, { replyToCastHash: castHash });
