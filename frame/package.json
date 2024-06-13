@@ -1,4 +1,5 @@
 {
+  "license": "MIT",
   "scripts": {
     "dev": "frog dev",
     "dev:proxy": "frog dev --proxy ngrok",
