@@ -2,6 +2,19 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import { Address } from "viem";
+import { ethers } from "ethers";
+import { publishCast } from "./neynar";
+import { arbitrumSepoliaClient } from "./viem";
+import { betAbi } from "./contracts/betAbi";
+import {
+  BET_ACCEPTED_EVENT_SIGNATURE,
+  BET_CREATED_EVENT_SIGNATURE,
+  BET_DECLINED_EVENT_SIGNATURE,
+  BET_SETTLED_EVENT_SIGNATURE,
+  FRAME_BASE_URL,
+} from "./config";
+import { addAddress, removeAddress } from "./webhook";
+import { shortenHexAddress } from "./utils";
 
 dotenv.config();
 
@@ -13,31 +26,100 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Express Server");
 });
 
-const betCreatedSignature =
-  "0xeb61722110fd856b0d96d3312d86d62fcda6eee1eee2366d2c10e1d564d120e8";
-const betAcceptedSignature =
-  "0xdd6dae32994530eefb2d3b21473a19ec9f41d294a4fd6353b9b16d2d2c674b96";
-const betDeclinedSignature =
-  "0x815a1274b6d601b9c13c3a4ca7a73f7f180c6808c6b73b68360880ab923d979a";
-const betSettledSignature =
-  "0x1263c5e68e09cb9dfb7e7df0f53d955963a974e73d6ef177fadeb882cd9629ab";
+const castMap = new Map();
 
 app.post("/webhooks", (req: Request, res: Response) => {
   const eventData = req.body as EventData;
   const logData = eventData.event.data.block.logs;
 
-  logData.forEach((log) => {
+  logData.forEach(async (log) => {
     const eventSignature = log.topics[0];
-    if (eventSignature === betCreatedSignature) {
-      // handle bet creation
-    } else if (eventSignature === betAcceptedSignature) {
-      // handle bet accepted
-    } else if (eventSignature === betDeclinedSignature) {
-      // handle bet declined
-    } else if (eventSignature === betSettledSignature) {
-      // handle bet settled
+    if (eventSignature === BET_CREATED_EVENT_SIGNATURE) {
+      // HANDLE BET CREATION
+      try {
+        // -> parse new contract address
+        const newContractAddress = ethers.getAddress(log.topics[1]) as Address;
+        // -> add new contract address to webhook
+        addAddress(newContractAddress);
+        // -> get bet info
+        const { betId, creator, participant, amount } = await getBetDetails(
+          newContractAddress
+        );
+        // -> cast about the bet creation
+        const formattedCreator = shortenHexAddress(creator);
+        const formattedParticipant = shortenHexAddress(participant);
+        const castMessage = `${formattedCreator} offered a new ${amount} USDC bet to ${formattedParticipant}`;
+        const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
+        const parentHash = await publishCast(castMessage, { frameUrl });
+        // -> add to cast directory
+        castMap.set(betId, parentHash);
+      } catch (err) {
+        // -> handle error
+        console.error(err);
+      }
+    } else if (eventSignature === BET_ACCEPTED_EVENT_SIGNATURE) {
+      // HANDLE BET ACCEPTED
+      try {
+        // -> parse contract address
+        const betAddress = log.account.address;
+        // -> get bet info
+        const { betId, participant } = await getBetDetails(betAddress);
+        // -> cast about the bet acceptance
+        const formattedParticipant = shortenHexAddress(participant);
+        const castMessage = `${formattedParticipant} accepted the bet! Awaiting the results...`;
+        const castHash = castMap.get(Number(betId));
+        publishCast(castMessage, { replyToCastHash: castHash });
+      } catch (err) {
+        // -> handle error
+        console.error(err);
+      }
+    } else if (eventSignature === BET_DECLINED_EVENT_SIGNATURE) {
+      // HANDLE BET DECLINED
+      try {
+        // -> parse contract address
+        const betAddress = log.account.address;
+        // -> remove contract address from webhook
+        removeAddress(betAddress);
+        // -> get bet info
+        const { betId, participant } = await getBetDetails(betAddress);
+        // -> cast about bet decline
+        const formattedParticipant = shortenHexAddress(participant);
+        const castMessage = `${formattedParticipant} declined the bet! Funds have been returned.`;
+        const castHash = castMap.get(Number(betId));
+        publishCast(castMessage, { replyToCastHash: castHash });
+        // -> remove from cast directory
+        castMap.delete(betId);
+      } catch (err) {
+        // -> handle error
+        console.error(err);
+      }
+    } else if (eventSignature === BET_SETTLED_EVENT_SIGNATURE) {
+      // HANDLE BET SETTLED
+      try {
+        // -> parse contract address
+        const betAddress = log.account.address;
+        // -> remove contract address from webhook
+        removeAddress(betAddress);
+        // -> get bet info
+        const { betId, arbitrator } = await getBetDetails(betAddress);
+        const winner = await getBetWinner(betAddress);
+        const isTie = winner === "0x0000000000000000000000000000000000000000";
+        // -> cast about bet settled
+        const formattedArbitrator = shortenHexAddress(arbitrator);
+        const formattedWinner = shortenHexAddress(winner);
+        const castMessage = `${formattedArbitrator} settled the bet. ${
+          isTie ? "Both parties tied!" : `${formattedWinner} won!`
+        }`;
+        const castHash = castMap.get(Number(betId));
+        publishCast(castMessage, { replyToCastHash: castHash });
+        // -> remove from cast directory
+        castMap.delete(betId);
+      } catch (err) {
+        // -> handle error
+        console.error(err);
+      }
     } else {
-      // handle error
+      // handle error... unexpected scenario
     }
   });
 
@@ -65,62 +147,56 @@ type Log = {
   topics: string[];
   index: number;
   account: {
-    address: string;
+    address: Address;
   };
   transaction: {
     hash: string;
     nonce: number;
     index: number;
     from: {
-      address: string;
+      address: Address;
     };
     to: {
-      address: string;
+      address: Address;
     };
     value: string;
   };
 };
 
-async function addAddress(new_address: Address) {
-  console.log("Adding address " + new_address);
-
-  const url = "https://dashboard.alchemy.com/api/graphql/variables/addressList";
-  const body = { add: [new_address] };
-  try {
-    const res = await fetch(url, {
-      method: "PATCH",
-      body: JSON.stringify(body),
-      headers: {
-        "content-type": "application/json",
-        "X-Alchemy-Token": process.env.ALCHEMY_TOKEN || "",
-      },
-    });
-    const data = await res.json();
-    console.log(data);
-  } catch (err) {
-    console.error(err);
-  }
+async function getBetDetails(betContractAddress: Address) {
+  const [
+    betId,
+    creator,
+    participant,
+    amount,
+    token,
+    message,
+    arbitrator,
+    validUntil,
+  ] = await arbitrumSepoliaClient.readContract({
+    address: betContractAddress,
+    abi: betAbi,
+    functionName: "getBetDetails",
+    args: [],
+  });
+  return {
+    betId,
+    creator,
+    participant,
+    amount,
+    token,
+    message,
+    arbitrator,
+    validUntil,
+  };
 }
-
-async function removeAddress(old_address: Address) {
-  console.log("Removing address " + old_address);
-
-  const url = "https://dashboard.alchemy.com/api/graphql/variables/addressList";
-  const body = { delete: [old_address] };
-  try {
-    const res = await fetch(url, {
-      method: "PATCH",
-      body: JSON.stringify(body),
-      headers: {
-        "content-type": "application/json",
-        "X-Alchemy-Token": process.env.ALCHEMY_TOKEN || "",
-      },
-    });
-    const data = await res.json();
-    console.log(data);
-  } catch (err) {
-    console.error(err);
-  }
+async function getBetWinner(betContractAddress: Address) {
+  const winner = await arbitrumSepoliaClient.readContract({
+    address: betContractAddress,
+    abi: betAbi,
+    functionName: "winner",
+  });
+  return winner;
 }
 
 const port = process.env.PORT || 3000;
