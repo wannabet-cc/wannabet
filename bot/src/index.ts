@@ -2,6 +2,8 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import { Address } from "viem";
+import neynarClient from "./neynarClient";
+import { isApiErrorResponse } from "@neynar/nodejs-sdk";
 
 dotenv.config();
 
@@ -12,6 +14,8 @@ app.use(express.json());
 app.get("/", (req: Request, res: Response) => {
   res.send("Express Server");
 });
+
+const WANNA_BET_CHANNEL_ID = "https://warpcast.com/~/channel/wannabet";
 
 const betCreatedSignature =
   "0xeb61722110fd856b0d96d3312d86d62fcda6eee1eee2366d2c10e1d564d120e8";
@@ -65,20 +69,37 @@ type Log = {
   topics: string[];
   index: number;
   account: {
-    address: string;
+    address: Address;
   };
   transaction: {
     hash: string;
     nonce: number;
     index: number;
     from: {
-      address: string;
+      address: Address;
     };
     to: {
-      address: string;
+      address: Address;
     };
     value: string;
   };
+};
+
+const publishCast = async (message: string, frameUrl: string | undefined) => {
+  try {
+    // Using the neynarClient to publish the cast.
+    const options = {
+      channel_id: WANNA_BET_CHANNEL_ID,
+      embeds: frameUrl ? [{ url: frameUrl }] : undefined,
+    };
+    await neynarClient.publishCast(process.env.SIGNER_UUID!, message, options);
+    console.log("Cast published successfully");
+  } catch (err) {
+    // Error handling, checking if it's an API response error.
+    if (isApiErrorResponse(err)) {
+      console.log(err.response.data);
+    } else console.log(err);
+  }
 };
 
 async function addAddress(new_address: Address) {
