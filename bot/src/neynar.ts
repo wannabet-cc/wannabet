@@ -1,10 +1,7 @@
 import { NeynarAPIClient, isApiErrorResponse } from "@neynar/nodejs-sdk";
-import { SIGNER_UUID, WANNA_BET_CHANNEL_ID } from "./config";
-import dotenv from "dotenv";
+import { NEYNAR_API_KEY, SIGNER_UUID, WANNA_BET_CHANNEL_ID } from "./config";
 
-dotenv.config();
-
-const neynarClient = new NeynarAPIClient(process.env.NEYNAR_API_KEY!);
+const neynarClient = new NeynarAPIClient(NEYNAR_API_KEY);
 
 const publishCast = async (
   message: string,
