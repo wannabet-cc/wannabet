@@ -85,7 +85,10 @@ type Log = {
   };
 };
 
-const publishCast = async (message: string, frameUrl: string | undefined) => {
+const publishCast = async (
+  message: string,
+  frameUrl: string | undefined = undefined
+) => {
   try {
     // Using the neynarClient to publish the cast.
     const options = {
