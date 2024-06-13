@@ -1,0 +1,29 @@
+# For more example use cases & queries visit:
+# https://docs.alchemy.com/reference/custom-webhooks-quickstart
+#
+query ($addressList: [Address!]) {
+  block {
+    number
+    timestamp
+    logs(filter: { addresses: $addressList }) {
+      data
+      topics
+      index
+      account {
+        address
+      }
+      transaction {
+        hash
+        nonce
+        index
+        from {
+          address
+        }
+        to {
+          address
+        }
+        value
+      }
+    }
+  }
+}
