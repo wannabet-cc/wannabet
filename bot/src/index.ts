@@ -1,6 +1,7 @@
 // src/index.ts
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
+import { Address } from "viem";
 
 dotenv.config();
 
@@ -62,6 +63,27 @@ async function addAddress(new_address: Address) {
 
   const url = "https://dashboard.alchemy.com/api/graphql/variables/addressList";
   const body = { add: [new_address] };
+  try {
+    const res = await fetch(url, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+      headers: {
+        "content-type": "application/json",
+        "X-Alchemy-Token": process.env.ALCHEMY_TOKEN || "",
+      },
+    });
+    const data = await res.json();
+    console.log(data);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function removeAddress(old_address: Address) {
+  console.log("Removing address " + old_address);
+
+  const url = "https://dashboard.alchemy.com/api/graphql/variables/addressList";
+  const body = { delete: [old_address] };
   try {
     const res = await fetch(url, {
       method: "PATCH",
