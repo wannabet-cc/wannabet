@@ -7,6 +7,16 @@ import neynarClient from "./neynarClient";
 import { isApiErrorResponse } from "@neynar/nodejs-sdk";
 import { arbitrumSepoliaClient } from "./viem";
 import { betAbi } from "./contracts/betAbi";
+import {
+  ALCHEMY_TOKEN,
+  BET_ACCEPTED_EVENT_SIGNATURE,
+  BET_CREATED_EVENT_SIGNATURE,
+  BET_DECLINED_EVENT_SIGNATURE,
+  BET_SETTLED_EVENT_SIGNATURE,
+  FRAME_BASE_URL,
+  SIGNER_UUID,
+  WANNA_BET_CHANNEL_ID,
+} from "./config";
 
 dotenv.config();
 
@@ -18,26 +28,13 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Express Server");
 });
 
-const WANNA_BET_CHANNEL_ID = "https://warpcast.com/~/channel/wannabet";
-
-const FRAME_BASE_URL = ""; // frame is not deployed yet
-
-const betCreatedSignature =
-  "0xeb61722110fd856b0d96d3312d86d62fcda6eee1eee2366d2c10e1d564d120e8";
-const betAcceptedSignature =
-  "0xdd6dae32994530eefb2d3b21473a19ec9f41d294a4fd6353b9b16d2d2c674b96";
-const betDeclinedSignature =
-  "0x815a1274b6d601b9c13c3a4ca7a73f7f180c6808c6b73b68360880ab923d979a";
-const betSettledSignature =
-  "0x1263c5e68e09cb9dfb7e7df0f53d955963a974e73d6ef177fadeb882cd9629ab";
-
 app.post("/webhooks", (req: Request, res: Response) => {
   const eventData = req.body as EventData;
   const logData = eventData.event.data.block.logs;
 
   logData.forEach(async (log) => {
     const eventSignature = log.topics[0];
-    if (eventSignature === betCreatedSignature) {
+    if (eventSignature === BET_CREATED_EVENT_SIGNATURE) {
       // HANDLE BET CREATION
       try {
         // -> parse new contract address
@@ -57,16 +54,16 @@ app.post("/webhooks", (req: Request, res: Response) => {
         // -> handle error
         console.error(err);
       }
-    } else if (eventSignature === betAcceptedSignature) {
+    } else if (eventSignature === BET_ACCEPTED_EVENT_SIGNATURE) {
       // HANDLE BET ACCEPTED
       // -> parse contract address
       // -> cast about bet acceptance
-    } else if (eventSignature === betDeclinedSignature) {
+    } else if (eventSignature === BET_DECLINED_EVENT_SIGNATURE) {
       // HANDLE BET DECLINED
       // -> parse contract address
       // -> cast about bet decline
       // -> remove contract address from webhook
-    } else if (eventSignature === betSettledSignature) {
+    } else if (eventSignature === BET_SETTLED_EVENT_SIGNATURE) {
       // HANDLE BET SETTLED
       // -> parse contract address
       // -> cast about bet settled
@@ -154,7 +151,7 @@ const publishCast = async (
       channel_id: WANNA_BET_CHANNEL_ID,
       embeds: frameUrl ? [{ url: frameUrl }] : undefined,
     };
-    await neynarClient.publishCast(process.env.SIGNER_UUID!, message, options);
+    await neynarClient.publishCast(SIGNER_UUID, message, options);
     console.log("Cast published successfully");
   } catch (err) {
     // Error handling, checking if it's an API response error.
@@ -175,7 +172,7 @@ async function addAddress(new_address: Address) {
       body: JSON.stringify(body),
       headers: {
         "content-type": "application/json",
-        "X-Alchemy-Token": process.env.ALCHEMY_TOKEN || "",
+        "X-Alchemy-Token": ALCHEMY_TOKEN,
       },
     });
     const data = await res.json();
@@ -196,7 +193,7 @@ async function removeAddress(old_address: Address) {
       body: JSON.stringify(body),
       headers: {
         "content-type": "application/json",
-        "X-Alchemy-Token": process.env.ALCHEMY_TOKEN || "",
+        "X-Alchemy-Token": ALCHEMY_TOKEN,
       },
     });
     const data = await res.json();
