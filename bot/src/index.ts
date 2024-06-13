@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import { Address } from "viem";
 import { ethers } from "ethers";
 import { publishCast } from "./neynar";
-import { arbitrumSepoliaClient } from "./viem";
+import { arbitrumClient } from "./viem";
 import { betAbi } from "./contracts/betAbi";
 import {
   BET_ACCEPTED_EVENT_SIGNATURE,
@@ -173,7 +173,7 @@ async function getBetDetails(betContractAddress: Address) {
     message,
     arbitrator,
     validUntil,
-  ] = await arbitrumSepoliaClient.readContract({
+  ] = await arbitrumClient.readContract({
     address: betContractAddress,
     abi: betAbi,
     functionName: "getBetDetails",
@@ -191,7 +191,7 @@ async function getBetDetails(betContractAddress: Address) {
   };
 }
 async function getBetWinner(betContractAddress: Address) {
-  const winner = await arbitrumSepoliaClient.readContract({
+  const winner = await arbitrumClient.readContract({
     address: betContractAddress,
     abi: betAbi,
     functionName: "winner",
