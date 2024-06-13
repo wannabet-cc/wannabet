@@ -14,6 +14,7 @@ import {
   FRAME_BASE_URL,
 } from "./config";
 import { addAddress, removeAddress } from "./webhook";
+import { shortenHexAddress } from "./utils";
 
 dotenv.config();
 
@@ -45,7 +46,9 @@ app.post("/webhooks", (req: Request, res: Response) => {
           newContractAddress
         );
         // -> cast about the bet creation
-        const castMessage = `${creator} offered a new ${amount} USDC bet to ${participant}`;
+        const formattedCreator = shortenHexAddress(creator);
+        const formattedParticipant = shortenHexAddress(participant);
+        const castMessage = `${formattedCreator} offered a new ${amount} USDC bet to ${formattedParticipant}`;
         const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
         const parentHash = await publishCast(castMessage, { frameUrl });
         // -> add to cast directory
@@ -62,8 +65,9 @@ app.post("/webhooks", (req: Request, res: Response) => {
         // -> get bet info
         const { betId, participant } = await getBetDetails(betAddress);
         // -> cast about the bet acceptance
+        const formattedParticipant = shortenHexAddress(participant);
+        const castMessage = `${formattedParticipant} accepted the bet! Awaiting the results...`;
         const castHash = castMap.get(Number(betId));
-        const castMessage = `${participant} accepted the bet! Awaiting the results...`;
         publishCast(castMessage, { replyToCastHash: castHash });
       } catch (err) {
         // -> handle error
@@ -79,8 +83,9 @@ app.post("/webhooks", (req: Request, res: Response) => {
         // -> get bet info
         const { betId, participant } = await getBetDetails(betAddress);
         // -> cast about bet decline
+        const formattedParticipant = shortenHexAddress(participant);
+        const castMessage = `${formattedParticipant} declined the bet! Funds have been returned.`;
         const castHash = castMap.get(Number(betId));
-        const castMessage = `${participant} declined the bet! Funds have been returned.`;
         publishCast(castMessage, { replyToCastHash: castHash });
         // -> remove from cast directory
         castMap.delete(betId);
@@ -100,10 +105,12 @@ app.post("/webhooks", (req: Request, res: Response) => {
         const winner = await getBetWinner(betAddress);
         const isTie = winner === "0x0000000000000000000000000000000000000000";
         // -> cast about bet settled
-        const castHash = castMap.get(Number(betId));
-        const castMessage = `${arbitrator} settled the bet. ${
-          isTie ? "Both parties tied!" : `${winner} won!`
+        const formattedArbitrator = shortenHexAddress(arbitrator);
+        const formattedWinner = shortenHexAddress(winner);
+        const castMessage = `${formattedArbitrator} settled the bet. ${
+          isTie ? "Both parties tied!" : `${formattedWinner} won!`
         }`;
+        const castHash = castMap.get(Number(betId));
         publishCast(castMessage, { replyToCastHash: castHash });
         // -> remove from cast directory
         castMap.delete(betId);
