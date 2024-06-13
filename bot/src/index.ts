@@ -38,7 +38,6 @@ app.post("/webhooks", (req: Request, res: Response) => {
       // HANDLE BET CREATION
       try {
         // -> parse new contract address
-        const factoryAddress = log.account.address;
         const newContractAddress = ethers.getAddress(log.topics[1]) as Address;
         // -> get bet info
         const { betId, creator, participant, amount } = await getBetDetails(
