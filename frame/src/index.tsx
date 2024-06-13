@@ -1,7 +1,6 @@
 import { Frog } from "frog";
 // import { devtools } from "frog/dev";
 // import { serveStatic } from "frog/serve-static";
-import { FROG_SECRET } from "./config";
 
 import { Home } from "./web";
 import { getFont } from "./fonts";
@@ -29,7 +28,7 @@ export const app = new Frog({
     message: "",
     validForDays: 7,
   },
-  secret: FROG_SECRET,
+  secret: "FbbrOev9A1f0XcH7GFrlocTQ+3TNq1wHPCi28M5s1Tk=",
 });
 
 app.get("/", (ctx) => ctx.html(<Home />));
