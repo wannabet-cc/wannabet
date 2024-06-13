@@ -91,8 +91,21 @@ app.post("/webhooks", (req: Request, res: Response) => {
     } else if (eventSignature === BET_SETTLED_EVENT_SIGNATURE) {
       // HANDLE BET SETTLED
       // -> parse contract address
-      // -> cast about bet settled
+      const betAddress = log.account.address;
       // -> remove contract address from webhook
+      removeAddress(betAddress);
+      // -> get bet info
+      const { betId, arbitrator } = await getBetDetails(betAddress);
+      const winner = await getBetWinner(betAddress);
+      const isTie = winner === "0x0000000000000000000000000000000000000000";
+      // -> cast about bet settled
+      const castHash = castMap.get(Number(betId));
+      const castMessage = `${arbitrator} settled the bet. ${
+        isTie ? "Both parties tied!" : `${winner} won!`
+      }`;
+      publishCast(castMessage, { replyToCastHash: castHash });
+      // -> remove from cast directory
+      castMap.delete(betId);
     } else {
       // handle error... unexpected scenario
     }
@@ -164,6 +177,14 @@ async function getBetDetails(betContractAddress: Address) {
     arbitrator,
     validUntil,
   };
+}
+async function getBetWinner(betContractAddress: Address) {
+  const winner = await arbitrumSepoliaClient.readContract({
+    address: betContractAddress,
+    abi: betAbi,
+    functionName: "winner",
+  });
+  return winner;
 }
 
 const port = process.env.PORT || 3000;
