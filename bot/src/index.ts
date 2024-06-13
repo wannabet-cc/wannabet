@@ -41,11 +41,11 @@ app.post("/webhooks", (req: Request, res: Response) => {
         const factoryAddress = log.account.address;
         const newContractAddress = ethers.getAddress(log.topics[1]) as Address;
         // -> get bet info
-        const { betId, creator, participant } = await getBetDetails(
+        const { betId, creator, participant, amount } = await getBetDetails(
           newContractAddress
         );
         // -> cast about the bet creation
-        const castMessage = `${creator} offered a new bet to ${participant}`;
+        const castMessage = `${creator} offered a new ${amount} USDC bet to ${participant}`;
         const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
         publishCast(castMessage, frameUrl);
         // -> add new contract address to webhook
