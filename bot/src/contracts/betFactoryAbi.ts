@@ -4,7 +4,7 @@ export const betFactoryAbi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "contractAddress",
         type: "address",
@@ -16,35 +16,23 @@ export const betFactoryAbi = [
         type: "address",
       },
       {
-        indexed: true,
+        indexed: false,
         internalType: "address",
         name: "participant",
         type: "address",
       },
       {
         indexed: true,
-        internalType: "address",
-        name: "arbitrator",
-        type: "address",
-      },
-      {
-        indexed: false,
         internalType: "uint256",
         name: "amount",
         type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "string",
-        name: "message",
-        type: "string",
       },
     ],
     name: "BetCreated",
     type: "event",
   },
   {
-    inputs: [{ internalType: "uint256", name: "betId", type: "uint256" }],
+    inputs: [{ internalType: "uint256", name: "_betId", type: "uint256" }],
     name: "betAddresses",
     outputs: [
       { internalType: "address", name: "contractAddress", type: "address" },
@@ -61,7 +49,7 @@ export const betFactoryAbi = [
   },
   {
     inputs: [
-      { internalType: "address", name: "contractAddress", type: "address" },
+      { internalType: "address", name: "_contractAddress", type: "address" },
     ],
     name: "betIds",
     outputs: [{ internalType: "uint256", name: "betId", type: "uint256" }],
@@ -86,14 +74,14 @@ export const betFactoryAbi = [
     inputs: [
       { internalType: "address", name: "_userAddress", type: "address" },
     ],
-    name: "getUserBetCount",
+    name: "userBetCount",
     outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [
-      { internalType: "address", name: "userAddress", type: "address" },
+      { internalType: "address", name: "_userAddress", type: "address" },
       { internalType: "uint256", name: "", type: "uint256" },
     ],
     name: "userBets",
