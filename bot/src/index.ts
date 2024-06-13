@@ -57,6 +57,27 @@ type Log = {
   };
 };
 
+async function addAddress(new_address: Address) {
+  console.log("Adding address " + new_address);
+
+  const url = "https://dashboard.alchemy.com/api/graphql/variables/addressList";
+  const body = { add: [new_address] };
+  try {
+    const res = await fetch(url, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+      headers: {
+        "content-type": "application/json",
+        "X-Alchemy-Token": process.env.ALCHEMY_TOKEN || "",
+      },
+    });
+    const data = await res.json();
+    console.log(data);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
