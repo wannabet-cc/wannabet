@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import { Address } from "viem";
 import neynarClient from "./neynarClient";
 import { isApiErrorResponse } from "@neynar/nodejs-sdk";
+import { arbitrumSepoliaClient } from "./viem";
+import { betAbi } from "./contracts/betAbi";
 
 dotenv.config();
 
@@ -16,6 +18,8 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 const WANNA_BET_CHANNEL_ID = "https://warpcast.com/~/channel/wannabet";
+
+const FRAME_BASE_URL = ""; // frame is not deployed yet
 
 const betCreatedSignature =
   "0xeb61722110fd856b0d96d3312d86d62fcda6eee1eee2366d2c10e1d564d120e8";
@@ -30,10 +34,40 @@ app.post("/webhooks", (req: Request, res: Response) => {
   const eventData = req.body as EventData;
   const logData = eventData.event.data.block.logs;
 
-  logData.forEach((log) => {
+  logData.forEach(async (log) => {
     const eventSignature = log.topics[0];
     if (eventSignature === betCreatedSignature) {
-      // handle bet creation
+      // HANDLE BET CREATION
+      try {
+        // -> parse new contract address
+        const factoryAddress = log.account.address;
+        const newContractAddress = ethers.getAddress(log.topics[1]) as Address;
+        // -> get bet info
+        const [
+          betId,
+          creator,
+          participant,
+          amount,
+          token,
+          message,
+          arbitrator,
+          validUntil,
+        ] = await arbitrumSepoliaClient.readContract({
+          address: newContractAddress,
+          abi: betAbi,
+          functionName: "getBetDetails",
+          args: [],
+        });
+        // -> cast about the bet creation
+        const castMessage = `${creator} offered a new bet to ${participant}`;
+        const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
+        publishCast(castMessage, frameUrl);
+        // -> add new contract address to webhook
+        addAddress(newContractAddress);
+      } catch (err) {
+        // -> handle error
+        console.error(err);
+      }
     } else if (eventSignature === betAcceptedSignature) {
       // handle bet accepted
     } else if (eventSignature === betDeclinedSignature) {
