@@ -3,10 +3,7 @@ import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { Address, isAddress } from "viem";
 import { z } from "zod";
 import type { BetInfoState } from "../types";
-import {
-  MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
-  TESTNET_BET_FACTORY_CONTRACT_ADDRESS,
-} from "../contracts/addresses";
+import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
 
 export const createScreen = async (
   c: FrameContext<{ State: BetInfoState }, "/bet/:betId/create/:pageNum">

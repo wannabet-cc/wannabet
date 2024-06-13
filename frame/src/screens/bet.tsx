@@ -1,11 +1,11 @@
 import { Button, Env, FrameContext } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { z } from "zod";
-import { arbitrumSepoliaClient } from "../viem";
+import { arbitrumClient } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import {
-  TESTNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
-  TESTNET_BET_FACTORY_CONTRACT_ADDRESS,
+  MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
+  MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
 } from "../contracts/addresses";
 import { betAbi } from "../contracts/betAbi";
 import { capitalizeFirstLetter, shortenHexAddress } from "../utils";
@@ -26,8 +26,8 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
     });
   }
 
-  const betCount = await arbitrumSepoliaClient.readContract({
-    address: TESTNET_BET_FACTORY_CONTRACT_ADDRESS,
+  const betCount = await arbitrumClient.readContract({
+    address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
     abi: betFactoryAbi,
     functionName: "betCount",
   });
@@ -42,14 +42,14 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
     });
   }
 
-  const contractAddress = await arbitrumSepoliaClient.readContract({
-    address: TESTNET_BET_FACTORY_CONTRACT_ADDRESS,
+  const contractAddress = await arbitrumClient.readContract({
+    address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
     abi: betFactoryAbi,
     functionName: "betAddresses",
     args: [BigInt(betId)],
   });
-  const contractAmount = await arbitrumSepoliaClient.readContract({
-    address: TESTNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
+  const contractAmount = await arbitrumClient.readContract({
+    address: MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
     abi: FiatTokenProxyAbi,
     functionName: "balanceOf",
     args: [contractAddress],
@@ -63,18 +63,18 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
     message,
     arbitrator,
     validUntil,
-  ] = await arbitrumSepoliaClient.readContract({
+  ] = await arbitrumClient.readContract({
     address: contractAddress,
     abi: betAbi,
     functionName: "getBetDetails",
     args: [],
   });
-  const status = await arbitrumSepoliaClient.readContract({
+  const status = await arbitrumClient.readContract({
     address: contractAddress,
     abi: betAbi,
     functionName: "getStatus",
   });
-  const winner = await arbitrumSepoliaClient.readContract({
+  const winner = await arbitrumClient.readContract({
     address: contractAddress,
     abi: betAbi,
     functionName: "winner",

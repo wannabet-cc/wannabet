@@ -1,9 +1,9 @@
 import { Button, Env, FrameContext } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { z } from "zod";
-import { arbitrumSepoliaClient } from "../viem";
+import { arbitrumClient } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
-import { TESTNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
+import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
 
 export const acceptScreen = async (
   c: FrameContext<Env, "/bet/:betId/accept">
@@ -22,8 +22,8 @@ export const acceptScreen = async (
     });
   }
 
-  const contractAddress = await arbitrumSepoliaClient.readContract({
-    address: TESTNET_BET_FACTORY_CONTRACT_ADDRESS,
+  const contractAddress = await arbitrumClient.readContract({
+    address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
     abi: betFactoryAbi,
     functionName: "betAddresses",
     args: [BigInt(betId)],

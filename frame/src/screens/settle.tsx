@@ -1,9 +1,9 @@
 import { Button, Env, FrameContext } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { z } from "zod";
-import { arbitrumSepoliaClient } from "../viem";
+import { arbitrumClient } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
-import { TESTNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
+import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
 import { betAbi } from "../contracts/betAbi";
 
 export const settleScreen = async (
@@ -24,8 +24,8 @@ export const settleScreen = async (
   }
   const betHomeUrl = `/bet/${parsedBetId}`;
 
-  const contractAddress = await arbitrumSepoliaClient.readContract({
-    address: TESTNET_BET_FACTORY_CONTRACT_ADDRESS,
+  const contractAddress = await arbitrumClient.readContract({
+    address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
     abi: betFactoryAbi,
     functionName: "betAddresses",
     args: [BigInt(betId)],
@@ -39,7 +39,7 @@ export const settleScreen = async (
     message,
     arbitrator,
     validUntil,
-  ] = await arbitrumSepoliaClient.readContract({
+  ] = await arbitrumClient.readContract({
     address: contractAddress,
     abi: betAbi,
     functionName: "getBetDetails",
