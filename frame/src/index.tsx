@@ -1,6 +1,6 @@
 import { Frog } from "frog";
-import { devtools } from "frog/dev";
-import { serveStatic } from "frog/serve-static";
+// import { devtools } from "frog/dev";
+// import { serveStatic } from "frog/serve-static";
 import { FROG_SECRET } from "./config";
 
 import { Home } from "./web";
@@ -47,5 +47,5 @@ app.transaction("/tx/decline/:contractAddress", declineTxn);
 app.transaction("/tx/settle/:contractAddress/:winnerAddress", settleTxn);
 app.transaction("/tx/retrieve/:contractAddress", retrieveTxn);
 
-devtools(app, { serveStatic });
+// devtools(app, { serveStatic });
 export default app;
