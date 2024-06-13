@@ -13,7 +13,7 @@ import {
   BET_SETTLED_EVENT_SIGNATURE,
   FRAME_BASE_URL,
 } from "./config";
-import { addAddress } from "./webhook";
+import { addAddress, removeAddress } from "./webhook";
 
 dotenv.config();
 
@@ -71,9 +71,23 @@ app.post("/webhooks", (req: Request, res: Response) => {
       }
     } else if (eventSignature === BET_DECLINED_EVENT_SIGNATURE) {
       // HANDLE BET DECLINED
+      try {
       // -> parse contract address
+        const betAddress = log.account.address;
+        // -> remove contract address from webhook
+        removeAddress(betAddress);
+        // -> get bet info
+        const { betId, participant } = await getBetDetails(betAddress);
       // -> cast about bet decline
-      // -> remove contract address from webhook
+        const castHash = castMap.get(Number(betId));
+        const castMessage = `${participant} declined the bet! Funds have been returned.`;
+        publishCast(castMessage, { replyToCastHash: castHash });
+        // -> remove from cast directory
+        castMap.delete(betId);
+      } catch (err) {
+        // -> handle error
+        console.log(err);
+      }
     } else if (eventSignature === BET_SETTLED_EVENT_SIGNATURE) {
       // HANDLE BET SETTLED
       // -> parse contract address
