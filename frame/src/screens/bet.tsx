@@ -157,7 +157,7 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
     ),
     intents: [
       <Button.Link
-        href={`https://sepolia.arbiscan.io/address/${contractAddress}`}
+        href={`https://arbiscan.io/address/${contractAddress}`}
         children={"Etherscan"}
       />,
       <Button
@@ -168,14 +168,14 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
       isParticipant && status === "pending" ? (
         <Button.Transaction
           action={`${url}/accept`}
-          target={`/tx/authorize/${contractAddress}`}
+          target={`/tx/authorize?spender=${contractAddress}`}
           children={"Authorize"}
         />
       ) : null,
       isParticipant && status === "pending" ? (
         <Button.Transaction
           action={url}
-          target={`/tx/decline/${contractAddress}`}
+          target={`/tx/decline?contract=${contractAddress}`}
           children={"Decline"}
         />
       ) : null,
@@ -184,7 +184,7 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
       ) : null,
       isCreator && status === "expired" && Number(contractAmount) > 0 ? (
         <Button.Transaction
-          target={`/tx/retrieve/${contractAddress}`}
+          target={`/tx/retrieve?contract=${contractAddress}`}
           children={"Retrieve funds"}
         />
       ) : null,

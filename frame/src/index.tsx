@@ -39,12 +39,12 @@ app.frame("/bet/:betId/accept", acceptScreen);
 app.frame("/bet/:betId/settle", settleScreen);
 app.frame("/bet/:betId/create/:pageNum", createScreen);
 
-app.transaction("/tx/authorize/:sender", authorizeTxn);
+app.transaction("/tx/authorize", authorizeTxn);
 app.transaction("/tx/create", createTxn);
-app.transaction("/tx/accept/:contractAddress", acceptTxn);
-app.transaction("/tx/decline/:contractAddress", declineTxn);
-app.transaction("/tx/settle/:contractAddress/:winnerAddress", settleTxn);
-app.transaction("/tx/retrieve/:contractAddress", retrieveTxn);
+app.transaction("/tx/accept", acceptTxn);
+app.transaction("/tx/decline", declineTxn);
+app.transaction("/tx/settle", settleTxn);
+app.transaction("/tx/retrieve", retrieveTxn);
 
 // devtools(app, { serveStatic });
 export default app;

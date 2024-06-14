@@ -6,15 +6,16 @@ import { Address, isAddress } from "viem";
 import { z } from "zod";
 
 export const authorizeTxn = async (
-  c: TransactionContext<{ State: BetInfoState }, "/tx/authorize/:spender">
+  c: TransactionContext<{ State: BetInfoState }, "/tx/authorize">
 ) => {
-  const { spender } = c.req.param();
+  const spender = c.req.query("spender") as Address;
   const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
   const { success, data: parsedSpender } = AddressSchema.safeParse(spender);
   if (!success) throw new Error();
 
   const { previousState } = c;
   const usdcAmount = BigInt(previousState.amount * 10 ** 6);
+
   return c.contract({
     abi: FiatTokenProxyAbi,
     to: MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,

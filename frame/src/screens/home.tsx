@@ -43,7 +43,7 @@ export const homeScreen = async (c: FrameContext) => {
       </div>
     ),
     intents: [
-      <TextInput placeholder="e.g. 0xabc..." />,
+      <TextInput placeholder="e.g. 1" />,
       <Button action="/home" children={"Continue"} />,
     ],
   });

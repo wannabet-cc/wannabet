@@ -238,17 +238,14 @@ export const createScreen = async (
       image: (
         <div style={{ ...backgroundStyles }}>
           <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
-          <span>
-            Authorize the contract to move your wager to the bet contract
-          </span>
+          <span>Authorize moving your wager to the bet contract</span>
         </div>
       ),
       intents: [
         <Button action={prevPageUrl} value="back" children={"Back"} />,
-        <Button action={nextPageUrl} value="continue" children={"Continue"} />, // Temporary button for bypassing the transaction frame in the create bet workflow
         <Button.Transaction
           action={nextPageUrl}
-          target={`/tx/authorize/${MAINNET_BET_FACTORY_CONTRACT_ADDRESS}`}
+          target={`/tx/authorize?spender=${MAINNET_BET_FACTORY_CONTRACT_ADDRESS}`}
           children={"Authorize"}
         />,
       ],
@@ -264,8 +261,6 @@ export const createScreen = async (
         </div>
       ),
       intents: [
-        <Button action={prevPageUrl} value="back" children={"Back"} />,
-        <Button action={nextPageUrl} value="continue" children={"Continue"} />, // Temporary button for bypassing the transaction frame in the create bet workflow
         <Button.Transaction
           action={nextPageUrl}
           target="/tx/create"

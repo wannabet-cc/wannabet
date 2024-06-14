@@ -45,7 +45,7 @@ export const settleScreen = async (
     functionName: "betDetails",
     args: [],
   });
-  const burnAddress = "0x0000000000000000000000000000000000000000"; // Selecting the burn address as winner means tie
+  const tieAddress = "0x0000000000000000000000000000000000000000"; // Zeros as winner means tie
 
   return c.res({
     image: (
@@ -71,17 +71,17 @@ export const settleScreen = async (
       <Button action={betHomeUrl} children={"Back"} />,
       <Button.Transaction
         action={betHomeUrl}
-        target={`/tx/settle/${contractAddress}/${creator}`}
+        target={`/tx/settle?contract=${contractAddress}&winner=${creator}`}
         children={"Creator"}
       />,
       <Button.Transaction
         action={betHomeUrl}
-        target={`/tx/settle/${contractAddress}/${participant}`}
+        target={`/tx/settle?contract=${contractAddress}&winner=${participant}`}
         children={"Participant"}
       />,
       <Button.Transaction
         action={betHomeUrl}
-        target={`/tx/settle/${contractAddress}/${burnAddress}`}
+        target={`/tx/settle?contract=${contractAddress}&winner=${tieAddress}`}
         children={"Tie"}
       />,
     ],
