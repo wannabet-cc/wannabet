@@ -9,6 +9,7 @@ export const betAbi = [
       { internalType: "string", name: "_message", type: "string" },
       { internalType: "address", name: "_arbitrator", type: "address" },
       { internalType: "uint256", name: "_validFor", type: "uint256" },
+      { internalType: "address", name: "_factoryContract", type: "address" },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
@@ -19,11 +20,41 @@ export const betAbi = [
   { inputs: [], name: "FundsAlreadyWithdrawn", type: "error" },
   { inputs: [], name: "InvalidStatus", type: "error" },
   { inputs: [], name: "Unauthorized", type: "error" },
-  { anonymous: false, inputs: [], name: "BetAccepted", type: "event" },
-  { anonymous: false, inputs: [], name: "BetDeclined", type: "event" },
   {
     anonymous: false,
     inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "factoryContract",
+        type: "address",
+      },
+    ],
+    name: "BetAccepted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "factoryContract",
+        type: "address",
+      },
+    ],
+    name: "BetDeclined",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "factoryContract",
+        type: "address",
+      },
       {
         indexed: true,
         internalType: "address",
@@ -43,14 +74,7 @@ export const betAbi = [
   },
   {
     inputs: [],
-    name: "declineBet",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getBetDetails",
+    name: "betDetails",
     outputs: [
       { internalType: "uint256", name: "betId", type: "uint256" },
       { internalType: "address", name: "creator", type: "address" },
@@ -62,6 +86,13 @@ export const betAbi = [
       { internalType: "uint256", name: "validUntil", type: "uint256" },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "declineBet",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
