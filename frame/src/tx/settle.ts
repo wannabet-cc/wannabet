@@ -3,10 +3,9 @@ import { Address, isAddress } from "viem";
 import { z } from "zod";
 import { betAbi } from "../contracts/betAbi";
 
-export const settleTxn = async (
-  c: TransactionContext<Env, "/tx/settle/:contractAddress/:winnerAddress">
-) => {
-  const { contractAddress, winnerAddress } = c.req.param();
+export const settleTxn = async (c: TransactionContext<Env, "/tx/settle">) => {
+  const contractAddress = c.req.query("contract");
+  const winnerAddress = c.req.query("winner");
   const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
   const { success: contractSuccess, data: parsedContractAddress } =
     AddressSchema.safeParse(contractAddress);

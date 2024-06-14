@@ -43,7 +43,7 @@ app.transaction("/tx/authorize", authorizeTxn);
 app.transaction("/tx/create", createTxn);
 app.transaction("/tx/accept", acceptTxn);
 app.transaction("/tx/decline", declineTxn);
-app.transaction("/tx/settle/:contractAddress/:winnerAddress", settleTxn);
+app.transaction("/tx/settle", settleTxn);
 app.transaction("/tx/retrieve/:contractAddress", retrieveTxn);
 
 // devtools(app, { serveStatic });

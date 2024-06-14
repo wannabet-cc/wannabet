@@ -71,17 +71,17 @@ export const settleScreen = async (
       <Button action={betHomeUrl} children={"Back"} />,
       <Button.Transaction
         action={betHomeUrl}
-        target={`/tx/settle/${contractAddress}/${creator}`}
+        target={`/tx/settle?contract=${contractAddress}&winner=${creator}`}
         children={"Creator"}
       />,
       <Button.Transaction
         action={betHomeUrl}
-        target={`/tx/settle/${contractAddress}/${participant}`}
+        target={`/tx/settle?contract=${contractAddress}&winner=${participant}`}
         children={"Participant"}
       />,
       <Button.Transaction
         action={betHomeUrl}
-        target={`/tx/settle/${contractAddress}/${burnAddress}`}
+        target={`/tx/settle?contract=${contractAddress}&winner=${burnAddress}`}
         children={"Tie"}
       />,
     ],
