@@ -66,7 +66,7 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
   ] = await arbitrumClient.readContract({
     address: contractAddress,
     abi: betAbi,
-    functionName: "getBetDetails",
+    functionName: "betDetails",
     args: [],
   });
   const status = await arbitrumClient.readContract({

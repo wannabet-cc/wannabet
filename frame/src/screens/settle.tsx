@@ -42,7 +42,7 @@ export const settleScreen = async (
   ] = await arbitrumClient.readContract({
     address: contractAddress,
     abi: betAbi,
-    functionName: "getBetDetails",
+    functionName: "betDetails",
     args: [],
   });
   const burnAddress = "0x0000000000000000000000000000000000000000"; // Selecting the burn address as winner means tie
