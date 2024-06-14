@@ -41,7 +41,7 @@ app.frame("/bet/:betId/create/:pageNum", createScreen);
 
 app.transaction("/tx/authorize", authorizeTxn);
 app.transaction("/tx/create", createTxn);
-app.transaction("/tx/accept/:contractAddress", acceptTxn);
+app.transaction("/tx/accept", acceptTxn);
 app.transaction("/tx/decline/:contractAddress", declineTxn);
 app.transaction("/tx/settle/:contractAddress/:winnerAddress", settleTxn);
 app.transaction("/tx/retrieve/:contractAddress", retrieveTxn);

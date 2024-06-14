@@ -40,7 +40,7 @@ export const acceptScreen = async (
     intents: [
       <Button.Transaction
         action={`/bet/${parsedBetId}`}
-        target={`/tx/accept/${contractAddress}`}
+        target={`/tx/accept?contract=${contractAddress}`}
         children={"Accept"}
       />,
     ],
