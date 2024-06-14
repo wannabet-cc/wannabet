@@ -168,7 +168,7 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
       isParticipant && status === "pending" ? (
         <Button.Transaction
           action={`${url}/accept`}
-          target={`/tx/authorize/${contractAddress}`}
+          target={`/tx/authorize?spender=${contractAddress}`}
           children={"Authorize"}
         />
       ) : null,

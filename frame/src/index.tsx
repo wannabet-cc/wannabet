@@ -39,7 +39,7 @@ app.frame("/bet/:betId/accept", acceptScreen);
 app.frame("/bet/:betId/settle", settleScreen);
 app.frame("/bet/:betId/create/:pageNum", createScreen);
 
-app.transaction("/tx/authorize/:sender", authorizeTxn);
+app.transaction("/tx/authorize", authorizeTxn);
 app.transaction("/tx/create", createTxn);
 app.transaction("/tx/accept/:contractAddress", acceptTxn);
 app.transaction("/tx/decline/:contractAddress", declineTxn);
