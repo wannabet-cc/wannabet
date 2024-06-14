@@ -238,9 +238,7 @@ export const createScreen = async (
       image: (
         <div style={{ ...backgroundStyles }}>
           <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
-          <span>
-            Authorize the contract to move your wager to the bet contract
-          </span>
+          <span>Authorize moving your wager to the bet contract</span>
         </div>
       ),
       intents: [
