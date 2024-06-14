@@ -157,7 +157,7 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
     ),
     intents: [
       <Button.Link
-        href={`https://sepolia.arbiscan.io/address/${contractAddress}`}
+        href={`https://arbiscan.io/address/${contractAddress}`}
         children={"Etherscan"}
       />,
       <Button
