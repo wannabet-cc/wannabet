@@ -184,7 +184,7 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
       ) : null,
       isCreator && status === "expired" && Number(contractAmount) > 0 ? (
         <Button.Transaction
-          target={`/tx/retrieve/${contractAddress}`}
+          target={`/tx/retrieve?contract=${contractAddress}`}
           children={"Retrieve funds"}
         />
       ) : null,

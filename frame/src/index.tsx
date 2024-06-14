@@ -44,7 +44,7 @@ app.transaction("/tx/create", createTxn);
 app.transaction("/tx/accept", acceptTxn);
 app.transaction("/tx/decline", declineTxn);
 app.transaction("/tx/settle", settleTxn);
-app.transaction("/tx/retrieve/:contractAddress", retrieveTxn);
+app.transaction("/tx/retrieve", retrieveTxn);
 
 // devtools(app, { serveStatic });
 export default app;
