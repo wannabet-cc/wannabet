@@ -171,7 +171,7 @@ export const betScreen = async (c: FrameContext<FrogEnv, "/bet/:betId">) => {
     intents: [
       <Button.Link
         href={`https://arbiscan.io/address/${contractAddress}`}
-        children={"Etherscan"}
+        children={"Arbiscan"}
       />,
       <Button
         action={`${url}/create/1`}
