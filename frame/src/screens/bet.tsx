@@ -1,7 +1,7 @@
 import { Button, FrameContext } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { z } from "zod";
-import { arbitrumClient } from "../viem";
+import { arbitrumClientFn } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import {
   MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
@@ -12,6 +12,7 @@ import {
   capitalizeFirstLetter,
   fetchUser,
   getBetDetails,
+  // getBetDetails,
   getPreferredAlias,
 } from "../utils";
 import { FiatTokenProxyAbi } from "../contracts/usdcAbi";
@@ -31,6 +32,8 @@ export const betScreen = async (c: FrameContext<FrogEnv, "/bet/:betId">) => {
       intents: [<Button action={`/home`} children={"Home"} />],
     });
   }
+
+  const arbitrumClient = arbitrumClientFn(c);
 
   const betCount = await arbitrumClient.readContract({
     address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
@@ -61,7 +64,7 @@ export const betScreen = async (c: FrameContext<FrogEnv, "/bet/:betId">) => {
     args: [contractAddress],
   });
   const { creator, participant, amount, message, arbitrator } =
-    await getBetDetails(contractAddress);
+    await getBetDetails(c, contractAddress);
   const status = await arbitrumClient.readContract({
     address: contractAddress,
     abi: betAbi,
@@ -74,9 +77,9 @@ export const betScreen = async (c: FrameContext<FrogEnv, "/bet/:betId">) => {
   });
 
   const [creatorAlias, participantAlias, winnerAlias] = await Promise.all([
-    getPreferredAlias(creator),
-    getPreferredAlias(participant),
-    getPreferredAlias(winner),
+    getPreferredAlias(c, creator),
+    getPreferredAlias(c, participant),
+    getPreferredAlias(c, winner),
   ]);
 
   const { frameData, url } = c;

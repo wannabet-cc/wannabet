@@ -1,13 +1,14 @@
-import { Button, Env, FrameContext } from "frog";
+import { Button, FrameContext } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { z } from "zod";
-import { arbitrumClient } from "../viem";
+import { arbitrumClientFn } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
 import { getBetDetails, getPreferredAlias } from "../utils";
+import { FrogEnv } from "..";
 
 export const settleScreen = async (
-  c: FrameContext<Env, "/bet/:betId/settle">
+  c: FrameContext<FrogEnv, "/bet/:betId/settle">
 ) => {
   const { betId } = c.req.param();
   const BetIdSchema = z.number().positive().int();
@@ -24,6 +25,8 @@ export const settleScreen = async (
   }
   const betHomeUrl = `/bet/${parsedBetId}`;
 
+  const arbitrumClient = arbitrumClientFn(c);
+
   const contractAddress = await arbitrumClient.readContract({
     address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
     abi: betFactoryAbi,
@@ -31,13 +34,14 @@ export const settleScreen = async (
     args: [BigInt(betId)],
   });
   const { creator, participant, message } = await getBetDetails(
+    c,
     contractAddress
   );
   const tieAddress = "0x0000000000000000000000000000000000000000"; // Zeros as winner means tie
 
   const [creatorAlias, participantAlias] = await Promise.all([
-    getPreferredAlias(creator),
-    getPreferredAlias(participant),
+    getPreferredAlias(c, creator),
+    getPreferredAlias(c, participant),
   ]);
 
   return c.res({

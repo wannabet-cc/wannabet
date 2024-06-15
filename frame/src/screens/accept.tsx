@@ -1,12 +1,13 @@
-import { Button, Env, FrameContext } from "frog";
+import { Button, FrameContext } from "frog";
 import { backgroundStyles } from "../shared-styles";
 import { z } from "zod";
-import { arbitrumClient } from "../viem";
+import { arbitrumClientFn } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
+import { FrogEnv } from "..";
 
 export const acceptScreen = async (
-  c: FrameContext<Env, "/bet/:betId/accept">
+  c: FrameContext<FrogEnv, "/bet/:betId/accept">
 ) => {
   const { betId } = c.req.param();
   const BetIdSchema = z.number().positive().int();
@@ -21,6 +22,8 @@ export const acceptScreen = async (
       intents: [<Button action={`/home`} children={"Home"} />],
     });
   }
+
+  const arbitrumClient = arbitrumClientFn(c);
 
   const contractAddress = await arbitrumClient.readContract({
     address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,

@@ -1,5 +1,7 @@
 import { Address } from "viem";
-import { arbitrumClient, mainnetClient } from "./viem";
+import { arbitrumClientFn, mainnetClientFn } from "./viem";
+import { FrogEnv } from ".";
+import { FrameContext } from "frog";
 import { betAbi } from "./contracts/betAbi";
 
 function shortenHexAddress(address: Address) {
@@ -10,9 +12,11 @@ function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-async function getPreferredAlias(address: Address) {
+async function getPreferredAlias(c: FrameContext<FrogEnv>, address: Address) {
   let preferredAlias: string;
-  const ensName = await mainnetClient.getEnsName({ address });
+  const ensName = await mainnetClientFn(c).getEnsName({
+    address,
+  });
   if (ensName) {
     // <- most preferred: ens name
     preferredAlias = ensName;
@@ -23,7 +27,10 @@ async function getPreferredAlias(address: Address) {
   return preferredAlias;
 }
 
-async function getBetDetails(betContractAddress: Address) {
+async function getBetDetails(
+  c: FrameContext<FrogEnv>,
+  betContractAddress: Address
+) {
   const [
     betId,
     creator,
@@ -33,7 +40,7 @@ async function getBetDetails(betContractAddress: Address) {
     message,
     arbitrator,
     validUntil,
-  ] = await arbitrumClient.readContract({
+  ] = await arbitrumClientFn(c).readContract({
     address: betContractAddress,
     abi: betAbi,
     functionName: "betDetails",

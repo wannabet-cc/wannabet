@@ -19,7 +19,11 @@ import { settleTxn } from "./tx/settle";
 import { retrieveTxn } from "./tx/retrieve";
 
 export type FrogEnv = {
-  Bindings: { NEYNAR_API_KEY: string };
+  Bindings: {
+    NEYNAR_API_KEY: string;
+    MAINNET_ALCHEMY_URL: string;
+    ARBITRUM_ALCHEMY_URL: string;
+  };
 };
 
 export const app = new Frog<FrogEnv>({
