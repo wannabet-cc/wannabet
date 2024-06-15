@@ -8,10 +8,11 @@ import {
   MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
 } from "../contracts/addresses";
 import { betAbi } from "../contracts/betAbi";
-import { capitalizeFirstLetter, shortenHexAddress } from "../utils";
+import { capitalizeFirstLetter, fetchUser, shortenHexAddress } from "../utils";
 import { FiatTokenProxyAbi } from "../contracts/usdcAbi";
+import { FrogEnv } from "..";
 
-export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
+export const betScreen = async (c: FrameContext<FrogEnv, "/bet/:betId">) => {
   const { betId } = c.req.param();
   const BetIdSchema = z.number().positive().int();
   const { success, data: parsedBetId } = BetIdSchema.safeParse(Number(betId));
@@ -55,7 +56,7 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
     args: [contractAddress],
   });
   const [
-    _betId,
+    fetchedBetId,
     creator,
     participant,
     amount,
@@ -82,9 +83,20 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
 
   const { frameData, url } = c;
 
-  const isCreator = frameData?.address === creator;
-  const isParticipant = frameData?.address === participant;
-  const isArbitrator = frameData?.address === arbitrator;
+  // -> get user addresses
+  const apiKey = c.env.NEYNAR_API_KEY;
+  const userData = await fetchUser(apiKey, frameData!.fid);
+  const userAddressList = userData.users[0].verified_addresses.eth_addresses;
+
+  // -> check if at least one address is involved in the bet
+  let isCreator = false,
+    isParticipant = false,
+    isArbitrator = false;
+  userAddressList.forEach((address) => {
+    if (address === creator) isCreator = true;
+    if (address === participant) isParticipant = true;
+    if (address === arbitrator) isArbitrator = true;
+  });
 
   const isTie = winner !== creator && winner !== participant;
 

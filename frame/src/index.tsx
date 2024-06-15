@@ -1,6 +1,6 @@
-import { Frog } from "frog";
-// import { devtools } from "frog/dev";
-// import { serveStatic } from "frog/serve-static";
+import { FrameContext, Frog, TransactionContext } from "frog";
+import { devtools } from "frog/dev";
+import { serveStatic } from "frog/serve-static";
 
 import { Home } from "./web";
 import { getFont } from "./fonts";
@@ -18,7 +18,14 @@ import { declineTxn } from "./tx/decline";
 import { settleTxn } from "./tx/settle";
 import { retrieveTxn } from "./tx/retrieve";
 
-export const app = new Frog({
+export type FrogEnv = {
+  Bindings: { NEYNAR_API_KEY: string };
+};
+
+// export type CustomFrameContext = FrameContext<FrogOptions>;
+// export type CustomTransactionContext = TransactionContext<FrogOptions>;
+
+export const app = new Frog<FrogEnv>({
   browserLocation: "/",
   imageOptions: async () => ({ fonts: [await getFont("satoshi")] }),
   initialState: {
@@ -46,5 +53,5 @@ app.transaction("/tx/decline", declineTxn);
 app.transaction("/tx/settle", settleTxn);
 app.transaction("/tx/retrieve", retrieveTxn);
 
-// devtools(app, { serveStatic });
+devtools(app, { serveStatic });
 export default app;
