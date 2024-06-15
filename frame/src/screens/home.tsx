@@ -1,8 +1,9 @@
-import { Button, FrameContext, TextInput } from "frog";
+import { Button, TextInput } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { z } from "zod";
+import { type CustomFrameContext } from "..";
 
-export const homeScreen = async (c: FrameContext) => {
+export const homeScreen = async (c: CustomFrameContext<"/home">) => {
   const { inputText } = c;
   if (inputText) {
     const BetIdSchema = z.number().positive().int();

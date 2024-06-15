@@ -1,12 +1,13 @@
-import { Button, Env, FrameContext } from "frog";
-import { backgroundStyles, subTextStyles } from "../shared-styles";
+import { Button } from "frog";
+import { backgroundStyles } from "../shared-styles";
 import { z } from "zod";
-import { arbitrumClient } from "../viem";
+import { arbitrumClientFn } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
+import { type CustomFrameContext } from "..";
 
 export const acceptScreen = async (
-  c: FrameContext<Env, "/bet/:betId/accept">
+  c: CustomFrameContext<"/bet/:betId/accept">
 ) => {
   const { betId } = c.req.param();
   const BetIdSchema = z.number().positive().int();
@@ -22,14 +23,14 @@ export const acceptScreen = async (
     });
   }
 
+  const arbitrumClient = arbitrumClientFn(c);
+
   const contractAddress = await arbitrumClient.readContract({
     address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
     abi: betFactoryAbi,
     functionName: "betAddresses",
     args: [BigInt(betId)],
   });
-
-  const { url } = c;
 
   return c.res({
     image: (

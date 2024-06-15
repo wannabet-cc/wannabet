@@ -1,13 +1,16 @@
 import { createPublicClient, http } from "viem";
-import { arbitrum, arbitrumSepolia } from "viem/chains";
+import { mainnet, arbitrum } from "viem/chains";
+import { type CustomContext } from ".";
 
-const arbitrumClient = createPublicClient({
-  chain: arbitrum,
-  transport: http(),
-});
-const arbitrumSepoliaClient = createPublicClient({
-  chain: arbitrumSepolia,
-  transport: http(),
-});
-
-export { arbitrumClient, arbitrumSepoliaClient };
+export const mainnetClientFn = (c: CustomContext) => {
+  return createPublicClient({
+    chain: mainnet,
+    transport: http(c.env.MAINNET_ALCHEMY_URL),
+  });
+};
+export const arbitrumClientFn = (c: CustomContext) => {
+  return createPublicClient({
+    chain: arbitrum,
+    transport: http(c.env.ARBITRUM_ALCHEMY_URL),
+  });
+};

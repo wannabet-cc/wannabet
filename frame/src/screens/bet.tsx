@@ -1,17 +1,23 @@
-import { Button, Env, FrameContext } from "frog";
+import { Button } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { z } from "zod";
-import { arbitrumClient } from "../viem";
+import { arbitrumClientFn } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import {
   MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
   MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
 } from "../contracts/addresses";
 import { betAbi } from "../contracts/betAbi";
-import { capitalizeFirstLetter, shortenHexAddress } from "../utils";
+import {
+  capitalizeFirstLetter,
+  fetchUser,
+  getBetDetails,
+  getPreferredAlias,
+} from "../utils";
 import { FiatTokenProxyAbi } from "../contracts/usdcAbi";
+import { type CustomFrameContext } from "..";
 
-export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
+export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
   const { betId } = c.req.param();
   const BetIdSchema = z.number().positive().int();
   const { success, data: parsedBetId } = BetIdSchema.safeParse(Number(betId));
@@ -25,6 +31,8 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
       intents: [<Button action={`/home`} children={"Home"} />],
     });
   }
+
+  const arbitrumClient = arbitrumClientFn(c);
 
   const betCount = await arbitrumClient.readContract({
     address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
@@ -48,27 +56,14 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
     functionName: "betAddresses",
     args: [BigInt(betId)],
   });
-  const contractAmount = await arbitrumClient.readContract({
+  const contractBalance = await arbitrumClient.readContract({
     address: MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
     abi: FiatTokenProxyAbi,
     functionName: "balanceOf",
     args: [contractAddress],
   });
-  const [
-    _betId,
-    creator,
-    participant,
-    amount,
-    token,
-    message,
-    arbitrator,
-    validUntil,
-  ] = await arbitrumClient.readContract({
-    address: contractAddress,
-    abi: betAbi,
-    functionName: "betDetails",
-    args: [],
-  });
+  const { creator, participant, amount, message, arbitrator } =
+    await getBetDetails(c, contractAddress);
   const status = await arbitrumClient.readContract({
     address: contractAddress,
     abi: betAbi,
@@ -80,15 +75,62 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
     functionName: "winner",
   });
 
+  const [creatorAlias, participantAlias, winnerAlias] = await Promise.all([
+    getPreferredAlias(c, creator),
+    getPreferredAlias(c, participant),
+    getPreferredAlias(c, winner),
+  ]);
+
   const { frameData, url } = c;
 
-  const isCreator = frameData?.address === creator;
-  const isParticipant = frameData?.address === participant;
-  const isArbitrator = frameData?.address === arbitrator;
+  // -> get user addresses
+  const apiKey = c.env.NEYNAR_API_KEY;
+  const userData = await fetchUser(apiKey, frameData!.fid);
+  const userAddressList = userData.users[0].verified_addresses.eth_addresses;
+
+  // -> check if at least one address is involved in the bet
+  let isCreator = false,
+    isParticipant = false,
+    isArbitrator = false;
+  userAddressList.forEach((address) => {
+    const lcAddress = address.toLowerCase();
+    if (lcAddress === creator.toLowerCase()) isCreator = true;
+    if (lcAddress === participant.toLowerCase()) isParticipant = true;
+    if (lcAddress === arbitrator.toLowerCase()) isArbitrator = true;
+  });
 
   const isTie = winner !== creator && winner !== participant;
 
   const convertedAmount = Number(amount) / 10 ** 6;
+
+  const participantButtons =
+    isParticipant && status === "pending"
+      ? [
+          <Button.Transaction
+            action={`${url}/accept`}
+            target={`/tx/authorize?spender=${contractAddress}&amount=${amount}`}
+            children={"Authorize"}
+          />,
+          <Button.Transaction
+            action={url}
+            target={`/tx/decline?contract=${contractAddress}`}
+            children={"Decline"}
+          />,
+        ]
+      : [];
+  const arbitratorButtons =
+    isArbitrator && status === "accepted"
+      ? [<Button action={`${url}/settle`} children={"Settle"} />]
+      : [];
+  const creatorButtons =
+    isCreator && status === "expired" && Number(contractBalance) > 0
+      ? [
+          <Button.Transaction
+            target={`/tx/retrieve?contract=${contractAddress}`}
+            children={"Retrieve funds"}
+          />,
+        ]
+      : [];
 
   return c.res({
     image: (
@@ -98,7 +140,7 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
         </span>
         <span style={{ ...subTextStyles, marginTop: 20 }}>
           <span style={{ textDecorationLine: "underline", marginRight: 10 }}>
-            {shortenHexAddress(creator)}
+            {creatorAlias}
           </span>
           {" bet "}
           <span
@@ -108,7 +150,7 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
               marginRight: 10,
             }}
           >
-            {shortenHexAddress(participant)}
+            {participantAlias}
           </span>
         </span>
         <span style={{ ...subTextStyles, marginTop: 10 }}>
@@ -127,30 +169,30 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
         </span>
         {status === "pending" && (
           <span style={{ ...subTextStyles, marginTop: 30 }}>
-            {shortenHexAddress(participant)} can accept or decline
+            {participantAlias} can accept or decline
           </span>
         )}
         {status === "expired" && (
           <span style={{ ...subTextStyles, marginTop: 30 }}>
-            {shortenHexAddress(participant)} didn't accept in time. The bet
-            creator can retrieve their funds.
+            {participantAlias} didn't accept in time. The bet creator can
+            retrieve their funds.
           </span>
         )}
         {status === "declined" && (
           <span style={{ ...subTextStyles, marginTop: 30 }}>
-            {shortenHexAddress(participant)} declined the bet
+            {participantAlias} declined the bet
           </span>
         )}
         {status === "accepted" && (
           <span style={{ ...subTextStyles, marginTop: 30 }}>
-            {shortenHexAddress(participant)} accepted! Awaiting the result
+            {participantAlias} accepted! Awaiting the result
           </span>
         )}
         {status === "settled" && (
           <span style={{ ...subTextStyles, marginTop: 30 }}>
             {isTie
               ? "The bet was a tie! The pot was split."
-              : `Bet settled! ${shortenHexAddress(winner)} won.`}
+              : `Bet settled! ${winnerAlias} won.`}
           </span>
         )}
       </div>
@@ -158,36 +200,16 @@ export const betScreen = async (c: FrameContext<Env, "/bet/:betId">) => {
     intents: [
       <Button.Link
         href={`https://arbiscan.io/address/${contractAddress}`}
-        children={"Etherscan"}
+        children={"Arbiscan"}
       />,
       <Button
         action={`${url}/create/1`}
         value="create"
         children={"Create new"}
       />,
-      isParticipant && status === "pending" ? (
-        <Button.Transaction
-          action={`${url}/accept`}
-          target={`/tx/authorize?spender=${contractAddress}`}
-          children={"Authorize"}
-        />
-      ) : null,
-      isParticipant && status === "pending" ? (
-        <Button.Transaction
-          action={url}
-          target={`/tx/decline?contract=${contractAddress}`}
-          children={"Decline"}
-        />
-      ) : null,
-      isArbitrator && status === "accepted" ? (
-        <Button action={`${url}/settle`} children={"Settle"} />
-      ) : null,
-      isCreator && status === "expired" && Number(contractAmount) > 0 ? (
-        <Button.Transaction
-          target={`/tx/retrieve?contract=${contractAddress}`}
-          children={"Retrieve funds"}
-        />
-      ) : null,
+      ...participantButtons,
+      ...arbitratorButtons,
+      ...creatorButtons,
     ],
   });
 };

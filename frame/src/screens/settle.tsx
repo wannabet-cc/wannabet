@@ -1,13 +1,14 @@
-import { Button, Env, FrameContext } from "frog";
+import { Button } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { z } from "zod";
-import { arbitrumClient } from "../viem";
+import { arbitrumClientFn } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
-import { betAbi } from "../contracts/betAbi";
+import { getBetDetails, getPreferredAlias } from "../utils";
+import { type CustomFrameContext } from "..";
 
 export const settleScreen = async (
-  c: FrameContext<Env, "/bet/:betId/settle">
+  c: CustomFrameContext<"/bet/:betId/settle">
 ) => {
   const { betId } = c.req.param();
   const BetIdSchema = z.number().positive().int();
@@ -24,28 +25,24 @@ export const settleScreen = async (
   }
   const betHomeUrl = `/bet/${parsedBetId}`;
 
+  const arbitrumClient = arbitrumClientFn(c);
+
   const contractAddress = await arbitrumClient.readContract({
     address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
     abi: betFactoryAbi,
     functionName: "betAddresses",
     args: [BigInt(betId)],
   });
-  const [
-    _betId,
-    creator,
-    participant,
-    amount,
-    token,
-    message,
-    arbitrator,
-    validUntil,
-  ] = await arbitrumClient.readContract({
-    address: contractAddress,
-    abi: betAbi,
-    functionName: "betDetails",
-    args: [],
-  });
+  const { creator, participant, message } = await getBetDetails(
+    c,
+    contractAddress
+  );
   const tieAddress = "0x0000000000000000000000000000000000000000"; // Zeros as winner means tie
+
+  const [creatorAlias, participantAlias] = await Promise.all([
+    getPreferredAlias(c, creator),
+    getPreferredAlias(c, participant),
+  ]);
 
   return c.res({
     image: (
@@ -63,7 +60,7 @@ export const settleScreen = async (
           {message}
         </span>
         <span style={{ ...subTextStyles, marginTop: 30 }}>
-          Creator if true; Participant if false
+          {creatorAlias} if true; {participantAlias} if false
         </span>
       </div>
     ),
@@ -72,12 +69,12 @@ export const settleScreen = async (
       <Button.Transaction
         action={betHomeUrl}
         target={`/tx/settle?contract=${contractAddress}&winner=${creator}`}
-        children={"Creator"}
+        children={creatorAlias}
       />,
       <Button.Transaction
         action={betHomeUrl}
         target={`/tx/settle?contract=${contractAddress}&winner=${participant}`}
-        children={"Participant"}
+        children={participantAlias}
       />,
       <Button.Transaction
         action={betHomeUrl}

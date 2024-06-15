@@ -1,12 +1,12 @@
-import { Button, FrameContext, TextInput } from "frog";
+import { Button, TextInput } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { Address, isAddress } from "viem";
 import { z } from "zod";
-import type { BetInfoState } from "../types";
 import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
+import { type CustomFrameContext } from "..";
 
 export const createScreen = async (
-  c: FrameContext<{ State: BetInfoState }, "/bet/:betId/create/:pageNum">
+  c: CustomFrameContext<"/bet/:betId/create/:pageNum">
 ) => {
   // Validate params
   const { betId, pageNum } = c.req.param();
@@ -233,6 +233,8 @@ export const createScreen = async (
         previousState.arbitrator = data;
       });
     }
+    const { previousState } = c;
+    const amount = previousState.amount * 10 ** 6;
     // Return frame
     return c.res({
       image: (
@@ -245,7 +247,7 @@ export const createScreen = async (
         <Button action={prevPageUrl} value="back" children={"Back"} />,
         <Button.Transaction
           action={nextPageUrl}
-          target={`/tx/authorize?spender=${MAINNET_BET_FACTORY_CONTRACT_ADDRESS}`}
+          target={`/tx/authorize?spender=${MAINNET_BET_FACTORY_CONTRACT_ADDRESS}&amount=${amount}`}
           children={"Authorize"}
         />,
       ],
