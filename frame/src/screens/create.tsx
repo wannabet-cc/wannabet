@@ -94,7 +94,7 @@ export const createScreen = async (
           image: (
             <div style={{ ...backgroundStyles }}>
               <span style={{ color: "gray" }}>{parsedPageNum - 1}/8</span>
-              <span>error - Input needs to be a valid address</span>
+              <span>error - Input needs to be a valid address or ens name</span>
             </div>
           ),
           intents: [<Button action={prevPageUrl} children="Back" />],
@@ -244,7 +244,7 @@ export const createScreen = async (
           image: (
             <div style={{ ...backgroundStyles }}>
               <span style={{ color: "gray" }}>{parsedPageNum - 1}/8</span>
-              <span>error - Input needs to be a valid address</span>
+              <span>error - Input needs to be a valid address or ens name</span>
             </div>
           ),
           intents: [<Button action={prevPageUrl} children="Back" />],
