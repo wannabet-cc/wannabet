@@ -8,7 +8,11 @@ import {
   BetIdSchema,
   CreatePageNumSchema,
   DaysValidForSchema,
+  EnsNameSchema,
 } from "../zodSchemas";
+import { mainnetClientFn } from "../viem";
+import { normalize } from "viem/ens";
+import { Address } from "viem";
 
 export const createScreen = async (
   c: CustomFrameContext<"/bet/:betId/create/:pageNum">
@@ -61,7 +65,7 @@ export const createScreen = async (
         </div>
       ),
       intents: [
-        <TextInput placeholder="e.g. 0xabc..." />,
+        <TextInput placeholder="e.g. 0xabc... or example.eth" />,
         <Button action={betUrl} value="back" children={"Back"} />,
         <Button action={nextPageUrl} value="continue" children={"Continue"} />,
       ],
@@ -72,10 +76,20 @@ export const createScreen = async (
     if (buttonValue === "continue") {
       // Check if input is valid, go back if not
       const { inputText, deriveState } = c;
-      const { success, data: parsedParticipant } =
+      const { success: ensNameSuccess, data: parsedEnsName } =
+        EnsNameSchema.safeParse(inputText);
+      const { success: addressSuccess, data: parsedAddress } =
         AddressSchema.safeParse(inputText);
-      const isBetWithSelf = frameData?.address == parsedParticipant;
-      if (!success || isBetWithSelf) {
+
+      let participantAddress: Address;
+      if (ensNameSuccess) {
+        const mainnetClient = mainnetClientFn(c);
+        participantAddress = (await mainnetClient.getEnsAddress({
+          name: normalize(parsedEnsName),
+        })) as Address;
+      } else if (addressSuccess) {
+        participantAddress = parsedAddress;
+      } else {
         return c.res({
           image: (
             <div style={{ ...backgroundStyles }}>
@@ -88,7 +102,7 @@ export const createScreen = async (
       }
       // Update state
       const state = deriveState((previousState) => {
-        previousState.participant = parsedParticipant;
+        previousState.participant = participantAddress;
       });
     }
     // Return frame
@@ -201,7 +215,7 @@ export const createScreen = async (
         </div>
       ),
       intents: [
-        <TextInput placeholder="e.g. 0xabc..." />,
+        <TextInput placeholder="e.g. 0xabc... or example.eth" />,
         <Button action={prevPageUrl} value="back" children={"Back"} />,
         <Button action={nextPageUrl} value="continue" children={"Continue"} />,
       ],
@@ -212,8 +226,20 @@ export const createScreen = async (
     if (buttonValue === "continue") {
       // Check if input is valid, go back if not
       const { inputText, deriveState } = c;
-      const { success, data } = AddressSchema.safeParse(inputText);
-      if (!success)
+      const { success: ensNameSuccess, data: parsedEnsName } =
+        EnsNameSchema.safeParse(inputText);
+      const { success: addressSuccess, data: parsedAddress } =
+        AddressSchema.safeParse(inputText);
+
+      let arbitratorAddress: Address;
+      if (ensNameSuccess) {
+        const mainnetClient = mainnetClientFn(c);
+        arbitratorAddress = (await mainnetClient.getEnsAddress({
+          name: normalize(parsedEnsName),
+        })) as Address;
+      } else if (addressSuccess) {
+        arbitratorAddress = parsedAddress;
+      } else {
         return c.res({
           image: (
             <div style={{ ...backgroundStyles }}>
@@ -223,9 +249,10 @@ export const createScreen = async (
           ),
           intents: [<Button action={prevPageUrl} children="Back" />],
         });
+      }
       // Update state
       const state = deriveState((previousState) => {
-        previousState.arbitrator = data;
+        previousState.arbitrator = arbitratorAddress;
       });
     }
     const { previousState } = c;
