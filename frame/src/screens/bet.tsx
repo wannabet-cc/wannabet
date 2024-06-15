@@ -1,4 +1,4 @@
-import { Button, Env, FrameContext } from "frog";
+import { Button, FrameContext } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { z } from "zod";
 import { arbitrumClient } from "../viem";

@@ -1,5 +1,4 @@
 import { Env, TransactionContext } from "frog";
-import type { BetInfoState } from "../types";
 import { Address, isAddress } from "viem";
 import { z } from "zod";
 import { betAbi } from "../contracts/betAbi";

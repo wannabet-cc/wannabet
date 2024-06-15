@@ -1,5 +1,5 @@
 import { Button, Env, FrameContext } from "frog";
-import { backgroundStyles, subTextStyles } from "../shared-styles";
+import { backgroundStyles } from "../shared-styles";
 import { z } from "zod";
 import { arbitrumClient } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
@@ -28,8 +28,6 @@ export const acceptScreen = async (
     functionName: "betAddresses",
     args: [BigInt(betId)],
   });
-
-  const { url } = c;
 
   return c.res({
     image: (

@@ -1,4 +1,4 @@
-import { FrameContext, Frog, TransactionContext } from "frog";
+import { Frog } from "frog";
 import { devtools } from "frog/dev";
 import { serveStatic } from "frog/serve-static";
 
@@ -21,9 +21,6 @@ import { retrieveTxn } from "./tx/retrieve";
 export type FrogEnv = {
   Bindings: { NEYNAR_API_KEY: string };
 };
-
-// export type CustomFrameContext = FrameContext<FrogOptions>;
-// export type CustomTransactionContext = TransactionContext<FrogOptions>;
 
 export const app = new Frog<FrogEnv>({
   browserLocation: "/",
