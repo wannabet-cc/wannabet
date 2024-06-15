@@ -8,7 +8,12 @@ import {
   MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
 } from "../contracts/addresses";
 import { betAbi } from "../contracts/betAbi";
-import { capitalizeFirstLetter, fetchUser, getPreferredAlias } from "../utils";
+import {
+  capitalizeFirstLetter,
+  fetchUser,
+  getBetDetails,
+  getPreferredAlias,
+} from "../utils";
 import { FiatTokenProxyAbi } from "../contracts/usdcAbi";
 import { FrogEnv } from "..";
 
@@ -55,21 +60,8 @@ export const betScreen = async (c: FrameContext<FrogEnv, "/bet/:betId">) => {
     functionName: "balanceOf",
     args: [contractAddress],
   });
-  const [
-    fetchedBetId,
-    creator,
-    participant,
-    amount,
-    token,
-    message,
-    arbitrator,
-    validUntil,
-  ] = await arbitrumClient.readContract({
-    address: contractAddress,
-    abi: betAbi,
-    functionName: "betDetails",
-    args: [],
-  });
+  const { creator, participant, amount, message, arbitrator } =
+    await getBetDetails(contractAddress);
   const status = await arbitrumClient.readContract({
     address: contractAddress,
     abi: betAbi,

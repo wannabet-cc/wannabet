@@ -1,5 +1,6 @@
 import { Address } from "viem";
-import { mainnetClient } from "./viem";
+import { arbitrumClient, mainnetClient } from "./viem";
+import { betAbi } from "./contracts/betAbi";
 
 function shortenHexAddress(address: Address) {
   return `${address.slice(0, 5)}...${address.slice(-3)}`;
@@ -20,6 +21,34 @@ async function getPreferredAlias(address: Address) {
     preferredAlias = shortenHexAddress(address);
   }
   return preferredAlias;
+}
+
+async function getBetDetails(betContractAddress: Address) {
+  const [
+    betId,
+    creator,
+    participant,
+    amount,
+    token,
+    message,
+    arbitrator,
+    validUntil,
+  ] = await arbitrumClient.readContract({
+    address: betContractAddress,
+    abi: betAbi,
+    functionName: "betDetails",
+    args: [],
+  });
+  return {
+    betId,
+    creator,
+    participant,
+    amount,
+    token,
+    message,
+    arbitrator,
+    validUntil,
+  };
 }
 
 async function fetchUser(apiKey: string, fid: number) {
@@ -60,5 +89,6 @@ export {
   shortenHexAddress,
   capitalizeFirstLetter,
   getPreferredAlias,
+  getBetDetails,
   fetchUser,
 };
