@@ -9,12 +9,16 @@ export const authorizeTxn = async (
   c: TransactionContext<{ State: BetInfoState }, "/tx/authorize">
 ) => {
   const spender = c.req.query("spender") as Address;
+  const amount = c.req.query("amount");
   const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
-  const { success, data: parsedSpender } = AddressSchema.safeParse(spender);
-  if (!success) throw new Error();
+  const AmountSchema = z.number().positive();
+  const { success: success1, data: parsedSpender } =
+    AddressSchema.safeParse(spender);
+  const { success: success2, data: parsedAmount } =
+    AmountSchema.safeParse(amount);
+  if (!success1 || !success2) throw new Error();
 
-  const { previousState } = c;
-  const usdcAmount = BigInt(previousState.amount * 10 ** 6);
+  const usdcAmount = BigInt(parsedAmount);
 
   return c.contract({
     abi: FiatTokenProxyAbi,

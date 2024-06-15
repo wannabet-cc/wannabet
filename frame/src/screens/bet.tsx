@@ -108,7 +108,7 @@ export const betScreen = async (c: FrameContext<FrogEnv, "/bet/:betId">) => {
       ? [
           <Button.Transaction
             action={`${url}/accept`}
-            target={`/tx/authorize?spender=${contractAddress}`}
+            target={`/tx/authorize?spender=${contractAddress}&amount=${amount}`}
             children={"Authorize"}
           />,
           <Button.Transaction
