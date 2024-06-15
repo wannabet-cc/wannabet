@@ -8,7 +8,7 @@ import {
   MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
 } from "../contracts/addresses";
 import { betAbi } from "../contracts/betAbi";
-import { capitalizeFirstLetter, fetchUser, shortenHexAddress } from "../utils";
+import { capitalizeFirstLetter, fetchUser, getPreferredAlias } from "../utils";
 import { FiatTokenProxyAbi } from "../contracts/usdcAbi";
 import { FrogEnv } from "..";
 
@@ -81,6 +81,12 @@ export const betScreen = async (c: FrameContext<FrogEnv, "/bet/:betId">) => {
     functionName: "winner",
   });
 
+  const [creatorAlias, participantAlias, winnerAlias] = await Promise.all([
+    getPreferredAlias(creator),
+    getPreferredAlias(participant),
+    getPreferredAlias(winner),
+  ]);
+
   const { frameData, url } = c;
 
   // -> get user addresses
@@ -140,7 +146,7 @@ export const betScreen = async (c: FrameContext<FrogEnv, "/bet/:betId">) => {
         </span>
         <span style={{ ...subTextStyles, marginTop: 20 }}>
           <span style={{ textDecorationLine: "underline", marginRight: 10 }}>
-            {shortenHexAddress(creator)}
+            {creatorAlias}
           </span>
           {" bet "}
           <span
@@ -150,7 +156,7 @@ export const betScreen = async (c: FrameContext<FrogEnv, "/bet/:betId">) => {
               marginRight: 10,
             }}
           >
-            {shortenHexAddress(participant)}
+            {participantAlias}
           </span>
         </span>
         <span style={{ ...subTextStyles, marginTop: 10 }}>
@@ -169,30 +175,30 @@ export const betScreen = async (c: FrameContext<FrogEnv, "/bet/:betId">) => {
         </span>
         {status === "pending" && (
           <span style={{ ...subTextStyles, marginTop: 30 }}>
-            {shortenHexAddress(participant)} can accept or decline
+            {participantAlias} can accept or decline
           </span>
         )}
         {status === "expired" && (
           <span style={{ ...subTextStyles, marginTop: 30 }}>
-            {shortenHexAddress(participant)} didn't accept in time. The bet
-            creator can retrieve their funds.
+            {participantAlias} didn't accept in time. The bet creator can
+            retrieve their funds.
           </span>
         )}
         {status === "declined" && (
           <span style={{ ...subTextStyles, marginTop: 30 }}>
-            {shortenHexAddress(participant)} declined the bet
+            {participantAlias} declined the bet
           </span>
         )}
         {status === "accepted" && (
           <span style={{ ...subTextStyles, marginTop: 30 }}>
-            {shortenHexAddress(participant)} accepted! Awaiting the result
+            {participantAlias} accepted! Awaiting the result
           </span>
         )}
         {status === "settled" && (
           <span style={{ ...subTextStyles, marginTop: 30 }}>
             {isTie
               ? "The bet was a tie! The pot was split."
-              : `Bet settled! ${shortenHexAddress(winner)} won.`}
+              : `Bet settled! ${winnerAlias} won.`}
           </span>
         )}
       </div>

@@ -5,7 +5,7 @@ import { arbitrumClient } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
 import { betAbi } from "../contracts/betAbi";
-import { shortenHexAddress } from "../utils";
+import { getPreferredAlias } from "../utils";
 
 export const settleScreen = async (
   c: FrameContext<Env, "/bet/:betId/settle">
@@ -48,6 +48,11 @@ export const settleScreen = async (
   });
   const tieAddress = "0x0000000000000000000000000000000000000000"; // Zeros as winner means tie
 
+  const [creatorAlias, participantAlias] = await Promise.all([
+    getPreferredAlias(creator),
+    getPreferredAlias(participant),
+  ]);
+
   return c.res({
     image: (
       <div style={{ ...backgroundStyles }}>
@@ -64,8 +69,7 @@ export const settleScreen = async (
           {message}
         </span>
         <span style={{ ...subTextStyles, marginTop: 30 }}>
-          {shortenHexAddress(creator)} if true; {shortenHexAddress(participant)}{" "}
-          if false
+          {creatorAlias} if true; {participantAlias} if false
         </span>
       </div>
     ),
@@ -74,12 +78,12 @@ export const settleScreen = async (
       <Button.Transaction
         action={betHomeUrl}
         target={`/tx/settle?contract=${contractAddress}&winner=${creator}`}
-        children={shortenHexAddress(creator)}
+        children={creatorAlias}
       />,
       <Button.Transaction
         action={betHomeUrl}
         target={`/tx/settle?contract=${contractAddress}&winner=${participant}`}
-        children={shortenHexAddress(participant)}
+        children={participantAlias}
       />,
       <Button.Transaction
         action={betHomeUrl}

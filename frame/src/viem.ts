@@ -1,6 +1,10 @@
 import { createPublicClient, http } from "viem";
-import { arbitrum, arbitrumSepolia } from "viem/chains";
+import { mainnet, arbitrum, arbitrumSepolia } from "viem/chains";
 
+const mainnetClient = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+});
 const arbitrumClient = createPublicClient({
   chain: arbitrum,
   transport: http(),
@@ -10,4 +14,4 @@ const arbitrumSepoliaClient = createPublicClient({
   transport: http(),
 });
 
-export { arbitrumClient, arbitrumSepoliaClient };
+export { mainnetClient, arbitrumClient, arbitrumSepoliaClient };
