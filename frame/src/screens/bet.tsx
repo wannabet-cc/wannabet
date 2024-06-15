@@ -49,7 +49,7 @@ export const betScreen = async (c: FrameContext<FrogEnv, "/bet/:betId">) => {
     functionName: "betAddresses",
     args: [BigInt(betId)],
   });
-  const contractAmount = await arbitrumClient.readContract({
+  const contractBalance = await arbitrumClient.readContract({
     address: MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
     abi: FiatTokenProxyAbi,
     functionName: "balanceOf",
@@ -102,6 +102,35 @@ export const betScreen = async (c: FrameContext<FrogEnv, "/bet/:betId">) => {
   const isTie = winner !== creator && winner !== participant;
 
   const convertedAmount = Number(amount) / 10 ** 6;
+
+  const participantButtons =
+    isParticipant && status === "pending"
+      ? [
+          <Button.Transaction
+            action={`${url}/accept`}
+            target={`/tx/authorize?spender=${contractAddress}`}
+            children={"Authorize"}
+          />,
+          <Button.Transaction
+            action={url}
+            target={`/tx/decline?contract=${contractAddress}`}
+            children={"Decline"}
+          />,
+        ]
+      : [];
+  const arbitratorButtons =
+    isArbitrator && status === "accepted"
+      ? [<Button action={`${url}/settle`} children={"Settle"} />]
+      : [];
+  const creatorButtons =
+    isCreator && status === "expired" && Number(contractBalance) > 0
+      ? [
+          <Button.Transaction
+            target={`/tx/retrieve?contract=${contractAddress}`}
+            children={"Retrieve funds"}
+          />,
+        ]
+      : [];
 
   return c.res({
     image: (
@@ -178,29 +207,9 @@ export const betScreen = async (c: FrameContext<FrogEnv, "/bet/:betId">) => {
         value="create"
         children={"Create new"}
       />,
-      isParticipant && status === "pending" ? (
-        <Button.Transaction
-          action={`${url}/accept`}
-          target={`/tx/authorize?spender=${contractAddress}`}
-          children={"Authorize"}
-        />
-      ) : null,
-      isParticipant && status === "pending" ? (
-        <Button.Transaction
-          action={url}
-          target={`/tx/decline?contract=${contractAddress}`}
-          children={"Decline"}
-        />
-      ) : null,
-      isArbitrator && status === "accepted" ? (
-        <Button action={`${url}/settle`} children={"Settle"} />
-      ) : null,
-      isCreator && status === "expired" && Number(contractAmount) > 0 ? (
-        <Button.Transaction
-          target={`/tx/retrieve?contract=${contractAddress}`}
-          children={"Retrieve funds"}
-        />
-      ) : null,
+      ...participantButtons,
+      ...arbitratorButtons,
+      ...creatorButtons,
     ],
   });
 };
