@@ -16,7 +16,7 @@ There are two contracts:
   7. `uint256` \_validFor - Time in seconds that the \_participant has to accept or decline after bet creation
 - `BetFactory.sol`, which creates new Bet contracts and holds the initial state of all bets created from it.
 
-## Features
+## Worklog
 
 - [x] Contract
   - [x] Build basic functionality
@@ -45,6 +45,15 @@ There are two contracts:
     - [x] Arbitrators can select a winner or tie
     - [x] Creators can retrieve their funds if their offer expired
   - [ ] Add ens compatibility
+    - [ ] Show primary names when displayed
+    - [ ] Allow user to input names where applicable
+  - [ ] Add Farcaster username compatibility
+    - [ ] Show Farcaster username (over ens name and shorthand address) when displayed
+    - [ ] Allow user to input Farcaster usernames where applicable
+  - [ ] Deploy
+    - [x] Deploy as a cloudflare worker
+    - [ ] Test all flows and transactions
+    - [ ] Set a domain
 - [ ] Farcaster Bot
   - [x] Generate signer
   - [x] Set up webhooks for when a bet is created, accepted, and settled
@@ -55,3 +64,9 @@ There are two contracts:
     - [ ] A bet is almost expired (reply to creation cast; tag @participant)
     - [ ] A bet is expired (reply to creation cast; tag @creator)
   - [ ] Tag users when casting
+  - [ ] Deploy
+    - [ ] Deploy bot
+    - [ ] Deploy webhook
+    - [ ] Test to ensure webhook is emitting the correct events
+    - [ ] Test to ensure receipt of webhook events
+    - [ ] Test to ensure the bot is casting correctly
