@@ -1,20 +1,18 @@
 import { FiatTokenProxyAbi } from "../contracts/usdcAbi";
 import { MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS } from "../contracts/addresses";
-import { Address, isAddress } from "viem";
-import { z } from "zod";
+import { Address } from "viem";
 import { type CustomTransactionContext } from "..";
+import { AddressSchema, BetAmountSchema } from "../zodSchemas";
 
 export const authorizeTxn = async (
   c: CustomTransactionContext<"/tx/authorize">
 ) => {
   const spender = c.req.query("spender") as Address;
   const amount = Number(c.req.query("amount"));
-  const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
-  const AmountSchema = z.number().positive();
   const { success: success1, data: parsedSpender } =
     AddressSchema.safeParse(spender);
   const { success: success2, data: parsedAmount } =
-    AmountSchema.safeParse(amount);
+    BetAmountSchema.safeParse(amount);
   if (!success1 || !success2) throw new Error();
 
   const usdcAmount = BigInt(parsedAmount);

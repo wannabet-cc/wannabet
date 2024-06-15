@@ -1,22 +1,25 @@
 import { Button, TextInput } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
-import { Address, isAddress } from "viem";
-import { z } from "zod";
 import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
 import { type CustomFrameContext } from "..";
+import {
+  AddressSchema,
+  BetAmountSchema,
+  BetIdSchema,
+  CreatePageNumSchema,
+  DaysValidForSchema,
+} from "../zodSchemas";
 
 export const createScreen = async (
   c: CustomFrameContext<"/bet/:betId/create/:pageNum">
 ) => {
   // Validate params
   const { betId, pageNum } = c.req.param();
-  const BetIdSchema = z.number().positive().int();
   const { success: betIdSuccess, data: parsedBetId } = BetIdSchema.safeParse(
     Number(betId)
   );
-  const PageNumSchema = z.number().positive().int().lte(8);
   const { success: pageNumSuccess, data: parsedPageNum } =
-    PageNumSchema.safeParse(Number(pageNum));
+    CreatePageNumSchema.safeParse(Number(pageNum));
   const betUrl = `/bet/${parsedBetId}`;
   const nextPageUrl = parsedPageNum
     ? `${betUrl}/create/${parsedPageNum + 1}`
@@ -69,7 +72,6 @@ export const createScreen = async (
     if (buttonValue === "continue") {
       // Check if input is valid, go back if not
       const { inputText, deriveState } = c;
-      const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
       const { success, data: parsedParticipant } =
         AddressSchema.safeParse(inputText);
       const isBetWithSelf = frameData?.address == parsedParticipant;
@@ -109,13 +111,7 @@ export const createScreen = async (
     if (buttonValue === "continue") {
       // Check if input is valid, go back if not
       const { inputText, deriveState } = c;
-      const NumberSchema = z
-        .number()
-        .positive()
-        .int()
-        .safe()
-        .lte(5000, "For the moment, the max bet is $5k");
-      const { success, data } = NumberSchema.safeParse(Number(inputText));
+      const { success, data } = BetAmountSchema.safeParse(Number(inputText));
       if (!success)
         return c.res({
           image: (
@@ -177,8 +173,8 @@ export const createScreen = async (
     if (buttonValue === "continue") {
       // Check if input is valid, go back if not
       const { inputText, deriveState } = c;
-      const NumberSchema = z.number().positive().int().lte(14);
-      const { success, data } = NumberSchema.safeParse(Number(inputText));
+
+      const { success, data } = DaysValidForSchema.safeParse(Number(inputText));
       if (!success)
         return c.res({
           image: (
@@ -216,7 +212,6 @@ export const createScreen = async (
     if (buttonValue === "continue") {
       // Check if input is valid, go back if not
       const { inputText, deriveState } = c;
-      const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
       const { success, data } = AddressSchema.safeParse(inputText);
       if (!success)
         return c.res({

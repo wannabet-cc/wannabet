@@ -1,17 +1,16 @@
 import { Button } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
-import { z } from "zod";
 import { arbitrumClientFn } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
 import { getBetDetails, getPreferredAlias } from "../utils";
 import { type CustomFrameContext } from "..";
+import { BetIdSchema } from "../zodSchemas";
 
 export const settleScreen = async (
   c: CustomFrameContext<"/bet/:betId/settle">
 ) => {
   const { betId } = c.req.param();
-  const BetIdSchema = z.number().positive().int();
   const { success, data: parsedBetId } = BetIdSchema.safeParse(Number(betId));
   if (!success) {
     return c.res({
