@@ -93,9 +93,10 @@ export const betScreen = async (c: FrameContext<FrogEnv, "/bet/:betId">) => {
     isParticipant = false,
     isArbitrator = false;
   userAddressList.forEach((address) => {
-    if (address === creator) isCreator = true;
-    if (address === participant) isParticipant = true;
-    if (address === arbitrator) isArbitrator = true;
+    const lcAddress = address.toLowerCase();
+    if (lcAddress === creator.toLowerCase()) isCreator = true;
+    if (lcAddress === participant.toLowerCase()) isParticipant = true;
+    if (lcAddress === arbitrator.toLowerCase()) isArbitrator = true;
   });
 
   const isTie = winner !== creator && winner !== participant;
