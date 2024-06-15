@@ -9,7 +9,7 @@ export const authorizeTxn = async (
   c: TransactionContext<{ State: BetInfoState }, "/tx/authorize">
 ) => {
   const spender = c.req.query("spender") as Address;
-  const amount = c.req.query("amount");
+  const amount = Number(c.req.query("amount"));
   const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
   const AmountSchema = z.number().positive();
   const { success: success1, data: parsedSpender } =
