@@ -1,15 +1,12 @@
-import { TransactionContext } from "frog";
-import type { BetInfoState } from "../types";
 import { Address } from "viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import {
   MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
   MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
 } from "../contracts/addresses";
+import { type CustomTransactionContext } from "..";
 
-export const createTxn = async (
-  c: TransactionContext<{ State: BetInfoState }, "/tx/create">
-) => {
+export const createTxn = async (c: CustomTransactionContext<"/tx/create">) => {
   const { previousState } = c;
 
   const usdcAmount = BigInt(previousState.amount * 10 ** 6);

@@ -1,12 +1,11 @@
-import { TransactionContext } from "frog";
 import { FiatTokenProxyAbi } from "../contracts/usdcAbi";
 import { MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS } from "../contracts/addresses";
-import type { BetInfoState } from "../types";
 import { Address, isAddress } from "viem";
 import { z } from "zod";
+import { type CustomTransactionContext } from "..";
 
 export const authorizeTxn = async (
-  c: TransactionContext<{ State: BetInfoState }, "/tx/authorize">
+  c: CustomTransactionContext<"/tx/authorize">
 ) => {
   const spender = c.req.query("spender") as Address;
   const amount = Number(c.req.query("amount"));

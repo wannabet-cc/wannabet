@@ -1,10 +1,10 @@
-import { Env, TransactionContext } from "frog";
 import { Address, isAddress } from "viem";
 import { z } from "zod";
 import { betAbi } from "../contracts/betAbi";
+import { type CustomTransactionContext } from "..";
 
 export const retrieveTxn = async (
-  c: TransactionContext<Env, "/tx/retrieve">
+  c: CustomTransactionContext<"/tx/retrieve">
 ) => {
   const contractAddress = c.req.query("contract") as Address;
   const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");

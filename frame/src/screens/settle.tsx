@@ -1,14 +1,14 @@
-import { Button, FrameContext } from "frog";
+import { Button } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { z } from "zod";
 import { arbitrumClientFn } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
 import { getBetDetails, getPreferredAlias } from "../utils";
-import { FrogEnv } from "..";
+import { type CustomFrameContext } from "..";
 
 export const settleScreen = async (
-  c: FrameContext<FrogEnv, "/bet/:betId/settle">
+  c: CustomFrameContext<"/bet/:betId/settle">
 ) => {
   const { betId } = c.req.param();
   const BetIdSchema = z.number().positive().int();

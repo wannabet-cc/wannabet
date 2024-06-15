@@ -1,4 +1,4 @@
-import { Button, FrameContext } from "frog";
+import { Button } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { z } from "zod";
 import { arbitrumClientFn } from "../viem";
@@ -12,13 +12,12 @@ import {
   capitalizeFirstLetter,
   fetchUser,
   getBetDetails,
-  // getBetDetails,
   getPreferredAlias,
 } from "../utils";
 import { FiatTokenProxyAbi } from "../contracts/usdcAbi";
-import { FrogEnv } from "..";
+import { type CustomFrameContext } from "..";
 
-export const betScreen = async (c: FrameContext<FrogEnv, "/bet/:betId">) => {
+export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
   const { betId } = c.req.param();
   const BetIdSchema = z.number().positive().int();
   const { success, data: parsedBetId } = BetIdSchema.safeParse(Number(betId));

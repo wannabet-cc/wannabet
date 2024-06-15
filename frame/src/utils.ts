@@ -1,7 +1,6 @@
 import { Address } from "viem";
 import { arbitrumClientFn, mainnetClientFn } from "./viem";
-import { FrogEnv } from ".";
-import { FrameContext } from "frog";
+import { type CustomContext } from ".";
 import { betAbi } from "./contracts/betAbi";
 
 function shortenHexAddress(address: Address) {
@@ -12,7 +11,7 @@ function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-async function getPreferredAlias(c: FrameContext<FrogEnv>, address: Address) {
+async function getPreferredAlias(c: CustomContext, address: Address) {
   let preferredAlias: string;
   const ensName = await mainnetClientFn(c).getEnsName({
     address,
@@ -27,10 +26,7 @@ async function getPreferredAlias(c: FrameContext<FrogEnv>, address: Address) {
   return preferredAlias;
 }
 
-async function getBetDetails(
-  c: FrameContext<FrogEnv>,
-  betContractAddress: Address
-) {
+async function getBetDetails(c: CustomContext, betContractAddress: Address) {
   const [
     betId,
     creator,
