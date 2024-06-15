@@ -5,6 +5,7 @@ import { arbitrumClient } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
 import { betAbi } from "../contracts/betAbi";
+import { shortenHexAddress } from "../utils";
 
 export const settleScreen = async (
   c: FrameContext<Env, "/bet/:betId/settle">
@@ -63,7 +64,8 @@ export const settleScreen = async (
           {message}
         </span>
         <span style={{ ...subTextStyles, marginTop: 30 }}>
-          Creator if true; Participant if false
+          {shortenHexAddress(creator)} if true; {shortenHexAddress(participant)}{" "}
+          if false
         </span>
       </div>
     ),
@@ -72,12 +74,12 @@ export const settleScreen = async (
       <Button.Transaction
         action={betHomeUrl}
         target={`/tx/settle?contract=${contractAddress}&winner=${creator}`}
-        children={"Creator"}
+        children={shortenHexAddress(creator)}
       />,
       <Button.Transaction
         action={betHomeUrl}
         target={`/tx/settle?contract=${contractAddress}&winner=${participant}`}
-        children={"Participant"}
+        children={shortenHexAddress(participant)}
       />,
       <Button.Transaction
         action={betHomeUrl}
