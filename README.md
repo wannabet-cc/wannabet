@@ -30,7 +30,7 @@ There are two contracts:
   - [ ] ~~Add acceptBet, declineBet, and settleBet functions to factory contract, given a contract address as a param~~
   - [ ] ~~Add ability for participant to send tokens directly to the contract to accept, making it so they only need to execute one txn~~
   - [ ] ~~Add ability to cancel a bet (i.e. prior to participant acceptance, giving the option for the bet creator and/or the arbitrator to return the funds without selecting a winner)~~
-- [ ] Frame
+- [x] Frame
   - [x] 'Create new' flow
     - [x] Add state
     - [x] Add bet info that builds as state is filled in from user input
@@ -44,15 +44,15 @@ There are two contracts:
     - [x] Participants can accept or decline a bet
     - [x] Arbitrators can select a winner or tie
     - [x] Creators can retrieve their funds if their offer expired
-  - [ ] Add ens compatibility
-    - [ ] Show primary names when displayed
-    - [ ] Allow user to input names where applicable
+  - [x] Add ens compatibility
+    - [x] Show primary names when displayed
+    - [x] Allow user to input names where applicable
   - [ ] Add Farcaster username compatibility
     - [ ] Show Farcaster username (over ens name and shorthand address) when displayed
     - [ ] Allow user to input Farcaster usernames where applicable
   - [ ] Deploy
     - [x] Deploy as a cloudflare worker
-    - [ ] Test all flows and transactions
+    - [x] Test all flows and transactions
     - [ ] Set a domain
 - [ ] Farcaster Bot
   - [x] Generate signer
