@@ -1,22 +1,29 @@
 import { Button, TextInput } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
-import { Address, isAddress } from "viem";
-import { z } from "zod";
 import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
 import { type CustomFrameContext } from "..";
+import {
+  AddressSchema,
+  BetAmountSchema,
+  BetIdSchema,
+  CreatePageNumSchema,
+  DaysValidForSchema,
+  EnsNameSchema,
+} from "../zodSchemas";
+import { mainnetClientFn } from "../viem";
+import { normalize } from "viem/ens";
+import { Address } from "viem";
 
 export const createScreen = async (
   c: CustomFrameContext<"/bet/:betId/create/:pageNum">
 ) => {
   // Validate params
   const { betId, pageNum } = c.req.param();
-  const BetIdSchema = z.number().positive().int();
   const { success: betIdSuccess, data: parsedBetId } = BetIdSchema.safeParse(
     Number(betId)
   );
-  const PageNumSchema = z.number().positive().int().lte(8);
   const { success: pageNumSuccess, data: parsedPageNum } =
-    PageNumSchema.safeParse(Number(pageNum));
+    CreatePageNumSchema.safeParse(Number(pageNum));
   const betUrl = `/bet/${parsedBetId}`;
   const nextPageUrl = parsedPageNum
     ? `${betUrl}/create/${parsedPageNum + 1}`
@@ -58,7 +65,7 @@ export const createScreen = async (
         </div>
       ),
       intents: [
-        <TextInput placeholder="e.g. 0xabc..." />,
+        <TextInput placeholder="e.g. 0xabc... or example.eth" />,
         <Button action={betUrl} value="back" children={"Back"} />,
         <Button action={nextPageUrl} value="continue" children={"Continue"} />,
       ],
@@ -69,16 +76,25 @@ export const createScreen = async (
     if (buttonValue === "continue") {
       // Check if input is valid, go back if not
       const { inputText, deriveState } = c;
-      const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
-      const { success, data: parsedParticipant } =
+      const { success: ensNameSuccess, data: parsedEnsName } =
+        EnsNameSchema.safeParse(inputText);
+      const { success: addressSuccess, data: parsedAddress } =
         AddressSchema.safeParse(inputText);
-      const isBetWithSelf = frameData?.address == parsedParticipant;
-      if (!success || isBetWithSelf) {
+
+      let participantAddress: Address;
+      if (ensNameSuccess) {
+        const mainnetClient = mainnetClientFn(c);
+        participantAddress = (await mainnetClient.getEnsAddress({
+          name: normalize(parsedEnsName),
+        })) as Address;
+      } else if (addressSuccess) {
+        participantAddress = parsedAddress;
+      } else {
         return c.res({
           image: (
             <div style={{ ...backgroundStyles }}>
               <span style={{ color: "gray" }}>{parsedPageNum - 1}/8</span>
-              <span>error - Input needs to be a valid address</span>
+              <span>error - Input needs to be a valid address or ens name</span>
             </div>
           ),
           intents: [<Button action={prevPageUrl} children="Back" />],
@@ -86,7 +102,7 @@ export const createScreen = async (
       }
       // Update state
       const state = deriveState((previousState) => {
-        previousState.participant = parsedParticipant;
+        previousState.participant = participantAddress;
       });
     }
     // Return frame
@@ -109,13 +125,7 @@ export const createScreen = async (
     if (buttonValue === "continue") {
       // Check if input is valid, go back if not
       const { inputText, deriveState } = c;
-      const NumberSchema = z
-        .number()
-        .positive()
-        .int()
-        .safe()
-        .lte(5000, "For the moment, the max bet is $5k");
-      const { success, data } = NumberSchema.safeParse(Number(inputText));
+      const { success, data } = BetAmountSchema.safeParse(Number(inputText));
       if (!success)
         return c.res({
           image: (
@@ -177,8 +187,8 @@ export const createScreen = async (
     if (buttonValue === "continue") {
       // Check if input is valid, go back if not
       const { inputText, deriveState } = c;
-      const NumberSchema = z.number().positive().int().lte(14);
-      const { success, data } = NumberSchema.safeParse(Number(inputText));
+
+      const { success, data } = DaysValidForSchema.safeParse(Number(inputText));
       if (!success)
         return c.res({
           image: (
@@ -205,7 +215,7 @@ export const createScreen = async (
         </div>
       ),
       intents: [
-        <TextInput placeholder="e.g. 0xabc..." />,
+        <TextInput placeholder="e.g. 0xabc... or example.eth" />,
         <Button action={prevPageUrl} value="back" children={"Back"} />,
         <Button action={nextPageUrl} value="continue" children={"Continue"} />,
       ],
@@ -216,21 +226,33 @@ export const createScreen = async (
     if (buttonValue === "continue") {
       // Check if input is valid, go back if not
       const { inputText, deriveState } = c;
-      const AddressSchema = z.custom<Address>(isAddress, "Invalid Address");
-      const { success, data } = AddressSchema.safeParse(inputText);
-      if (!success)
+      const { success: ensNameSuccess, data: parsedEnsName } =
+        EnsNameSchema.safeParse(inputText);
+      const { success: addressSuccess, data: parsedAddress } =
+        AddressSchema.safeParse(inputText);
+
+      let arbitratorAddress: Address;
+      if (ensNameSuccess) {
+        const mainnetClient = mainnetClientFn(c);
+        arbitratorAddress = (await mainnetClient.getEnsAddress({
+          name: normalize(parsedEnsName),
+        })) as Address;
+      } else if (addressSuccess) {
+        arbitratorAddress = parsedAddress;
+      } else {
         return c.res({
           image: (
             <div style={{ ...backgroundStyles }}>
               <span style={{ color: "gray" }}>{parsedPageNum - 1}/8</span>
-              <span>error - Input needs to be a valid address</span>
+              <span>error - Input needs to be a valid address or ens name</span>
             </div>
           ),
           intents: [<Button action={prevPageUrl} children="Back" />],
         });
+      }
       // Update state
       const state = deriveState((previousState) => {
-        previousState.arbitrator = data;
+        previousState.arbitrator = arbitratorAddress;
       });
     }
     const { previousState } = c;
