@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) ([github](https://github.com/olivierlacan/keep-a-changelog/tree/main))
 
+## [0.6.0] - 2024-06-15
+
+### Added
+
+- Bot casting and webhook logic
+
+### Changed
+
+- Improve frame usability
+- Smart contract: change some var names to improve naming consistency
+- Smart contract: change event topics to make it easy to find the new bet contracts
+
+### Fixed
+
+- Frame transactions work now
+- Prep frame to deploy (e.g. set env vars correctly, clean up code, and other small fixes)
+
 ## [0.5.0] - 2024-06-07
 
 ### Added
