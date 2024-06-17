@@ -215,6 +215,10 @@ export const createScreen = async (
         <div style={{ ...backgroundStyles }}>
           <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
           <span>Who would you like to arbitrate?</span>
+          <span style={{ ...subTextStyles, marginTop: 20 }}>
+            The arbitrator determines the winner of the bet; This can be you,
+            the recipient, or someone else.
+          </span>
         </div>
       ),
       intents: [
