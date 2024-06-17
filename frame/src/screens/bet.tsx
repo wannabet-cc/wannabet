@@ -199,6 +199,8 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
     ),
     intents: [
       ...participantButtons,
+      ...arbitratorButtons,
+      ...creatorButtons,
       <Button.Link
         href={`https://arbiscan.io/address/${contractAddress}`}
         children={"Arbiscan"}
@@ -208,8 +210,6 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
         value="create"
         children={"Create new"}
       />,
-      ...arbitratorButtons,
-      ...creatorButtons,
     ],
   });
 };
