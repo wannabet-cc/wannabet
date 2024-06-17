@@ -150,7 +150,7 @@ export const createScreen = async (
           <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
           <span>What are the terms?</span>
           <span style={{ ...subTextStyles, marginTop: 40 }}>
-            example.eth bets that...
+            You are betting that...
           </span>
         </div>
       ),
@@ -215,6 +215,10 @@ export const createScreen = async (
         <div style={{ ...backgroundStyles }}>
           <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
           <span>Who would you like to arbitrate?</span>
+          <span style={{ ...subTextStyles, marginTop: 20 }}>
+            The arbitrator determines the winner of the bet; This can be you,
+            the recipient, or someone else.
+          </span>
         </div>
       ),
       intents: [
