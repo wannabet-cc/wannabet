@@ -18,7 +18,7 @@ const bot: Express = express();
 bot.use(express.json());
 
 bot.get("/", (req: Request, res: Response) => {
-  res.send("Express Server");
+  res.send("WannaBet Bot Express Server");
 });
 
 const castMap = new Map();
