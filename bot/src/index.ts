@@ -176,7 +176,7 @@ async function getBetDetails(betContractAddress: Address) {
   ] = await arbitrumClient.readContract({
     address: betContractAddress,
     abi: betAbi,
-    functionName: "getBetDetails",
+    functionName: "betDetails",
     args: [],
   });
   return {
