@@ -6,6 +6,7 @@ const PORT = process.env.PORT || 3000;
 
 // Sensitive info
 const ALCHEMY_TOKEN = process.env.ALCHEMY_TOKEN!;
+const ARBITRUM_ALCHEMY_URL = process.env.ARBITRUM_ALCHEMY_URL!;
 const NEYNAR_API_KEY = process.env.NEYNAR_API_KEY!;
 const FARCASTER_BOT_MNEMONIC = process.env.FARCASTER_BOT_MNEMONIC!;
 const SIGNER_UUID = process.env.SIGNER_UUID!;
@@ -31,6 +32,7 @@ const FRAME_BASE_URL =
 export {
   PORT,
   ALCHEMY_TOKEN,
+  ARBITRUM_ALCHEMY_URL,
   NEYNAR_API_KEY,
   FARCASTER_BOT_MNEMONIC,
   SIGNER_UUID,

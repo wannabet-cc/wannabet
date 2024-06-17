@@ -1,13 +1,10 @@
 import { createPublicClient, http } from "viem";
-import { arbitrum, arbitrumSepolia } from "viem/chains";
+import { arbitrum } from "viem/chains";
+import { ARBITRUM_ALCHEMY_URL } from "./config";
 
 const arbitrumClient = createPublicClient({
   chain: arbitrum,
-  transport: http(),
-});
-const arbitrumSepoliaClient = createPublicClient({
-  chain: arbitrumSepolia,
-  transport: http(),
+  transport: http(ARBITRUM_ALCHEMY_URL),
 });
 
-export { arbitrumClient, arbitrumSepoliaClient };
+export { arbitrumClient };
