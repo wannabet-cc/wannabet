@@ -149,6 +149,9 @@ export const createScreen = async (
         <div style={{ ...backgroundStyles }}>
           <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
           <span>What are the terms?</span>
+          <span style={{ ...subTextStyles, marginTop: 40 }}>
+            example.eth bets that...
+          </span>
         </div>
       ),
       intents: [
