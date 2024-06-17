@@ -1,6 +1,9 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+// General
+const PORT = process.env.PORT || 3000;
+
 // Sensitive info
 const ALCHEMY_TOKEN = process.env.ALCHEMY_TOKEN!;
 const NEYNAR_API_KEY = process.env.NEYNAR_API_KEY!;
@@ -25,6 +28,7 @@ const BET_SETTLED_EVENT_SIGNATURE =
 const FRAME_BASE_URL = ""; // frame is not deployed yet
 
 export {
+  PORT,
   ALCHEMY_TOKEN,
   NEYNAR_API_KEY,
   FARCASTER_BOT_MNEMONIC,

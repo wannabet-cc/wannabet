@@ -1,12 +1,12 @@
 // src/index.ts
 import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
 import { Address } from "viem";
 import { ethers } from "ethers";
 import { publishCast } from "./neynar";
 import { arbitrumClient } from "./viem";
 import { betAbi } from "./contracts/betAbi";
 import {
+  PORT,
   BET_ACCEPTED_EVENT_SIGNATURE,
   BET_CREATED_EVENT_SIGNATURE,
   BET_DECLINED_EVENT_SIGNATURE,
@@ -15,8 +15,6 @@ import {
 } from "./config";
 import { addAddress, removeAddress } from "./webhook";
 import { shortenHexAddress } from "./utils";
-
-dotenv.config();
 
 const app: Express = express();
 
@@ -199,7 +197,6 @@ async function getBetWinner(betContractAddress: Address) {
   return winner;
 }
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`[server]: Server is running at http://localhost:${PORT}`);
 });
