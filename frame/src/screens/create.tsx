@@ -150,7 +150,7 @@ export const createScreen = async (
           <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
           <span>What are the terms?</span>
           <span style={{ ...subTextStyles, marginTop: 40 }}>
-            example.eth bets that...
+            You are betting that...
           </span>
         </div>
       ),
