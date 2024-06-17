@@ -65,7 +65,7 @@ export const createScreen = async (
         </div>
       ),
       intents: [
-        <TextInput placeholder="e.g. 0xabc... or example.eth" />,
+        <TextInput placeholder="e.g. example.eth or 0xabc..." />,
         <Button action={betUrl} value="back" children={"Back"} />,
         <Button action={nextPageUrl} value="continue" children={"Continue"} />,
       ],
@@ -215,7 +215,7 @@ export const createScreen = async (
         </div>
       ),
       intents: [
-        <TextInput placeholder="e.g. 0xabc... or example.eth" />,
+        <TextInput placeholder="e.g. example.eth or 0xabc..." />,
         <Button action={prevPageUrl} value="back" children={"Back"} />,
         <Button action={nextPageUrl} value="continue" children={"Continue"} />,
       ],
