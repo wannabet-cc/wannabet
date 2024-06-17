@@ -153,7 +153,7 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
           </span>
         </span>
         <span style={{ ...subTextStyles, marginTop: 10 }}>
-          ${convertedAmount} USDC that:
+          {convertedAmount} USDC that:
         </span>
         <span
           style={{
