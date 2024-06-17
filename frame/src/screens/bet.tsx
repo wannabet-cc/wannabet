@@ -134,64 +134,65 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
   return c.res({
     image: (
       <div style={{ ...backgroundStyles }}>
-        <span>
-          WannaBet #{betId} - {capitalizeFirstLetter(status)}
-        </span>
+        <span>WannaBet #{betId}</span>
         <span style={{ ...subTextStyles, marginTop: 20 }}>
-          <span style={{ textDecorationLine: "underline", marginRight: 10 }}>
+          <span style={{ textDecorationLine: "underline", marginRight: 12 }}>
             {creatorAlias}
           </span>
           {" bet "}
           <span
             style={{
               textDecorationLine: "underline",
-              marginLeft: 10,
-              marginRight: 10,
+              marginLeft: 12,
+              marginRight: 12,
             }}
           >
             {participantAlias}
           </span>
-        </span>
-        <span style={{ ...subTextStyles, marginTop: 10 }}>
           {convertedAmount} USDC that:
         </span>
         <span
           style={{
             ...subTextStyles,
             marginTop: 30,
-            color: "lightBlue",
-            paddingLeft: 40,
+            marginBottom: 48,
+            color: "lightGreen",
+            padding: 8,
+            paddingLeft: 36,
             borderLeft: "4px",
           }}
         >
           {message}.
         </span>
         {status === "pending" && (
-          <span style={{ ...subTextStyles, marginTop: 30 }}>
-            {participantAlias} can accept or decline
+          <span style={{ ...subTextStyles }}>
+            {capitalizeFirstLetter(status)}: {participantAlias} can accept or
+            decline
           </span>
         )}
         {status === "expired" && (
-          <span style={{ ...subTextStyles, marginTop: 30 }}>
-            {participantAlias} didn't accept in time. The bet creator can
-            retrieve their funds.
+          <span style={{ ...subTextStyles }}>
+            {capitalizeFirstLetter(status)}: {participantAlias} didn't accept in
+            time. The bet creator can retrieve their funds.
           </span>
         )}
         {status === "declined" && (
-          <span style={{ ...subTextStyles, marginTop: 30 }}>
-            {participantAlias} declined the bet
+          <span style={{ ...subTextStyles }}>
+            {capitalizeFirstLetter(status)}: {participantAlias} declined the bet
           </span>
         )}
         {status === "accepted" && (
-          <span style={{ ...subTextStyles, marginTop: 30 }}>
-            {participantAlias} accepted! Awaiting the result
+          <span style={{ ...subTextStyles }}>
+            {capitalizeFirstLetter(status)}: Awaiting {arbitrator}&apos;s
+            decision
           </span>
         )}
         {status === "settled" && (
-          <span style={{ ...subTextStyles, marginTop: 30 }}>
+          <span style={{ ...subTextStyles }}>
+            {capitalizeFirstLetter(status)}:{" "}
             {isTie
-              ? "The bet was a tie! The pot was split."
-              : `Bet settled! ${winnerAlias} won.`}
+              ? "The bet tied and the pot was split."
+              : `${winnerAlias} won.`}
           </span>
         )}
       </div>
