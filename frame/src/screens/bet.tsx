@@ -108,7 +108,7 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
           <Button.Transaction
             action={`${url}/accept`}
             target={`/tx/authorize?spender=${contractAddress}&amount=${amount}`}
-            children={"Authorize"}
+            children={"Accept"}
           />,
           <Button.Transaction
             action={url}
@@ -197,6 +197,7 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
       </div>
     ),
     intents: [
+      ...participantButtons,
       <Button.Link
         href={`https://arbiscan.io/address/${contractAddress}`}
         children={"Arbiscan"}
@@ -206,7 +207,6 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
         value="create"
         children={"Create new"}
       />,
-      ...participantButtons,
       ...arbitratorButtons,
       ...creatorButtons,
     ],
