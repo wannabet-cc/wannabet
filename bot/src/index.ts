@@ -1,7 +1,6 @@
 // src/index.ts
 import express, { Express, Request, Response } from "express";
-import { Address } from "viem";
-import { ethers } from "ethers";
+import { Address, getAddress } from "viem";
 import { publishCast } from "./neynar";
 import { arbitrumClient } from "./viem";
 import { betAbi } from "./contracts/betAbi";
@@ -36,7 +35,7 @@ app.post("/webhooks", (req: Request, res: Response) => {
       // HANDLE BET CREATION
       try {
         // -> parse new contract address
-        const newContractAddress = ethers.getAddress(log.topics[1]) as Address;
+        const newContractAddress = getAddress(log.topics[1]);
         // -> add new contract address to webhook
         addAddress(newContractAddress);
         // -> get bet info
