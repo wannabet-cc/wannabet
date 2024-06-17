@@ -25,7 +25,8 @@ const BET_SETTLED_EVENT_SIGNATURE =
   "0x1263c5e68e09cb9dfb7e7df0f53d955963a974e73d6ef177fadeb882cd9629ab";
 
 // Urls & other
-const FRAME_BASE_URL = ""; // frame is not deployed yet
+const FRAME_BASE_URL =
+  process.env.FRAME_BASE_URL || "https://frame.wannabet.cc";
 
 export {
   PORT,
