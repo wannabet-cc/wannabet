@@ -10,7 +10,7 @@ const PositiveIntSchema = z.number().positive().int();
 const CreatePageNumSchema = PositiveIntSchema.lte(8);
 const BetIdSchema = PositiveIntSchema;
 const BetAmountSchema = PositiveIntSchema.lte(
-  5000,
+  5000 * 10 ** 6,
   "For the moment, the max bet is $5k"
 );
 const DaysValidForSchema = PositiveIntSchema.lte(14);
