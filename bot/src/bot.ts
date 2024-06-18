@@ -23,38 +23,39 @@ bot.get("/", (req: Request, res: Response) => {
   res.send("WannaBet Bot Express Server");
 });
 
-bot.post("/webhooks", (req: Request, res: Response) => {
-  const eventData = req.body as EventData;
-  const logs = eventData.event.data.block.logs;
+bot.post("/webhooks", async (req: Request, res: Response) => {
+  try {
+    const eventData = req.body as EventData;
+    const logs = eventData.event.data.block.logs;
+    await Promise.all(
+      logs.map(async (log) => {
+        const event = getEventNameFromSignature(log.topics[0]);
+        switch (event) {
+          case "BetCreated":
+            handleBetCreated(log);
+            break;
+          case "BetAccepted":
+            handleBetAccepted(log);
+            break;
+          case "BetDeclined":
+            handleBetDeclined(log);
+            break;
+          case "BetSettled":
+            handleBetSettled(log);
+            break;
+          default:
+            console.log(
+              `Unexpected data format received:\n${JSON.stringify(log)}`
+            );
+        }
+      })
+    );
 
-  logs.forEach(async (log) => {
-    const event = getEventNameFromSignature(log.topics[0]);
-    try {
-      switch (event) {
-        case "BetCreated":
-          handleBetCreated(log);
-          break;
-        case "BetAccepted":
-          handleBetAccepted(log);
-          break;
-        case "BetDeclined":
-          handleBetDeclined(log);
-          break;
-        case "BetSettled":
-          handleBetSettled(log);
-          break;
-        default:
-          console.log(
-            `Unexpected data format received:\n${JSON.stringify(log)}`
-          );
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(500).send({ error: "Internal server error" });
-    }
-  });
-
-  res.status(200).send("Received");
+    res.status(200).send("Received");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Internal server error" });
+  }
 });
 
 export default bot;
