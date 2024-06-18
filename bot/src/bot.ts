@@ -39,6 +39,7 @@ bot.post("/webhooks", (req: Request, res: Response) => {
       }
     } catch (error) {
       console.error(error);
+      res.status(500).send({ error: "Internal server error" });
     }
   });
 
