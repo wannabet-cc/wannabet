@@ -5,9 +5,11 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Bet} from "contracts/Bet.sol";
 
 error BET__Unauthorized();
+error BET__FeeNotEnough();
 
 contract BetFactory {
     address public owner;
+    uint256 public fee;
     uint256 public betCount = 0;
     // bet id -> contract address
     mapping(uint256 _betId => address contractAddress) public betAddresses;
@@ -27,8 +29,9 @@ contract BetFactory {
         return userBets[_userAddress].length;
     }
 
-    constructor() {
+    constructor(uint256 _initialFee) {
         owner = msg.sender;
+        fee = _initialFee;
     }
 
     modifier onlyOwner() {
@@ -38,6 +41,10 @@ contract BetFactory {
 
     function transferOwnership(address _newOwner) public virtual onlyOwner {
         owner = _newOwner;
+    }
+
+    function changeFee(uint256 _newFee) public virtual onlyOwner {
+        fee = _newFee;
     }
 
     event BetCreated(
@@ -54,7 +61,8 @@ contract BetFactory {
         string memory _message,
         address _arbitrator,
         uint256 _validFor
-    ) public {
+    ) public payable {
+        if (msg.value < fee) revert BET__FeeNotEnough();
         require(msg.sender != _participant, "Cannot bet against yourself");
         require(_amount > 0, "Bet amount must be greater than 0");
         require(_validFor >= 3600, "Bet must be valid for at least 1 hour");
@@ -83,6 +91,11 @@ contract BetFactory {
                 _amount
             );
             require(success, "Token transfer failed");
+
+            // Send fee to owner
+            bool feeSuccess = payable(owner).transfer(msg.value);
+            require(feeSuccess, "Fee transfer failed");
+
             // Update state variables
             betCount++;
             betAddresses[betCount] = address(newBet);
