@@ -30,12 +30,23 @@ bot.post("/webhooks", (req: Request, res: Response) => {
   logs.forEach(async (log) => {
     const event = getEventNameFromSignature(log.topics[0]);
     try {
-      if (event === "BetCreated") handleBetCreated(log);
-      else if (event === "BetAccepted") handleBetAccepted(log);
-      else if (event === "BetDeclined") handleBetDeclined(log);
-      else if (event === "BetSettled") handleBetSettled(log);
-      else {
-        console.log("Unexpected data format received:\n" + log);
+      switch (event) {
+        case "BetCreated":
+          handleBetCreated(log);
+          break;
+        case "BetAccepted":
+          handleBetAccepted(log);
+          break;
+        case "BetDeclined":
+          handleBetDeclined(log);
+          break;
+        case "BetSettled":
+          handleBetSettled(log);
+          break;
+        default:
+          console.log(
+            `Unexpected data format received:\n${JSON.stringify(log)}`
+          );
       }
     } catch (error) {
       console.error(error);
