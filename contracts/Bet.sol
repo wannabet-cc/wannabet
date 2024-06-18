@@ -2,36 +2,64 @@
 pragma solidity ^0.8.24;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-error Unauthorized();
-error Expired();
-error InvalidStatus();
-error FailedTransfer();
-error FundsAlreadyWithdrawn();
-error BadInput();
+import {BetFactory} from "./BetFactory.sol";
 
 contract Bet {
-    uint256 private immutable BET_ID;
-    address private immutable CREATOR;
-    address private immutable PARTICIPANT;
-    uint256 private immutable AMOUNT;
-    IERC20 private immutable TOKEN;
-    string private MESSAGE;
-    address private immutable ARBITRATOR;
-    uint256 private immutable VALID_UNTIL;
-    address private immutable FACTORY_CONTRACT;
-
+    // -> Type declarations
     enum Status {
         Pending,
         Declined,
         Accepted,
         Settled
     }
-    Status private status = Status.Pending;
 
-    bool private fundsWithdrawn = false;
+    // -> State variables
+    uint256 private immutable _BET_ID;
+    address private immutable _CREATOR;
+    address private immutable _PARTICIPANT;
+    uint256 private immutable _AMOUNT;
+    IERC20 private immutable _TOKEN;
+    string private _MESSAGE;
+    address private immutable _ARBITRATOR;
+    uint256 private immutable _VALID_UNTIL;
+
+    BetFactory private _betFactory;
+    Status private _status = Status.Pending;
+    bool private _fundsWithdrawn = false;
     address public winner;
 
+    // -> Events
+    event BetAccepted(address indexed factoryContract);
+    event BetDeclined(address indexed factoryContract);
+    event BetSettled(address indexed factoryContract, address indexed winner);
+
+    // -> Errors
+    error BET__Unauthorized();
+    error BET__Expired();
+    error BET__InvalidStatus();
+    error BET__FailedTransfer();
+    error BET__FailedEthTransfer();
+    error BET__FundsAlreadyWithdrawn();
+    error BET__BadInput();
+    error BET__FeeNotEnough();
+
+    // -> Modifiers
+    modifier onlyCreator() {
+        if (msg.sender != _CREATOR) revert BET__Unauthorized();
+        _;
+    }
+
+    modifier onlyParticipant() {
+        if (msg.sender != _PARTICIPANT) revert BET__Unauthorized();
+        _;
+    }
+
+    modifier onlyArbitrator() {
+        if (msg.sender != _ARBITRATOR) revert BET__Unauthorized();
+        _;
+    }
+
+    // -> Functions
     constructor(
         uint256 _betId,
         address _creator,
@@ -43,32 +71,89 @@ contract Bet {
         uint256 _validFor,
         address _factoryContract
     ) {
-        BET_ID = _betId;
-        CREATOR = _creator;
-        PARTICIPANT = _participant;
-        AMOUNT = _amount;
-        TOKEN = IERC20(_token);
-        MESSAGE = _message;
-        ARBITRATOR = _arbitrator;
-        VALID_UNTIL = block.timestamp + _validFor;
-        FACTORY_CONTRACT = _factoryContract;
+        _BET_ID = _betId;
+        _CREATOR = _creator;
+        _PARTICIPANT = _participant;
+        _AMOUNT = _amount;
+        _TOKEN = IERC20(_token);
+        _MESSAGE = _message;
+        _ARBITRATOR = _arbitrator;
+        _VALID_UNTIL = block.timestamp + _validFor;
+        _betFactory = BetFactory(_factoryContract);
     }
 
-    event BetAccepted(address indexed factoryContract);
-    event BetDeclined(address indexed factoryContract);
-    event BetSettled(address indexed factoryContract, address indexed winner);
+    function acceptBet() public payable onlyParticipant {
+        if (msg.value < _betFactory.fee()) revert BET__FeeNotEnough();
+        if (_isExpired()) revert BET__Expired();
+        if (_status != Status.Pending) revert BET__InvalidStatus();
 
-    modifier onlyCreator() {
-        if (msg.sender != CREATOR) revert Unauthorized();
-        _;
+        // Transfer tokens to contract
+        bool success = _TOKEN.transferFrom(msg.sender, address(this), _AMOUNT);
+        if (!success) revert BET__FailedTransfer();
+
+        // Send fee to factory contract owner
+        (bool feeSuccess, ) = payable(_betFactory.owner()).call{
+            value: msg.value
+        }("");
+        if (!feeSuccess) revert BET__FailedEthTransfer();
+
+        // Update state variables
+        _status = Status.Accepted;
+        // Emit event
+        emit BetAccepted(address(_betFactory));
     }
-    modifier onlyParticipant() {
-        if (msg.sender != PARTICIPANT) revert Unauthorized();
-        _;
+
+    function declineBet() public onlyParticipant {
+        if (_isExpired()) revert BET__Expired();
+        if (_status != Status.Pending) revert BET__InvalidStatus();
+
+        // Return tokens to original party
+        bool success = _TOKEN.transfer(_CREATOR, _AMOUNT);
+        if (!success) revert BET__FailedTransfer();
+
+        // Update state variables
+        _status = Status.Declined;
+        // Emit event
+        emit BetDeclined(address(_betFactory));
     }
-    modifier onlyArbitrator() {
-        if (msg.sender != ARBITRATOR) revert Unauthorized();
-        _;
+
+    function retrieveTokens() public onlyCreator {
+        if (!_isExpired()) revert BET__Unauthorized();
+        if (_fundsWithdrawn) revert BET__FundsAlreadyWithdrawn();
+
+        // Return tokens to bet creator
+        bool success = _TOKEN.transfer(_CREATOR, _AMOUNT);
+        if (!success) revert BET__FailedTransfer();
+
+        // Update state
+        _fundsWithdrawn = true;
+    }
+
+    function settleBet(address _winner) public onlyArbitrator {
+        if (_status != Status.Accepted) revert BET__InvalidStatus();
+        if (
+            _winner != _CREATOR &&
+            _winner != _PARTICIPANT &&
+            _winner != 0x0000000000000000000000000000000000000000
+        ) revert BET__BadInput();
+
+        // Transfer tokens to winner
+        if (_winner == 0x0000000000000000000000000000000000000000) {
+            // In tie event, the funds are returned
+            bool success1 = _TOKEN.transfer(_CREATOR, _AMOUNT);
+            bool success2 = _TOKEN.transfer(_PARTICIPANT, _AMOUNT);
+            if (!success1 || !success2) revert BET__FailedTransfer();
+        } else {
+            // In winning event, all funds are transfered to the winner
+            bool success = _TOKEN.transfer(_winner, _AMOUNT * 2);
+            if (!success) revert BET__FailedTransfer();
+        }
+
+        // Update state variables
+        _status = Status.Settled;
+        winner = _winner;
+        // Emit event
+        emit BetSettled(address(_betFactory), _winner);
     }
 
     function betDetails()
@@ -86,104 +171,32 @@ contract Bet {
         )
     {
         return (
-            BET_ID,
-            CREATOR,
-            PARTICIPANT,
-            AMOUNT,
-            TOKEN,
-            MESSAGE,
-            ARBITRATOR,
-            VALID_UNTIL
+            _BET_ID,
+            _CREATOR,
+            _PARTICIPANT,
+            _AMOUNT,
+            _TOKEN,
+            _MESSAGE,
+            _ARBITRATOR,
+            _VALID_UNTIL
         );
     }
-    function isExpired() private view returns (bool) {
-        return block.timestamp >= VALID_UNTIL && status == Status.Pending;
-    }
+
     function getStatus() public view returns (string memory) {
-        if (isExpired()) {
+        if (_isExpired()) {
             return "expired";
-        } else if (status == Status.Pending) {
+        } else if (_status == Status.Pending) {
             return "pending";
-        } else if (status == Status.Declined) {
+        } else if (_status == Status.Declined) {
             return "declined";
-        } else if (status == Status.Accepted) {
+        } else if (_status == Status.Accepted) {
             return "accepted";
         } else {
             return "settled";
         }
     }
 
-    function acceptBet() public onlyParticipant {
-        if (isExpired()) revert Expired();
-        if (status != Status.Pending) revert InvalidStatus();
-
-        // Transfer tokens to contract
-        bool success = TOKEN.transferFrom(msg.sender, address(this), AMOUNT);
-        if (!success) revert FailedTransfer();
-
-        // Update state variables
-        status = Status.Accepted;
-        // Emit event
-        emit BetAccepted(FACTORY_CONTRACT);
-    }
-
-    function declineBet() public onlyParticipant {
-        if (isExpired()) revert Expired();
-        if (status != Status.Pending) revert InvalidStatus();
-
-        // Return tokens to original party
-        bool success = TOKEN.transfer(CREATOR, AMOUNT);
-        if (!success) revert FailedTransfer();
-
-        // Update state variables
-        status = Status.Declined;
-        // Emit event
-        emit BetDeclined(FACTORY_CONTRACT);
-    }
-
-    function retrieveTokens() public onlyCreator {
-        if (!isExpired()) revert Unauthorized();
-        if (fundsWithdrawn) revert FundsAlreadyWithdrawn();
-
-        // Return tokens to bet creator
-        bool success = TOKEN.transfer(CREATOR, AMOUNT);
-        if (!success) revert FailedTransfer();
-
-        // Update state
-        fundsWithdrawn = true;
-    }
-
-    function settleBet(address _winner) public onlyArbitrator {
-        if (status != Status.Accepted) revert InvalidStatus();
-        if (
-            _winner != CREATOR &&
-            _winner != PARTICIPANT &&
-            _winner != 0x0000000000000000000000000000000000000000
-        ) revert BadInput();
-
-        // Transfer tokens to winner
-        if (_winner == 0x0000000000000000000000000000000000000000) {
-            // In tie event, the funds are returned
-            bool success1 = TOKEN.transfer(CREATOR, AMOUNT);
-            if (!success1) {
-                revert FailedTransfer();
-            }
-            bool success2 = TOKEN.transfer(PARTICIPANT, AMOUNT);
-            if (!success2) {
-                revert FailedTransfer();
-            }
-        } else {
-            // In winning event, all funds are transfered to the winner
-            bool success = TOKEN.transfer(_winner, AMOUNT * 2);
-            if (!success) {
-                revert FailedTransfer();
-            }
-        }
-
-        // Update state variables
-        status = Status.Settled;
-        winner = _winner;
-        // Emit event
-        emit BetSettled(FACTORY_CONTRACT, _winner);
+    function _isExpired() private view returns (bool) {
+        return block.timestamp >= _VALID_UNTIL && _status == Status.Pending;
     }
 }
