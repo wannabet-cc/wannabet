@@ -175,19 +175,12 @@ contract Bet {
         if (_winner == 0x0000000000000000000000000000000000000000) {
             // In tie event, the funds are returned
             bool success1 = TOKEN.transfer(CREATOR, AMOUNT);
-            if (!success1) {
-                revert FailedTransfer();
-            }
             bool success2 = TOKEN.transfer(PARTICIPANT, AMOUNT);
-            if (!success2) {
-                revert FailedTransfer();
-            }
+            if (!success1 || !success2) revert FailedTransfer();
         } else {
             // In winning event, all funds are transfered to the winner
             bool success = TOKEN.transfer(_winner, AMOUNT * 2);
-            if (!success) {
-                revert FailedTransfer();
-            }
+            if (!success) revert FailedTransfer();
         }
 
         // Update state variables
