@@ -4,7 +4,10 @@ pragma solidity ^0.8.24;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Bet} from "contracts/Bet.sol";
 
+error BET__Unauthorized();
+
 contract BetFactory {
+    address public owner;
     uint256 public betCount = 0;
     // bet id -> contract address
     mapping(uint256 _betId => address contractAddress) public betAddresses;
@@ -24,7 +27,18 @@ contract BetFactory {
         return userBets[_userAddress].length;
     }
 
-    constructor() {}
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        if (owner != msg.sender) revert BET__Unauthorized();
+        _;
+    }
+
+    function transferOwnership(address _newOwner) public virtual onlyOwner {
+        owner = _newOwner;
+    }
 
     event BetCreated(
         address indexed contractAddress,
