@@ -6,6 +6,8 @@ import {Bet} from "contracts/Bet.sol";
 
 error BET__Unauthorized();
 error BET__FeeNotEnough();
+error BET__BadInput();
+error BET__FailedTokenTransfer();
 error BET__FailedEthTransfer();
 
 contract BetFactory {
@@ -64,13 +66,9 @@ contract BetFactory {
         uint256 _validFor
     ) public payable {
         if (msg.value < fee) revert BET__FeeNotEnough();
-        require(msg.sender != _participant, "Cannot bet against yourself");
-        require(_amount > 0, "Bet amount must be greater than 0");
-        require(_validFor >= 3600, "Bet must be valid for at least 1 hour");
-        require(
-            _amount <= IERC20(_token).allowance(msg.sender, address(this)),
-            "Must give approval to send tokens"
-        );
+        if (msg.sender == _participant) revert BET__BadInput();
+        if (_amount <= 0) revert BET__BadInput();
+        if (_validFor < 3600) revert("Bet must be valid for at least 1 hour");
 
         try
             new Bet(
@@ -86,12 +84,12 @@ contract BetFactory {
             )
         returns (Bet newBet) {
             // Transfer tokens to new contract
-            bool success = IERC20(_token).transferFrom(
+            bool tokenSuccess = IERC20(_token).transferFrom(
                 msg.sender,
                 address(newBet),
                 _amount
             );
-            require(success, "Token transfer failed");
+            if (!tokenSuccess) revert BET__FailedTokenTransfer();
 
             // Send fee to owner
             (bool feeSuccess, ) = payable(owner).call{value: msg.value}("");
