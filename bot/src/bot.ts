@@ -40,16 +40,16 @@ bot.post("/webhooks", async (req: Request, res: Response) => {
         event ?? console.log("Received event:", event);
         switch (event) {
           case "BetCreated":
-            handleBetCreated(log);
+            await handleBetCreated(log);
             break;
           case "BetAccepted":
-            handleBetAccepted(log);
+            await handleBetAccepted(log);
             break;
           case "BetDeclined":
-            handleBetDeclined(log);
+            await handleBetDeclined(log);
             break;
           case "BetSettled":
-            handleBetSettled(log);
+            await handleBetSettled(log);
             break;
           default:
             console.log(
