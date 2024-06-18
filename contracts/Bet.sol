@@ -34,28 +34,28 @@ contract Bet {
     event BetSettled(address indexed factoryContract, address indexed winner);
 
     // -> Errors
-    error Unauthorized();
-    error Expired();
-    error InvalidStatus();
-    error FailedTransfer();
+    error BET__Unauthorized();
+    error BET__Expired();
+    error BET__InvalidStatus();
+    error BET__FailedTransfer();
     error BET__FailedEthTransfer();
-    error FundsAlreadyWithdrawn();
-    error BadInput();
+    error BET__FundsAlreadyWithdrawn();
+    error BET__BadInput();
     error BET__FeeNotEnough();
 
     // -> Modifiers
     modifier onlyCreator() {
-        if (msg.sender != CREATOR) revert Unauthorized();
+        if (msg.sender != CREATOR) revert BET__Unauthorized();
         _;
     }
 
     modifier onlyParticipant() {
-        if (msg.sender != PARTICIPANT) revert Unauthorized();
+        if (msg.sender != PARTICIPANT) revert BET__Unauthorized();
         _;
     }
 
     modifier onlyArbitrator() {
-        if (msg.sender != ARBITRATOR) revert Unauthorized();
+        if (msg.sender != ARBITRATOR) revert BET__Unauthorized();
         _;
     }
 
@@ -84,12 +84,12 @@ contract Bet {
 
     function acceptBet() public payable onlyParticipant {
         if (msg.value < _betFactory.fee()) revert BET__FeeNotEnough();
-        if (isExpired()) revert Expired();
-        if (status != Status.Pending) revert InvalidStatus();
+        if (isExpired()) revert BET__Expired();
+        if (status != Status.Pending) revert BET__InvalidStatus();
 
         // Transfer tokens to contract
         bool success = TOKEN.transferFrom(msg.sender, address(this), AMOUNT);
-        if (!success) revert FailedTransfer();
+        if (!success) revert BET__FailedTransfer();
 
         // Send fee to factory contract owner
         (bool feeSuccess, ) = payable(_betFactory.owner()).call{
@@ -104,12 +104,12 @@ contract Bet {
     }
 
     function declineBet() public onlyParticipant {
-        if (isExpired()) revert Expired();
-        if (status != Status.Pending) revert InvalidStatus();
+        if (isExpired()) revert BET__Expired();
+        if (status != Status.Pending) revert BET__InvalidStatus();
 
         // Return tokens to original party
         bool success = TOKEN.transfer(CREATOR, AMOUNT);
-        if (!success) revert FailedTransfer();
+        if (!success) revert BET__FailedTransfer();
 
         // Update state variables
         status = Status.Declined;
@@ -118,35 +118,35 @@ contract Bet {
     }
 
     function retrieveTokens() public onlyCreator {
-        if (!isExpired()) revert Unauthorized();
-        if (fundsWithdrawn) revert FundsAlreadyWithdrawn();
+        if (!isExpired()) revert BET__Unauthorized();
+        if (fundsWithdrawn) revert BET__FundsAlreadyWithdrawn();
 
         // Return tokens to bet creator
         bool success = TOKEN.transfer(CREATOR, AMOUNT);
-        if (!success) revert FailedTransfer();
+        if (!success) revert BET__FailedTransfer();
 
         // Update state
         fundsWithdrawn = true;
     }
 
     function settleBet(address _winner) public onlyArbitrator {
-        if (status != Status.Accepted) revert InvalidStatus();
+        if (status != Status.Accepted) revert BET__InvalidStatus();
         if (
             _winner != CREATOR &&
             _winner != PARTICIPANT &&
             _winner != 0x0000000000000000000000000000000000000000
-        ) revert BadInput();
+        ) revert BET__BadInput();
 
         // Transfer tokens to winner
         if (_winner == 0x0000000000000000000000000000000000000000) {
             // In tie event, the funds are returned
             bool success1 = TOKEN.transfer(CREATOR, AMOUNT);
             bool success2 = TOKEN.transfer(PARTICIPANT, AMOUNT);
-            if (!success1 || !success2) revert FailedTransfer();
+            if (!success1 || !success2) revert BET__FailedTransfer();
         } else {
             // In winning event, all funds are transfered to the winner
             bool success = TOKEN.transfer(_winner, AMOUNT * 2);
-            if (!success) revert FailedTransfer();
+            if (!success) revert BET__FailedTransfer();
         }
 
         // Update state variables
