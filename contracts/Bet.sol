@@ -22,8 +22,8 @@ contract Bet {
     string private _MESSAGE;
     address private immutable _ARBITRATOR;
     uint256 private immutable _VALID_UNTIL;
+    BetFactory private immutable _BET_FACTORY;
 
-    BetFactory private _betFactory;
     Status private _status = Status.Pending;
     bool private _fundsWithdrawn = false;
     address public winner;
@@ -79,11 +79,11 @@ contract Bet {
         _MESSAGE = _message;
         _ARBITRATOR = _arbitrator;
         _VALID_UNTIL = block.timestamp + _validFor;
-        _betFactory = BetFactory(_factoryContract);
+        _BET_FACTORY = BetFactory(_factoryContract);
     }
 
     function acceptBet() public payable onlyParticipant {
-        if (msg.value < _betFactory.fee()) revert BET__FeeNotEnough();
+        if (msg.value < _BET_FACTORY.fee()) revert BET__FeeNotEnough();
         if (_isExpired()) revert BET__Expired();
         if (_status != Status.Pending) revert BET__InvalidStatus();
 
@@ -92,7 +92,7 @@ contract Bet {
         if (!success) revert BET__FailedTransfer();
 
         // Send fee to factory contract owner
-        (bool feeSuccess, ) = payable(_betFactory.owner()).call{
+        (bool feeSuccess, ) = payable(_BET_FACTORY.owner()).call{
             value: msg.value
         }("");
         if (!feeSuccess) revert BET__FailedEthTransfer();
@@ -100,7 +100,7 @@ contract Bet {
         // Update state variables
         _status = Status.Accepted;
         // Emit event
-        emit BetAccepted(address(_betFactory));
+        emit BetAccepted(address(_BET_FACTORY));
     }
 
     function declineBet() public onlyParticipant {
@@ -114,7 +114,7 @@ contract Bet {
         // Update state variables
         _status = Status.Declined;
         // Emit event
-        emit BetDeclined(address(_betFactory));
+        emit BetDeclined(address(_BET_FACTORY));
     }
 
     function retrieveTokens() public onlyCreator {
@@ -153,7 +153,7 @@ contract Bet {
         _status = Status.Settled;
         winner = _winner;
         // Emit event
-        emit BetSettled(address(_betFactory), _winner);
+        emit BetSettled(address(_BET_FACTORY), _winner);
     }
 
     function betDetails()
