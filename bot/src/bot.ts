@@ -10,7 +10,12 @@ import {
   BET_SETTLED_EVENT_SIGNATURE,
   FRAME_BASE_URL,
 } from "./config";
-import { type EventData, type Log, addAddress, removeAddress } from "./webhook";
+import {
+  type EventData,
+  type Log,
+  addAddressToWebhook,
+  removeAddressFromWebhook,
+} from "./webhook";
 import { shortenHexAddress } from "./utils";
 
 const bot: Express = express();
@@ -57,7 +62,7 @@ async function handleBetCreated(log: Log) {
   // -> parse the new bet contract address
   const newContractAddress = getAddress(log.topics[1]);
   // -> add to webhook
-  addAddress(newContractAddress);
+  addAddressToWebhook(newContractAddress);
   // -> get bet info
   const { betId, creator, participant, amount } = await getBetDetails(
     newContractAddress
@@ -86,7 +91,7 @@ async function handleBetDeclined(log: Log) {
   // -> parse contract address
   const betAddress = log.account.address;
   // -> remove contract address from webhook
-  removeAddress(betAddress);
+  removeAddressFromWebhook(betAddress);
   // -> get bet info
   const { betId, participant } = await getBetDetails(betAddress);
   // -> cast about bet decline
@@ -100,7 +105,7 @@ async function handleBetSettled(log: Log) {
   // -> parse contract address
   const betAddress = log.account.address;
   // -> remove contract address from webhook
-  removeAddress(betAddress);
+  removeAddressFromWebhook(betAddress);
   // -> get bet info
   const { betId, arbitrator } = await getBetDetails(betAddress);
   const winner = await getBetWinner(betAddress);
