@@ -23,7 +23,14 @@ bot.get("/", (req: Request, res: Response) => {
   res.send("WannaBet Bot Express Server");
 });
 
+bot.post("/test", async (req: Request, res: Response) => {
+  console.log("Request received at", req.url);
+  console.log("Data:", JSON.stringify(req.body));
+  res.status(200).send("Received");
+});
+
 bot.post("/webhooks", async (req: Request, res: Response) => {
+  console.log("Request received at", req.url);
   try {
     const eventData = req.body as EventData;
     const logs = eventData.event.data.block.logs;
