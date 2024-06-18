@@ -6,6 +6,7 @@ import {Bet} from "contracts/Bet.sol";
 
 error BET__Unauthorized();
 error BET__FeeNotEnough();
+error BET__FailedEthTransfer();
 
 contract BetFactory {
     address public owner;
@@ -93,8 +94,8 @@ contract BetFactory {
             require(success, "Token transfer failed");
 
             // Send fee to owner
-            bool feeSuccess = payable(owner).transfer(msg.value);
-            require(feeSuccess, "Fee transfer failed");
+            (bool feeSuccess, ) = payable(owner).call{value: msg.value}("");
+            if (!feeSuccess) revert BET__FailedEthTransfer();
 
             // Update state variables
             betCount++;
