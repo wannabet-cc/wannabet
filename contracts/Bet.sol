@@ -2,13 +2,16 @@
 pragma solidity ^0.8.24;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {BetFactory} from "./BetFactory.sol";
 
 error Unauthorized();
 error Expired();
 error InvalidStatus();
 error FailedTransfer();
+error BET__FailedEthTransfer();
 error FundsAlreadyWithdrawn();
 error BadInput();
+error BET__FeeNotEnough();
 
 contract Bet {
     uint256 private immutable BET_ID;
@@ -19,7 +22,7 @@ contract Bet {
     string private MESSAGE;
     address private immutable ARBITRATOR;
     uint256 private immutable VALID_UNTIL;
-    address private immutable FACTORY_CONTRACT;
+    BetFactory private _betFactory;
 
     enum Status {
         Pending,
@@ -51,7 +54,7 @@ contract Bet {
         MESSAGE = _message;
         ARBITRATOR = _arbitrator;
         VALID_UNTIL = block.timestamp + _validFor;
-        FACTORY_CONTRACT = _factoryContract;
+        _betFactory = BetFactory(_factoryContract);
     }
 
     event BetAccepted(address indexed factoryContract);
@@ -113,7 +116,8 @@ contract Bet {
         }
     }
 
-    function acceptBet() public onlyParticipant {
+    function acceptBet() public payable onlyParticipant {
+        if (msg.value < _betFactory.fee()) revert BET__FeeNotEnough();
         if (isExpired()) revert Expired();
         if (status != Status.Pending) revert InvalidStatus();
 
@@ -121,10 +125,16 @@ contract Bet {
         bool success = TOKEN.transferFrom(msg.sender, address(this), AMOUNT);
         if (!success) revert FailedTransfer();
 
+        // Send fee to factory contract owner
+        (bool feeSuccess, ) = payable(_betFactory.owner()).call{
+            value: msg.value
+        }("");
+        if (!feeSuccess) revert BET__FailedEthTransfer();
+
         // Update state variables
         status = Status.Accepted;
         // Emit event
-        emit BetAccepted(FACTORY_CONTRACT);
+        emit BetAccepted(address(_betFactory));
     }
 
     function declineBet() public onlyParticipant {
@@ -138,7 +148,7 @@ contract Bet {
         // Update state variables
         status = Status.Declined;
         // Emit event
-        emit BetDeclined(FACTORY_CONTRACT);
+        emit BetDeclined(address(_betFactory));
     }
 
     function retrieveTokens() public onlyCreator {
@@ -184,6 +194,6 @@ contract Bet {
         status = Status.Settled;
         winner = _winner;
         // Emit event
-        emit BetSettled(FACTORY_CONTRACT, _winner);
+        emit BetSettled(address(_betFactory), _winner);
     }
 }
