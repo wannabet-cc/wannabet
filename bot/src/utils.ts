@@ -1,6 +1,12 @@
 import { Address } from "viem";
 import { arbitrumClient } from "./viem";
 import { betAbi } from "./contracts/betAbi";
+import {
+  BET_ACCEPTED_EVENT_SIGNATURE,
+  BET_CREATED_EVENT_SIGNATURE,
+  BET_DECLINED_EVENT_SIGNATURE,
+  BET_SETTLED_EVENT_SIGNATURE,
+} from "./config";
 
 function shortenHexAddress(address: Address) {
   return `${address.slice(0, 5)}...${address.slice(-3)}`;
@@ -43,4 +49,23 @@ async function getBetWinner(betContractAddress: Address) {
   return winner;
 }
 
-export { shortenHexAddress, getBetDetails, getBetWinner };
+function getEventNameFromSignature(eventSignature: string) {
+  if (eventSignature === BET_CREATED_EVENT_SIGNATURE) {
+    return "BetCreated";
+  } else if (eventSignature === BET_ACCEPTED_EVENT_SIGNATURE) {
+    return "BetAccepted";
+  } else if (eventSignature === BET_DECLINED_EVENT_SIGNATURE) {
+    return "BetDeclined";
+  } else if (eventSignature === BET_SETTLED_EVENT_SIGNATURE) {
+    return "BetSettled";
+  } else {
+    return null;
+  }
+}
+
+export {
+  shortenHexAddress,
+  getBetDetails,
+  getBetWinner,
+  getEventNameFromSignature,
+};

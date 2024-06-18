@@ -1,20 +1,19 @@
 import express, { Express, Request, Response } from "express";
 import { getAddress } from "viem";
 import { publishCast } from "./neynar";
-import {
-  BET_ACCEPTED_EVENT_SIGNATURE,
-  BET_CREATED_EVENT_SIGNATURE,
-  BET_DECLINED_EVENT_SIGNATURE,
-  BET_SETTLED_EVENT_SIGNATURE,
-  FRAME_BASE_URL,
-} from "./config";
+import { FRAME_BASE_URL } from "./config";
 import {
   type EventData,
   type Log,
   addAddressToWebhook,
   removeAddressFromWebhook,
 } from "./webhook";
-import { getBetDetails, getBetWinner, shortenHexAddress } from "./utils";
+import {
+  getBetDetails,
+  getBetWinner,
+  getEventNameFromSignature,
+  shortenHexAddress,
+} from "./utils";
 
 const bot: Express = express();
 
@@ -29,22 +28,14 @@ bot.post("/webhooks", (req: Request, res: Response) => {
   const logData = eventData.event.data.block.logs;
 
   logData.forEach(async (log) => {
-    const eventSignature = log.topics[0];
+    const event = getEventNameFromSignature(log.topics[0]);
     try {
-      if (eventSignature === BET_CREATED_EVENT_SIGNATURE) {
-        // HANDLE BET CREATION
-        handleBetCreated(log);
-      } else if (eventSignature === BET_ACCEPTED_EVENT_SIGNATURE) {
-        // HANDLE BET ACCEPTED
-        handleBetAccepted(log);
-      } else if (eventSignature === BET_DECLINED_EVENT_SIGNATURE) {
-        // HANDLE BET DECLINED
-        handleBetDeclined(log);
-      } else if (eventSignature === BET_SETTLED_EVENT_SIGNATURE) {
-        // HANDLE BET SETTLED
-        handleBetSettled(log);
-      } else {
-        console.log("Unexpected data received:\n" + log);
+      if (event === "BetCreated") handleBetCreated(log);
+      else if (event === "BetAccepted") handleBetAccepted(log);
+      else if (event === "BetDeclined") handleBetDeclined(log);
+      else if (event === "BetSettled") handleBetSettled(log);
+      else {
+        console.log("Unexpected data format received:\n" + log);
       }
     } catch (error) {
       console.error(error);
