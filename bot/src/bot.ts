@@ -25,9 +25,9 @@ bot.get("/", (req: Request, res: Response) => {
 
 bot.post("/webhooks", (req: Request, res: Response) => {
   const eventData = req.body as EventData;
-  const logData = eventData.event.data.block.logs;
+  const logs = eventData.event.data.block.logs;
 
-  logData.forEach(async (log) => {
+  logs.forEach(async (log) => {
     const event = getEventNameFromSignature(log.topics[0]);
     try {
       if (event === "BetCreated") handleBetCreated(log);
