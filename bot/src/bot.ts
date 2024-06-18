@@ -1,8 +1,6 @@
 import express, { Express, Request, Response } from "express";
-import { Address, getAddress } from "viem";
+import { getAddress } from "viem";
 import { publishCast } from "./neynar";
-import { arbitrumClient } from "./viem";
-import { betAbi } from "./contracts/betAbi";
 import {
   BET_ACCEPTED_EVENT_SIGNATURE,
   BET_CREATED_EVENT_SIGNATURE,
@@ -16,7 +14,7 @@ import {
   addAddressToWebhook,
   removeAddressFromWebhook,
 } from "./webhook";
-import { shortenHexAddress } from "./utils";
+import { getBetDetails, getBetWinner, shortenHexAddress } from "./utils";
 
 const bot: Express = express();
 
@@ -118,40 +116,4 @@ async function handleBetSettled(log: Log) {
   }`;
   const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
   publishCast(castMessage, { frameUrl });
-}
-
-async function getBetDetails(betContractAddress: Address) {
-  const [
-    betId,
-    creator,
-    participant,
-    amount,
-    token,
-    message,
-    arbitrator,
-    validUntil,
-  ] = await arbitrumClient.readContract({
-    address: betContractAddress,
-    abi: betAbi,
-    functionName: "betDetails",
-    args: [],
-  });
-  return {
-    betId,
-    creator,
-    participant,
-    amount,
-    token,
-    message,
-    arbitrator,
-    validUntil,
-  };
-}
-async function getBetWinner(betContractAddress: Address) {
-  const winner = await arbitrumClient.readContract({
-    address: betContractAddress,
-    abi: betAbi,
-    functionName: "winner",
-  });
-  return winner;
 }
