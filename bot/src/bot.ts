@@ -60,15 +60,15 @@ bot.post("/webhooks", (req: Request, res: Response) => {
 export default bot;
 
 async function handleBetCreated(log: Log) {
-  // -> parse the new bet contract address
+  // Parse the new bet contract address
   const newContractAddress = getAddress(log.topics[1]);
-  // -> add to webhook
+  // Add to webhook
   addAddressToWebhook(newContractAddress);
-  // -> get bet info
+  // Get bet info
   const { betId, creator, participant, amount } = await getBetDetails(
     newContractAddress
   );
-  // -> cast about the bet creation
+  // Cast
   const formattedCreator = shortenHexAddress(creator);
   const formattedParticipant = shortenHexAddress(participant);
   const castMessage = `${formattedCreator} offered a new ${amount} USDC bet to ${formattedParticipant}`;
@@ -77,11 +77,11 @@ async function handleBetCreated(log: Log) {
 }
 
 async function handleBetAccepted(log: Log) {
-  // -> parse contract address
+  // Parse the bet contract address
   const betAddress = log.account.address;
-  // -> get bet info
+  // Get bet info
   const { betId, participant } = await getBetDetails(betAddress);
-  // -> cast about the bet acceptance
+  // Cast
   const formattedParticipant = shortenHexAddress(participant);
   const castMessage = `${formattedParticipant} accepted the bet! Awaiting the results...`;
   const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
@@ -89,34 +89,34 @@ async function handleBetAccepted(log: Log) {
 }
 
 async function handleBetDeclined(log: Log) {
-  // -> parse contract address
+  // Parse the bet contract address
   const betAddress = log.account.address;
-  // -> remove contract address from webhook
+  // Remove from webhook (stop listening for new events)
   removeAddressFromWebhook(betAddress);
-  // -> get bet info
+  // Get bet info
   const { betId, participant } = await getBetDetails(betAddress);
-  // -> cast about bet decline
+  // Cast
   const formattedParticipant = shortenHexAddress(participant);
   const castMessage = `${formattedParticipant} declined the bet! Funds have been returned.`;
   const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
-  publishCast(castMessage, { frameUrl });
+  publishCast(castMessage, { frameUrl }); // optionally returns cast hash
 }
 
 async function handleBetSettled(log: Log) {
-  // -> parse contract address
+  // Parse the bet contract address
   const betAddress = log.account.address;
-  // -> remove contract address from webhook
+  // Remove from webhook (stop listening for new events)
   removeAddressFromWebhook(betAddress);
-  // -> get bet info
+  // Get bet info
   const { betId, arbitrator } = await getBetDetails(betAddress);
   const winner = await getBetWinner(betAddress);
   const isTie = winner === "0x0000000000000000000000000000000000000000";
-  // -> cast about bet settled
+  // Cast
   const formattedArbitrator = shortenHexAddress(arbitrator);
   const formattedWinner = shortenHexAddress(winner);
   const castMessage = `${formattedArbitrator} settled the bet. ${
     isTie ? "Both parties tied!" : `${formattedWinner} won!`
   }`;
   const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
-  publishCast(castMessage, { frameUrl });
+  publishCast(castMessage, { frameUrl }); // optionally returns cast hash
 }
