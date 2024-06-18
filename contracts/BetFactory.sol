@@ -4,21 +4,8 @@ pragma solidity ^0.8.24;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Bet} from "contracts/Bet.sol";
 
-error BET__Unauthorized();
-error BET__FeeNotEnough();
-error BET__BadInput();
-error BET__FailedTokenTransfer();
-error BET__FailedEthTransfer();
-
 contract BetFactory {
-    address public owner;
-    uint256 public fee;
-    uint256 public betCount = 0;
-    // bet id -> contract address
-    mapping(uint256 _betId => address contractAddress) public betAddresses;
-    // contract address -> bet id
-    mapping(address _contractAddress => uint256 betId) public betIds;
-    // user address -> bet
+    // -> Type declarations
     struct BetInfo {
         uint256 betId;
         address contractAddress;
@@ -26,20 +13,40 @@ contract BetFactory {
         bool isParticipant;
         bool isArbitrator;
     }
+
+    // -> State variables
+    address public owner;
+    uint256 public fee;
+    uint256 public betCount = 0;
+    mapping(uint256 _betId => address contractAddress) public betAddresses;
+    mapping(address _contractAddress => uint256 betId) public betIds;
     mapping(address _userAddress => BetInfo[] betInfo) public userBets;
 
-    function userBetCount(address _userAddress) public view returns (uint256) {
-        return userBets[_userAddress].length;
-    }
+    // -> Events
+    event BetCreated(
+        address indexed contractAddress,
+        address indexed creator,
+        address participant,
+        uint256 indexed amount
+    );
 
-    constructor(uint256 _initialFee) {
-        owner = msg.sender;
-        fee = _initialFee;
-    }
+    // -> Errors
+    error BET__Unauthorized();
+    error BET__FeeNotEnough();
+    error BET__FailedTokenTransfer();
+    error BET__FailedEthTransfer();
+    error BET__BadInput();
 
+    // -> Modifiers
     modifier onlyOwner() {
         if (owner != msg.sender) revert BET__Unauthorized();
         _;
+    }
+
+    // -> Functions
+    constructor(uint256 _initialFee) {
+        owner = msg.sender;
+        fee = _initialFee;
     }
 
     function transferOwnership(address _newOwner) public virtual onlyOwner {
@@ -49,13 +56,6 @@ contract BetFactory {
     function changeFee(uint256 _newFee) public virtual onlyOwner {
         fee = _newFee;
     }
-
-    event BetCreated(
-        address indexed contractAddress,
-        address indexed creator,
-        address participant,
-        uint256 indexed amount
-    );
 
     function createBet(
         address _participant,
@@ -126,5 +126,9 @@ contract BetFactory {
         } catch {
             revert("Deployment or token transfer failed");
         }
+    }
+
+    function userBetCount(address _userAddress) public view returns (uint256) {
+        return userBets[_userAddress].length;
     }
 }

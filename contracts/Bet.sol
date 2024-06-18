@@ -4,16 +4,16 @@ pragma solidity ^0.8.24;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {BetFactory} from "./BetFactory.sol";
 
-error Unauthorized();
-error Expired();
-error InvalidStatus();
-error FailedTransfer();
-error BET__FailedEthTransfer();
-error FundsAlreadyWithdrawn();
-error BadInput();
-error BET__FeeNotEnough();
-
 contract Bet {
+    // -> Type declarations
+    enum Status {
+        Pending,
+        Declined,
+        Accepted,
+        Settled
+    }
+
+    // -> State variables
     uint256 private immutable BET_ID;
     address private immutable CREATOR;
     address private immutable PARTICIPANT;
@@ -22,19 +22,44 @@ contract Bet {
     string private MESSAGE;
     address private immutable ARBITRATOR;
     uint256 private immutable VALID_UNTIL;
+
     BetFactory private _betFactory;
-
-    enum Status {
-        Pending,
-        Declined,
-        Accepted,
-        Settled
-    }
     Status private status = Status.Pending;
-
     bool private fundsWithdrawn = false;
     address public winner;
 
+    // -> Events
+    event BetAccepted(address indexed factoryContract);
+    event BetDeclined(address indexed factoryContract);
+    event BetSettled(address indexed factoryContract, address indexed winner);
+
+    // -> Errors
+    error Unauthorized();
+    error Expired();
+    error InvalidStatus();
+    error FailedTransfer();
+    error BET__FailedEthTransfer();
+    error FundsAlreadyWithdrawn();
+    error BadInput();
+    error BET__FeeNotEnough();
+
+    // -> Modifiers
+    modifier onlyCreator() {
+        if (msg.sender != CREATOR) revert Unauthorized();
+        _;
+    }
+
+    modifier onlyParticipant() {
+        if (msg.sender != PARTICIPANT) revert Unauthorized();
+        _;
+    }
+
+    modifier onlyArbitrator() {
+        if (msg.sender != ARBITRATOR) revert Unauthorized();
+        _;
+    }
+
+    // -> Functions
     constructor(
         uint256 _betId,
         address _creator,
@@ -55,65 +80,6 @@ contract Bet {
         ARBITRATOR = _arbitrator;
         VALID_UNTIL = block.timestamp + _validFor;
         _betFactory = BetFactory(_factoryContract);
-    }
-
-    event BetAccepted(address indexed factoryContract);
-    event BetDeclined(address indexed factoryContract);
-    event BetSettled(address indexed factoryContract, address indexed winner);
-
-    modifier onlyCreator() {
-        if (msg.sender != CREATOR) revert Unauthorized();
-        _;
-    }
-    modifier onlyParticipant() {
-        if (msg.sender != PARTICIPANT) revert Unauthorized();
-        _;
-    }
-    modifier onlyArbitrator() {
-        if (msg.sender != ARBITRATOR) revert Unauthorized();
-        _;
-    }
-
-    function betDetails()
-        public
-        view
-        returns (
-            uint256 betId,
-            address creator,
-            address participant,
-            uint256 amount,
-            IERC20 token,
-            string memory message,
-            address arbitrator,
-            uint256 validUntil
-        )
-    {
-        return (
-            BET_ID,
-            CREATOR,
-            PARTICIPANT,
-            AMOUNT,
-            TOKEN,
-            MESSAGE,
-            ARBITRATOR,
-            VALID_UNTIL
-        );
-    }
-    function isExpired() private view returns (bool) {
-        return block.timestamp >= VALID_UNTIL && status == Status.Pending;
-    }
-    function getStatus() public view returns (string memory) {
-        if (isExpired()) {
-            return "expired";
-        } else if (status == Status.Pending) {
-            return "pending";
-        } else if (status == Status.Declined) {
-            return "declined";
-        } else if (status == Status.Accepted) {
-            return "accepted";
-        } else {
-            return "settled";
-        }
     }
 
     function acceptBet() public payable onlyParticipant {
@@ -188,5 +154,49 @@ contract Bet {
         winner = _winner;
         // Emit event
         emit BetSettled(address(_betFactory), _winner);
+    }
+
+    function betDetails()
+        public
+        view
+        returns (
+            uint256 betId,
+            address creator,
+            address participant,
+            uint256 amount,
+            IERC20 token,
+            string memory message,
+            address arbitrator,
+            uint256 validUntil
+        )
+    {
+        return (
+            BET_ID,
+            CREATOR,
+            PARTICIPANT,
+            AMOUNT,
+            TOKEN,
+            MESSAGE,
+            ARBITRATOR,
+            VALID_UNTIL
+        );
+    }
+
+    function getStatus() public view returns (string memory) {
+        if (isExpired()) {
+            return "expired";
+        } else if (status == Status.Pending) {
+            return "pending";
+        } else if (status == Status.Declined) {
+            return "declined";
+        } else if (status == Status.Accepted) {
+            return "accepted";
+        } else {
+            return "settled";
+        }
+    }
+
+    function isExpired() private view returns (bool) {
+        return block.timestamp >= VALID_UNTIL && status == Status.Pending;
     }
 }
