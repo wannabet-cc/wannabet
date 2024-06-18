@@ -1,8 +1,12 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+// General
+const PORT = process.env.PORT || 3000;
+
 // Sensitive info
 const ALCHEMY_TOKEN = process.env.ALCHEMY_TOKEN!;
+const ARBITRUM_ALCHEMY_URL = process.env.ARBITRUM_ALCHEMY_URL!;
 const NEYNAR_API_KEY = process.env.NEYNAR_API_KEY!;
 const FARCASTER_BOT_MNEMONIC = process.env.FARCASTER_BOT_MNEMONIC!;
 const SIGNER_UUID = process.env.SIGNER_UUID!;
@@ -22,10 +26,13 @@ const BET_SETTLED_EVENT_SIGNATURE =
   "0x1263c5e68e09cb9dfb7e7df0f53d955963a974e73d6ef177fadeb882cd9629ab";
 
 // Urls & other
-const FRAME_BASE_URL = ""; // frame is not deployed yet
+const FRAME_BASE_URL =
+  process.env.FRAME_BASE_URL || "https://frame.wannabet.cc";
 
 export {
+  PORT,
   ALCHEMY_TOKEN,
+  ARBITRUM_ALCHEMY_URL,
   NEYNAR_API_KEY,
   FARCASTER_BOT_MNEMONIC,
   SIGNER_UUID,
