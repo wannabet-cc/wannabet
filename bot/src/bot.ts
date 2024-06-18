@@ -10,7 +10,7 @@ import {
   BET_SETTLED_EVENT_SIGNATURE,
   FRAME_BASE_URL,
 } from "./config";
-import { addAddress, removeAddress } from "./webhook";
+import { type EventData, type Log, addAddress, removeAddress } from "./webhook";
 import { shortenHexAddress } from "./utils";
 
 const bot: Express = express();
@@ -114,43 +114,6 @@ async function handleBetSettled(log: Log) {
   const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
   publishCast(castMessage, { frameUrl });
 }
-
-type EventData = {
-  webhookId: string;
-  id: string;
-  createdAt: string;
-  type: string;
-  event: {
-    data: {
-      block: {
-        number: number;
-        timestamp: number;
-        logs: Log[];
-      };
-    };
-    sequenceNumber: string;
-  };
-};
-type Log = {
-  data: string;
-  topics: string[];
-  index: number;
-  account: {
-    address: Address;
-  };
-  transaction: {
-    hash: string;
-    nonce: number;
-    index: number;
-    from: {
-      address: Address;
-    };
-    to: {
-      address: Address;
-    };
-    value: string;
-  };
-};
 
 async function getBetDetails(betContractAddress: Address) {
   const [

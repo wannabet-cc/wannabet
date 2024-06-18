@@ -43,4 +43,42 @@ async function removeAddress(old_address: Address) {
   }
 }
 
-export { addAddress, removeAddress };
+type EventData = {
+  webhookId: string;
+  id: string;
+  createdAt: string;
+  type: string;
+  event: {
+    data: {
+      block: {
+        number: number;
+        timestamp: number;
+        logs: Log[];
+      };
+    };
+    sequenceNumber: string;
+  };
+};
+
+type Log = {
+  data: string;
+  topics: string[];
+  index: number;
+  account: {
+    address: Address;
+  };
+  transaction: {
+    hash: string;
+    nonce: number;
+    index: number;
+    from: {
+      address: Address;
+    };
+    to: {
+      address: Address;
+    };
+    value: string;
+  };
+};
+
+export { addAddress, removeAddress, EventData, Log };
