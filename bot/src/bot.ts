@@ -30,6 +30,7 @@ bot.post("/webhooks", async (req: Request, res: Response) => {
     await Promise.all(
       logs.map(async (log) => {
         const event = getEventNameFromSignature(log.topics[0]);
+        event ?? console.log("Received event:", event);
         switch (event) {
           case "BetCreated":
             handleBetCreated(log);
@@ -50,7 +51,6 @@ bot.post("/webhooks", async (req: Request, res: Response) => {
         }
       })
     );
-
     res.status(200).send("Received");
   } catch (error) {
     console.error(error);
