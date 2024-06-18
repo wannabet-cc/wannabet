@@ -63,9 +63,14 @@ function getEventNameFromSignature(eventSignature: string) {
   }
 }
 
+async function sleep(seconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+}
+
 export {
   shortenHexAddress,
   getBetDetails,
   getBetWinner,
   getEventNameFromSignature,
+  sleep,
 };
