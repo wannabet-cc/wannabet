@@ -27,36 +27,24 @@ bot.post("/webhooks", (req: Request, res: Response) => {
 
   logData.forEach(async (log) => {
     const eventSignature = log.topics[0];
-    if (eventSignature === BET_CREATED_EVENT_SIGNATURE) {
-      // HANDLE BET CREATION
-      try {
+    try {
+      if (eventSignature === BET_CREATED_EVENT_SIGNATURE) {
+        // HANDLE BET CREATION
         handleBetCreated(log);
-      } catch (err) {
-        console.error(err);
-      }
-    } else if (eventSignature === BET_ACCEPTED_EVENT_SIGNATURE) {
-      // HANDLE BET ACCEPTED
-      try {
+      } else if (eventSignature === BET_ACCEPTED_EVENT_SIGNATURE) {
+        // HANDLE BET ACCEPTED
         handleBetAccepted(log);
-      } catch (err) {
-        console.error(err);
-      }
-    } else if (eventSignature === BET_DECLINED_EVENT_SIGNATURE) {
-      // HANDLE BET DECLINED
-      try {
+      } else if (eventSignature === BET_DECLINED_EVENT_SIGNATURE) {
+        // HANDLE BET DECLINED
         handleBetDeclined(log);
-      } catch (err) {
-        console.error(err);
-      }
-    } else if (eventSignature === BET_SETTLED_EVENT_SIGNATURE) {
-      // HANDLE BET SETTLED
-      try {
+      } else if (eventSignature === BET_SETTLED_EVENT_SIGNATURE) {
+        // HANDLE BET SETTLED
         handleBetSettled(log);
-      } catch (err) {
-        console.error(err);
+      } else {
+        console.log("Unexpected data received:\n" + log);
       }
-    } else {
-      // handle error... unexpected scenario
+    } catch (error) {
+      console.error(error);
     }
   });
 
