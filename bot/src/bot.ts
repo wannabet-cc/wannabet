@@ -79,8 +79,8 @@ async function handleBetCreated(log: Log) {
   // Cast
   const formattedCreator = shortenHexAddress(creator);
   const formattedParticipant = shortenHexAddress(participant);
-  const castMessage = `${formattedCreator} offered a new ${amount} USDC bet to ${formattedParticipant}`;
   const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
+  const castMessage = `${formattedCreator} offered a new ${amount} USDC bet to ${formattedParticipant}\n\n${frameUrl}`;
   await publishCast(castMessage, { frameUrl }); // optionally returns cast hash
 }
 
@@ -91,8 +91,8 @@ async function handleBetAccepted(log: Log) {
   const { betId, participant } = await getBetDetails(betAddress);
   // Cast
   const formattedParticipant = shortenHexAddress(participant);
-  const castMessage = `${formattedParticipant} accepted the bet! Awaiting the results...`;
   const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
+  const castMessage = `${formattedParticipant} accepted the bet! Awaiting the results...\n\n${frameUrl}`;
   await publishCast(castMessage, { frameUrl }); // optionally returns cast hash
 }
 
@@ -105,8 +105,8 @@ async function handleBetDeclined(log: Log) {
   const { betId, participant } = await getBetDetails(betAddress);
   // Cast
   const formattedParticipant = shortenHexAddress(participant);
-  const castMessage = `${formattedParticipant} declined the bet! Funds have been returned.`;
   const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
+  const castMessage = `${formattedParticipant} declined the bet! Funds have been returned.\n\n${frameUrl}`;
   publishCast(castMessage, { frameUrl }); // optionally returns cast hash
 }
 
@@ -122,9 +122,9 @@ async function handleBetSettled(log: Log) {
   // Cast
   const formattedArbitrator = shortenHexAddress(arbitrator);
   const formattedWinner = shortenHexAddress(winner);
+  const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
   const castMessage = `${formattedArbitrator} settled the bet. ${
     isTie ? "Both parties tied!" : `${formattedWinner} won!`
-  }`;
-  const frameUrl = `${FRAME_BASE_URL}/bet/${betId}`;
+  }\n\n${frameUrl}`;
   publishCast(castMessage, { frameUrl }); // optionally returns cast hash
 }
