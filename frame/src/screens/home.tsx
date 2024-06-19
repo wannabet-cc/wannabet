@@ -32,6 +32,7 @@ export const homeScreen = async (c: CustomFrameContext<"/home">) => {
         <Button action="/home" children={"Back"} />,
         <Button action={`/bet/${parsedBetId}`} children={"Yes"} />,
       ],
+      title: "WannaBet",
     });
   }
 
@@ -46,5 +47,6 @@ export const homeScreen = async (c: CustomFrameContext<"/home">) => {
       <TextInput placeholder="e.g. 1" />,
       <Button action="/home" children={"Continue"} />,
     ],
+    title: "WannaBet",
   });
 };

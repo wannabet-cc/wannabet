@@ -28,6 +28,7 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
         </div>
       ),
       intents: [<Button action={`/home`} children={"Home"} />],
+      title: "WannaBet",
     });
   }
 
@@ -211,5 +212,6 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
         children={"Create new"}
       />,
     ],
+    title: "WannaBet",
   });
 };
