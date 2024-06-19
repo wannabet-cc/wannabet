@@ -1,7 +1,7 @@
 import { Address } from "viem";
 import { ALCHEMY_TOKEN } from "./config";
 
-async function addAddress(new_address: Address) {
+async function addAddressToWebhook(new_address: Address) {
   console.log("Adding address " + new_address);
 
   const url = "https://dashboard.alchemy.com/api/graphql/variables/addressList";
@@ -22,7 +22,7 @@ async function addAddress(new_address: Address) {
   }
 }
 
-async function removeAddress(old_address: Address) {
+async function removeAddressFromWebhook(old_address: Address) {
   console.log("Removing address " + old_address);
 
   const url = "https://dashboard.alchemy.com/api/graphql/variables/addressList";
@@ -43,4 +43,42 @@ async function removeAddress(old_address: Address) {
   }
 }
 
-export { addAddress, removeAddress };
+type EventData = {
+  webhookId: string;
+  id: string;
+  createdAt: string;
+  type: string;
+  event: {
+    data: {
+      block: {
+        number: number;
+        timestamp: number;
+        logs: Log[];
+      };
+    };
+    sequenceNumber: string;
+  };
+};
+
+type Log = {
+  data: string;
+  topics: string[];
+  index: number;
+  account: {
+    address: Address;
+  };
+  transaction: {
+    hash: string;
+    nonce: number;
+    index: number;
+    from: {
+      address: Address;
+    };
+    to: {
+      address: Address;
+    };
+    value: string;
+  };
+};
+
+export { addAddressToWebhook, removeAddressFromWebhook, EventData, Log };
