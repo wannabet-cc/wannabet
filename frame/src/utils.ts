@@ -11,6 +11,19 @@ function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+function convertTimestampToFormattedDate(timestamp: number): string {
+  const date = new Date(timestamp * 1000); // Convert to milliseconds
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZoneName: "short",
+  };
+  return new Intl.DateTimeFormat("en-US", options).format(date);
+}
+
 async function getPreferredAlias(c: CustomContext, address: Address) {
   let preferredAlias: string;
   const ensName = await mainnetClientFn(c).getEnsName({
@@ -91,6 +104,7 @@ type UserData = {
 export {
   shortenHexAddress,
   capitalizeFirstLetter,
+  convertTimestampToFormattedDate,
   getPreferredAlias,
   getBetDetails,
   fetchUser,
