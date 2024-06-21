@@ -18,6 +18,7 @@ import { FiatTokenProxyAbi } from "../contracts/usdcAbi";
 import { type CustomFrameContext } from "..";
 import { BetIdSchema } from "../zodSchemas";
 import { BetAndUserInfoSection } from "../components";
+import { formatUnits } from "viem";
 
 export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
   // -> Validate url
@@ -147,7 +148,7 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
       getPreferredAlias(c, arbitrator),
       getPreferredAlias(c, winner),
     ]);
-    const formattedAmount = Number(amount) / 10 ** 6;
+    const numAmount = Number(formatUnits(amount, 6));
     // -> Set image and intents
     image = (
       <div style={{ ...backgroundStyles, justifyContent: "space-between" }}>
@@ -195,7 +196,7 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
               {isTie
                 ? " the bet was a tie and funds were sent back equally"
                 : ` ${winnerAlias} was the winner; they received ${
-                    formattedAmount * 2
+                    numAmount * 2
                   } USDC`}
             </span>
           )}
@@ -212,7 +213,7 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
   } else {
     // -> Set image and intents
     image = (
-      <div style={{ ...backgroundStyles, justifyContent: "center" }}>
+      <div style={{ ...backgroundStyles }}>
         <span style={{ ...subTextStyles }}>{`Bet #${parsedBetId}`}</span>
         <span>Click to see status</span>
       </div>

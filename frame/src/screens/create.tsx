@@ -12,7 +12,7 @@ import {
 } from "../zodSchemas";
 import { mainnetClientFn } from "../viem";
 import { normalize } from "viem/ens";
-import { Address } from "viem";
+import { Address, parseUnits } from "viem";
 
 export const createScreen = async (
   c: CustomFrameContext<"/bet/:betId/create/:pageNum">
@@ -263,7 +263,7 @@ export const createScreen = async (
       });
     }
     const { previousState } = c;
-    const amount = previousState.amount * 10 ** 6;
+    const bigIntAmount = parseUnits(previousState.amount.toString(), 6);
     // Return frame
     return c.res({
       image: (
@@ -276,7 +276,7 @@ export const createScreen = async (
         <Button action={prevPageUrl} value="back" children={"Back"} />,
         <Button.Transaction
           action={nextPageUrl}
-          target={`/tx/authorize?spender=${MAINNET_BET_FACTORY_CONTRACT_ADDRESS}&amount=${amount}`}
+          target={`/tx/authorize?spender=${MAINNET_BET_FACTORY_CONTRACT_ADDRESS}&amount=${bigIntAmount}`}
           children={"Authorize"}
         />,
       ],
