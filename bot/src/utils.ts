@@ -20,7 +20,7 @@ async function getFarcasterNames(addresses: Address[]) {
   });
   const farcasterNames = addresses.map(
     (address) =>
-      res[address].reduce((prev, current) =>
+      res[address.toLowerCase()].reduce((prev, current) =>
         prev.follower_count >= current.follower_count ? prev : current
       ).username
   );
