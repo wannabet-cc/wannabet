@@ -71,7 +71,7 @@ function UserCard(props: {
 }
 
 function BetAndUserInfoSection(props: {
-  betId: string;
+  betId: number;
   creatorAlias: string;
   creatorPfpUrl: string;
   participantAlias: string;
@@ -128,7 +128,7 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
     address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
     abi: betFactoryAbi,
     functionName: "betAddresses",
-    args: [BigInt(betId)],
+    args: [BigInt(parsedBetId)],
   });
 
   // -> Check if start screen
@@ -213,7 +213,7 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
     image = (
       <div style={{ ...backgroundStyles, justifyContent: "space-between" }}>
         <BetAndUserInfoSection
-          betId={betId}
+          betId={parsedBetId}
           creatorAlias={creatorAlias}
           creatorPfpUrl={creatorPfp}
           participantAlias={participantAlias}
@@ -269,13 +269,13 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
     // -> Set image and intents
     image = (
       <div style={{ ...backgroundStyles, justifyContent: "center" }}>
-        <span style={{ ...subTextStyles }}>{`Bet #${betId}`}</span>
+        <span style={{ ...subTextStyles }}>{`Bet #${parsedBetId}`}</span>
         <span>Click to see status</span>
       </div>
     );
     intents = [
       <Button
-        action={`/bet/${betId}`}
+        action={`/bet/${parsedBetId}`}
         value="refresh"
         children={"See Status"}
       />,
