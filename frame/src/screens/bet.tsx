@@ -135,6 +135,18 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
   const { frameData, url } = c;
   let image: any, intents: any;
   if (frameData) {
+    // -> Fail if bet doesn't exist yet
+    if (contractAddress === "0x0000000000000000000000000000000000000000") {
+      return c.res({
+        image: (
+          <div style={{ ...backgroundStyles }}>
+            <span>Bet doesn&apos;t exist yet</span>
+          </div>
+        ),
+        intents: [<Button action="/home" children={"Home"} />],
+        title: "WannaBet",
+      });
+    }
     // -> Fetch bet details & status
     const [
       { creator, participant, arbitrator, amount, validUntil },
