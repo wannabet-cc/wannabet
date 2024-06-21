@@ -7,9 +7,24 @@ import {
   BET_DECLINED_EVENT_SIGNATURE,
   BET_SETTLED_EVENT_SIGNATURE,
 } from "./config";
+import { neynarClient } from "./neynar";
+import { BulkUserAddressTypes } from "@neynar/nodejs-sdk";
 
 function shortenHexAddress(address: Address) {
   return `${address.slice(0, 5)}...${address.slice(-3)}`;
+}
+
+async function getFarcasterNames(addresses: Address[]) {
+  const res = await neynarClient.fetchBulkUsersByEthereumAddress(addresses, {
+    addressTypes: [BulkUserAddressTypes.VERIFIED_ADDRESS],
+  });
+  const farcasterNames = addresses.map(
+    (address) =>
+      res[address.toLowerCase()].reduce((prev, current) =>
+        prev.follower_count >= current.follower_count ? prev : current
+      ).username
+  );
+  return farcasterNames;
 }
 
 async function getBetDetails(betContractAddress: Address) {
@@ -69,6 +84,7 @@ async function sleep(seconds: number) {
 
 export {
   shortenHexAddress,
+  getFarcasterNames,
   getBetDetails,
   getBetWinner,
   getEventNameFromSignature,
