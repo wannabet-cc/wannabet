@@ -62,6 +62,9 @@ export const createScreen = async (
         <div style={{ ...backgroundStyles }}>
           <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
           <span>Who are you betting with?</span>
+          <span style={{ ...subTextStyles, marginTop: 20 }}>
+            ENS name or full address
+          </span>
         </div>
       ),
       intents: [
@@ -72,7 +75,7 @@ export const createScreen = async (
     });
   } else if (parsedPageNum === 2) {
     // Validate address and set state
-    const { buttonValue, frameData } = c;
+    const { buttonValue } = c;
     if (buttonValue === "continue") {
       // Check if input is valid, go back if not
       const { inputText, deriveState } = c;
@@ -110,7 +113,7 @@ export const createScreen = async (
       image: (
         <div style={{ ...backgroundStyles }}>
           <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
-          <span>How much USDC do you want to bet?</span>
+          <span>How much Arbitrum USDC do you want to bet?</span>
         </div>
       ),
       intents: [
@@ -149,7 +152,7 @@ export const createScreen = async (
         <div style={{ ...backgroundStyles }}>
           <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
           <span>What are the terms?</span>
-          <span style={{ ...subTextStyles, marginTop: 40 }}>
+          <span style={{ ...subTextStyles, marginTop: 20 }}>
             You are betting that...
           </span>
         </div>
@@ -175,7 +178,11 @@ export const createScreen = async (
       image: (
         <div style={{ ...backgroundStyles }}>
           <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
-          <span>How many days should the offer be valid for?</span>
+          <span>How many days should your opponent have to accept?</span>
+          <span style={{ ...subTextStyles, marginTop: 20 }}>
+            Past this point, the offer will expire and you can reclaim your
+            wager.
+          </span>
         </div>
       ),
       intents: [
@@ -214,10 +221,10 @@ export const createScreen = async (
       image: (
         <div style={{ ...backgroundStyles }}>
           <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
-          <span>Who would you like to arbitrate?</span>
+          <span>Who would you like to judge?</span>
           <span style={{ ...subTextStyles, marginTop: 20 }}>
-            The arbitrator determines the winner of the bet; This can be you,
-            the recipient, or someone else.
+            The judge determines the winner of the bet; This can be you, the
+            recipient, or someone else.
           </span>
         </div>
       ),
@@ -288,7 +295,7 @@ export const createScreen = async (
         <div style={{ ...backgroundStyles }}>
           <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
           <span>Deploy your bet</span>
-          <span style={{ ...subTextStyles }}></span>
+          <span style={{ ...subTextStyles, marginTop: 20 }}></span>
         </div>
       ),
       intents: [
@@ -306,6 +313,9 @@ export const createScreen = async (
         <div style={{ ...backgroundStyles }}>
           <span style={{ color: "gray" }}>{parsedPageNum}/8</span>
           <span>Bet created!</span>
+          <span style={{ ...subTextStyles, marginTop: 20 }}>
+            View your recent mentions or @wannabet to see your bet
+          </span>
         </div>
       ),
       intents: [<Button action={betUrl} children={"Finish"} />],

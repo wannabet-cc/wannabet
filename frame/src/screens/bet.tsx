@@ -133,6 +133,17 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
             />,
           ]
         : [];
+    const generalActionButtons = [
+      <Button.Link
+        href={`https://arbiscan.io/address/${contractAddress}`}
+        children={"Arbiscan"}
+      />,
+      <Button
+        action={`${url}/create/1`}
+        value="create"
+        children={"Start new bet"}
+      />,
+    ];
     // -> Re-format fetched data
     const isTie =
       status === "settled" && winner !== creator && winner !== participant;
@@ -160,7 +171,9 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
           participantPfpUrl={participantPfp}
         />
         <div style={{ ...vStack }}>
-          {status === "pending" && <span>Proposed, no response yet</span>}
+          {status === "pending" && (
+            <span>Proposed, waiting on {participantAlias} to accept</span>
+          )}
           {status === "pending" && (
             <span style={{ ...subTextStyles }}>
               Offer expires {formattedDate}
@@ -209,6 +222,7 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
       ...participantButtons,
       ...arbitratorButtons,
       ...creatorButtons,
+      ...generalActionButtons,
     ];
   } else {
     // -> Set image and intents
@@ -229,18 +243,7 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
 
   return c.res({
     image: image,
-    intents: [
-      ...intents,
-      <Button.Link
-        href={`https://arbiscan.io/address/${contractAddress}`}
-        children={"Arbiscan"}
-      />,
-      <Button
-        action={`${url}/create/1`}
-        value="create"
-        children={"Create new"}
-      />,
-    ],
+    intents: [...intents],
     title: "WannaBet",
   });
 };
