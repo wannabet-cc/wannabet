@@ -1,4 +1,4 @@
-import { Address } from "viem";
+import { Address, parseEther } from "viem";
 import { betAbi } from "../contracts/betAbi";
 import { type CustomTransactionContext } from "..";
 import { AddressSchema } from "../zodSchemas";
@@ -14,5 +14,6 @@ export const acceptTxn = async (c: CustomTransactionContext<"/tx/accept">) => {
     to: parsedAddress,
     chainId: "eip155:42161",
     functionName: "acceptBet",
+    value: parseEther("0.0002"),
   });
 };

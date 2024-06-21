@@ -1,4 +1,4 @@
-import { Address, parseUnits } from "viem";
+import { Address, parseEther, parseUnits } from "viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import {
   MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
@@ -25,5 +25,6 @@ export const createTxn = async (c: CustomTransactionContext<"/tx/create">) => {
       previousState.arbitrator as Address,
       validForSeconds,
     ],
+    value: parseEther("0.0002"),
   });
 };
