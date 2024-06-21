@@ -213,7 +213,7 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
   } else {
     // -> Set image and intents
     image = (
-      <div style={{ ...backgroundStyles, justifyContent: "center" }}>
+      <div style={{ ...backgroundStyles }}>
         <span style={{ ...subTextStyles }}>{`Bet #${parsedBetId}`}</span>
         <span>Click to see status</span>
       </div>
