@@ -1,4 +1,4 @@
-import { Address } from "viem";
+import { Address, parseUnits } from "viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import {
   MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
@@ -9,7 +9,7 @@ import { type CustomTransactionContext } from "..";
 export const createTxn = async (c: CustomTransactionContext<"/tx/create">) => {
   const { previousState } = c;
 
-  const usdcAmount = BigInt(previousState.amount * 10 ** 6);
+  const bigIntAmount = parseUnits(previousState.amount.toString(), 6);
   const validForSeconds = BigInt(previousState.validForDays * 24 * 60 * 60);
 
   return c.contract({
@@ -19,7 +19,7 @@ export const createTxn = async (c: CustomTransactionContext<"/tx/create">) => {
     functionName: "createBet",
     args: [
       previousState.participant as Address,
-      usdcAmount,
+      bigIntAmount,
       MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
       previousState.message,
       previousState.arbitrator as Address,
