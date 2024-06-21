@@ -110,7 +110,11 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
     const isTie =
       status === "settled" && winner !== creator && winner !== participant;
     const formattedDate = convertTimestampToFormattedDate(Number(validUntil));
+    const creatorAlias = await getPreferredAlias(c, creator);
+    const participantAlias = await getPreferredAlias(c, participant);
+    const arbitratorAlias = await getPreferredAlias(c, arbitrator);
     const winnerAlias = await getPreferredAlias(c, winner);
+    const formattedAmount = Number(amount) / 10 ** 6;
     // -> Return screen
     return c.res({
       image: (
@@ -123,10 +127,38 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
             </span>
           )}
           {status === "accepted" && <span>Bet Accepted</span>}
+          {status === "accepted" && (
+            <span style={{ ...subTextStyles }}>
+              {arbitratorAlias} to determine the winner
+            </span>
+          )}
           {status === "declined" && <span>Bet Declined</span>}
+          {status === "declined" && (
+            <span style={{ ...subTextStyles }}>
+              {participantAlias} declined the bet and funds were returned
+            </span>
+          )}
           {status === "expired" && <span>Bet Expired</span>}
+          {status === "expired" && (
+            <span style={{ ...subTextStyles }}>
+              {participantAlias} didn&apos;t respond in time and funds
+              {Number(contractBalance) > 0
+                ? ` are reclaimable by ${creatorAlias}`
+                : ` were sent to ${creatorAlias}`}
+            </span>
+          )}
           {status === "settled" && (
             <span>{isTie ? "Tie!" : `${winnerAlias} won!`}</span>
+          )}
+          {status === "settled" && (
+            <span style={{ ...subTextStyles }}>
+              {arbitratorAlias} determined
+              {isTie
+                ? " the bet was a tie and funds were sent back equally"
+                : ` ${winnerAlias} was the winner; they received ${
+                    formattedAmount * 2
+                  } USDC`}
+            </span>
           )}
         </div>
       ),
