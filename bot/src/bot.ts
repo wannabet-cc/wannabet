@@ -1,13 +1,14 @@
 import express, { Express, Request, Response } from "express";
-import { formatUnits, getAddress } from "viem";
+import { Hex, decodeEventLog, formatUnits } from "viem";
 import { publishCast } from "./neynar";
-import { FRAME_BASE_URL } from "./config";
+import { BET_CREATED_EVENT_SIGNATURE, FRAME_BASE_URL } from "./config";
 import { type EventData, type Log } from "./webhook";
 import {
   getBetDetails,
   getEventNameFromSignature,
   getFarcasterNames,
 } from "./utils";
+import { betFactoryAbi } from "./contracts/betFactoryAbi";
 
 const bot: Express = express();
 
@@ -63,7 +64,16 @@ export default bot;
 
 async function handleBetCreated(log: Log) {
   // Parse the new bet contract address
-  const newContractAddress = getAddress(log.topics[1]);
+  const decodedTopics = decodeEventLog({
+    abi: betFactoryAbi,
+    eventName: "BetCreated",
+    data: log.data as Hex,
+    topics: [
+      BET_CREATED_EVENT_SIGNATURE,
+      ...log.topics.slice(1, 4).map((topic) => topic as Hex),
+    ],
+  });
+  const newContractAddress = decodedTopics.args.contractAddress;
   // Fetch data
   const { betId, creator, participant, amount, message, arbitrator } =
     await getBetDetails(newContractAddress);
