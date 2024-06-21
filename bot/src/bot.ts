@@ -1,5 +1,5 @@
 import express, { Express, Request, Response } from "express";
-import { getAddress } from "viem";
+import { formatUnits, getAddress } from "viem";
 import { publishCast } from "./neynar";
 import { FRAME_BASE_URL } from "./config";
 import { type EventData, type Log } from "./webhook";
@@ -70,7 +70,7 @@ async function handleBetCreated(log: Log) {
   const [creatorUsername, participantUsername, arbitratorUsername] =
     await getFarcasterNames([creator, participant, arbitrator]);
   // Create strings
-  const formattedAmount = Number(amount) / 10 ** 6;
+  const formattedAmount = formatUnits(amount, 6);
   const frameUrl = `${FRAME_BASE_URL}/bet/${betId.toString()}`;
   const castMessage = `@${creatorUsername} bet @${participantUsername} ${formattedAmount} USDC that ${message}. @${arbitratorUsername} is arbitrator\n\n${frameUrl}`;
   // Cast
