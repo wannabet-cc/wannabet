@@ -1,3 +1,13 @@
+export const vStack = {
+  display: "flex",
+  flexDirection: "column",
+};
+
+export const hStack = {
+  display: "flex",
+  flexDirection: "row",
+};
+
 export const backgroundStyles = {
   color: "white",
   display: "flex",
@@ -19,4 +29,19 @@ export const backgroundStyles = {
 export const subTextStyles = {
   color: "gray",
   fontSize: 42,
+};
+
+export const ensBackgroundStyles = {
+  backgroundImage: `linear-gradient(330.4deg, #44bcf0 4.54%, #7298f8 59.2%, #a099ff 148.85%)`,
+};
+
+export const betRoleStyles = {
+  color: "gray",
+  fontSize: 32,
+};
+
+export const avatarStyles = {
+  borderRadius: 9999,
+  width: 92,
+  height: 92,
 };

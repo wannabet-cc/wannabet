@@ -1,4 +1,5 @@
 import { Address } from "viem";
+import { normalize } from "viem/ens";
 import { arbitrumClientFn, mainnetClientFn } from "./viem";
 import { type CustomContext } from ".";
 import { betAbi } from "./contracts/betAbi";
@@ -37,6 +38,34 @@ async function getPreferredAlias(c: CustomContext, address: Address) {
     preferredAlias = shortenHexAddress(address);
   }
   return preferredAlias;
+}
+
+async function getPreferredAliasAndPfp(c: CustomContext, address: Address) {
+  // Set preferred name
+  let preferredAlias: string;
+  const ensName = await mainnetClientFn(c).getEnsName({
+    address,
+  });
+  if (ensName) {
+    // <- most preferred: ens name
+    preferredAlias = ensName;
+  } else {
+    // <- 2nd most preferred: shortened address
+    preferredAlias = shortenHexAddress(address);
+  }
+  // Set preferred avatar
+  let preferredPfpUrl: string;
+  const ensAvatar = await mainnetClientFn(c).getEnsAvatar({
+    name: normalize(ensName || ""),
+  });
+  if (ensAvatar) {
+    // <- most preferred: ens avatar
+    preferredPfpUrl = ensAvatar;
+  } else {
+    // <- 2nd most preferred: ens missing avatar
+    preferredPfpUrl = "";
+  }
+  return { preferredAlias, preferredPfpUrl };
 }
 
 async function getBetDetails(c: CustomContext, betContractAddress: Address) {
@@ -106,6 +135,7 @@ export {
   capitalizeFirstLetter,
   convertTimestampToFormattedDate,
   getPreferredAlias,
+  getPreferredAliasAndPfp,
   getBetDetails,
   fetchUser,
 };

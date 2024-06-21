@@ -1,5 +1,13 @@
 import { Button } from "frog";
-import { backgroundStyles, subTextStyles } from "../shared-styles";
+import {
+  avatarStyles,
+  backgroundStyles,
+  betRoleStyles,
+  ensBackgroundStyles,
+  subTextStyles,
+  vStack,
+  hStack,
+} from "../shared-styles";
 import { arbitrumClientFn } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import {
@@ -12,10 +20,91 @@ import {
   fetchUser,
   getBetDetails,
   getPreferredAlias,
+  getPreferredAliasAndPfp,
 } from "../utils";
 import { FiatTokenProxyAbi } from "../contracts/usdcAbi";
 import { type CustomFrameContext } from "..";
 import { BetIdSchema } from "../zodSchemas";
+
+function UserCard(props: {
+  alias: string;
+  pfpUrl: string;
+  role: "Proposer" | "Participant";
+}) {
+  return (
+    <div
+      style={{
+        ...hStack,
+        width: "35%",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          ...avatarStyles,
+          ...ensBackgroundStyles,
+          overflow: "hidden",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {props.pfpUrl && (
+          <img
+            src={props.pfpUrl}
+            width={92}
+            height={92}
+            style={{
+              borderRadius: 9999,
+              boxShadow: "2px 2px 100px 32px rgba(133, 93, 205, 0.3)",
+              objectFit: "cover",
+            }}
+          />
+        )}
+      </div>
+      <div style={{ ...vStack, marginLeft: 16 }}>
+        <span>{props.alias}</span>
+        <span style={{ ...betRoleStyles }}>{props.role}</span>
+      </div>
+    </div>
+  );
+}
+
+function BetAndUserInfoSection(props: {
+  betId: string;
+  creatorAlias: string;
+  creatorPfpUrl: string;
+  participantAlias: string;
+  participantPfpUrl: string;
+}) {
+  return (
+    <div style={{ ...vStack, width: "100%" }}>
+      <span
+        style={{ ...subTextStyles, marginBottom: 12 }}
+      >{`Bet #${props.betId}`}</span>
+      <div
+        style={{
+          ...hStack,
+          alignItems: "center",
+          justifyContent: "space-between",
+          fontSize: 42,
+        }}
+      >
+        <UserCard
+          alias={props.creatorAlias}
+          pfpUrl={props.creatorPfpUrl}
+          role="Proposer"
+        />
+        <div style={{ display: "flex" }}>vs</div>
+        <UserCard
+          alias={props.participantAlias}
+          pfpUrl={props.participantPfpUrl}
+          role="Participant"
+        />
+      </div>
+    </div>
+  );
+}
 
 export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
   // -> Validate url
@@ -111,62 +200,75 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
     const isTie =
       status === "settled" && winner !== creator && winner !== participant;
     const formattedDate = convertTimestampToFormattedDate(Number(validUntil));
-    const creatorAlias = await getPreferredAlias(c, creator);
-    const participantAlias = await getPreferredAlias(c, participant);
+    const { preferredAlias: creatorAlias, preferredPfpUrl: creatorPfp } =
+      await getPreferredAliasAndPfp(c, creator);
+    const {
+      preferredAlias: participantAlias,
+      preferredPfpUrl: participantPfp,
+    } = await getPreferredAliasAndPfp(c, participant);
     const arbitratorAlias = await getPreferredAlias(c, arbitrator);
     const winnerAlias = await getPreferredAlias(c, winner);
     const formattedAmount = Number(amount) / 10 ** 6;
     // -> Set image and intents
     image = (
-      <div style={{ ...backgroundStyles }}>
-        <span style={{ ...subTextStyles }}>{`Bet #${betId}`}</span>
-        {status === "pending" && <span>Proposed, no response yet</span>}
-        {status === "pending" && (
-          <span style={{ ...subTextStyles }}>
-            Offer expires {formattedDate}
-          </span>
-        )}
-        {status === "accepted" && <span>Bet Accepted</span>}
-        {status === "accepted" && (
-          <span style={{ ...subTextStyles }}>
-            {arbitratorAlias} to determine the winner
-          </span>
-        )}
-        {status === "declined" && <span>Bet Declined</span>}
-        {status === "declined" && (
-          <span style={{ ...subTextStyles }}>
-            {participantAlias} declined the bet and funds were returned
-          </span>
-        )}
-        {status === "expired" && <span>Bet Expired</span>}
-        {status === "expired" && (
-          <span style={{ ...subTextStyles }}>
-            {participantAlias} didn&apos;t respond in time and funds
-            {Number(contractBalance) > 0
-              ? ` are reclaimable by ${creatorAlias}`
-              : ` were sent to ${creatorAlias}`}
-          </span>
-        )}
-        {status === "settled" && (
-          <span>{isTie ? "Tie!" : `${winnerAlias} won!`}</span>
-        )}
-        {status === "settled" && (
-          <span style={{ ...subTextStyles }}>
-            {arbitratorAlias} determined
-            {isTie
-              ? " the bet was a tie and funds were sent back equally"
-              : ` ${winnerAlias} was the winner; they received ${
-                  formattedAmount * 2
-                } USDC`}
-          </span>
-        )}
+      <div style={{ ...backgroundStyles, justifyContent: "space-between" }}>
+        <BetAndUserInfoSection
+          betId={betId}
+          creatorAlias={creatorAlias}
+          creatorPfpUrl={creatorPfp}
+          participantAlias={participantAlias}
+          participantPfpUrl={participantPfp}
+        />
+        <div style={{ ...vStack }}>
+          {status === "pending" && <span>Proposed, no response yet</span>}
+          {status === "pending" && (
+            <span style={{ ...subTextStyles }}>
+              Offer expires {formattedDate}
+            </span>
+          )}
+          {status === "accepted" && <span>Bet Accepted</span>}
+          {status === "accepted" && (
+            <span style={{ ...subTextStyles }}>
+              {arbitratorAlias} to determine the winner
+            </span>
+          )}
+          {status === "declined" && <span>Bet Declined</span>}
+          {status === "declined" && (
+            <span style={{ ...subTextStyles }}>
+              {participantAlias} declined the bet and funds were returned
+            </span>
+          )}
+          {status === "expired" && <span>Bet Expired</span>}
+          {status === "expired" && (
+            <span style={{ ...subTextStyles }}>
+              {participantAlias} didn&apos;t respond in time and funds
+              {Number(contractBalance) > 0
+                ? ` are reclaimable by ${creatorAlias}`
+                : ` were sent to ${creatorAlias}`}
+            </span>
+          )}
+          {status === "settled" && (
+            <span>{isTie ? "Tie!" : `${winnerAlias} won!`}</span>
+          )}
+          {status === "settled" && (
+            <span style={{ ...subTextStyles }}>
+              {arbitratorAlias} determined
+              {isTie
+                ? " the bet was a tie and funds were sent back equally"
+                : ` ${winnerAlias} was the winner; they received ${
+                    formattedAmount * 2
+                  } USDC`}
+            </span>
+          )}
+        </div>
+        <div style={{ display: "flex" }} />
       </div>
     );
     intents = [...participantButtons, ...arbitratorButtons, ...creatorButtons];
   } else {
     // -> Set image and intents
     image = (
-      <div style={{ ...backgroundStyles }}>
+      <div style={{ ...backgroundStyles, justifyContent: "center" }}>
         <span style={{ ...subTextStyles }}>{`Bet #${betId}`}</span>
         <span>Click to see status</span>
       </div>
