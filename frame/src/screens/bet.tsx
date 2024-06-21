@@ -44,6 +44,7 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
 
   // -> Check if start screen
   const { frameData, url } = c;
+  let image: any, intents: any;
   if (frameData) {
     // -> Fetch bet details & status
     const { creator, participant, arbitrator, amount, validUntil } =
@@ -115,95 +116,84 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
     const arbitratorAlias = await getPreferredAlias(c, arbitrator);
     const winnerAlias = await getPreferredAlias(c, winner);
     const formattedAmount = Number(amount) / 10 ** 6;
-    // -> Return screen
-    return c.res({
-      image: (
-        <div style={{ ...backgroundStyles }}>
-          <span style={{ ...subTextStyles }}>{`Bet #${betId}`}</span>
-          {status === "pending" && <span>Proposed, no response yet</span>}
-          {status === "pending" && (
-            <span style={{ ...subTextStyles }}>
-              Offer expires {formattedDate}
-            </span>
-          )}
-          {status === "accepted" && <span>Bet Accepted</span>}
-          {status === "accepted" && (
-            <span style={{ ...subTextStyles }}>
-              {arbitratorAlias} to determine the winner
-            </span>
-          )}
-          {status === "declined" && <span>Bet Declined</span>}
-          {status === "declined" && (
-            <span style={{ ...subTextStyles }}>
-              {participantAlias} declined the bet and funds were returned
-            </span>
-          )}
-          {status === "expired" && <span>Bet Expired</span>}
-          {status === "expired" && (
-            <span style={{ ...subTextStyles }}>
-              {participantAlias} didn&apos;t respond in time and funds
-              {Number(contractBalance) > 0
-                ? ` are reclaimable by ${creatorAlias}`
-                : ` were sent to ${creatorAlias}`}
-            </span>
-          )}
-          {status === "settled" && (
-            <span>{isTie ? "Tie!" : `${winnerAlias} won!`}</span>
-          )}
-          {status === "settled" && (
-            <span style={{ ...subTextStyles }}>
-              {arbitratorAlias} determined
-              {isTie
-                ? " the bet was a tie and funds were sent back equally"
-                : ` ${winnerAlias} was the winner; they received ${
-                    formattedAmount * 2
-                  } USDC`}
-            </span>
-          )}
-        </div>
-      ),
-      intents: [
-        ...participantButtons,
-        ...arbitratorButtons,
-        ...creatorButtons,
-        <Button.Link
-          href={`https://arbiscan.io/address/${contractAddress}`}
-          children={"Arbiscan"}
-        />,
-        <Button
-          action={`${url}/create/1`}
-          value="create"
-          children={"Create new"}
-        />,
-      ],
-      title: "WannaBet",
-    });
+    // -> Set image and intents
+    image = (
+      <div style={{ ...backgroundStyles }}>
+        <span style={{ ...subTextStyles }}>{`Bet #${betId}`}</span>
+        {status === "pending" && <span>Proposed, no response yet</span>}
+        {status === "pending" && (
+          <span style={{ ...subTextStyles }}>
+            Offer expires {formattedDate}
+          </span>
+        )}
+        {status === "accepted" && <span>Bet Accepted</span>}
+        {status === "accepted" && (
+          <span style={{ ...subTextStyles }}>
+            {arbitratorAlias} to determine the winner
+          </span>
+        )}
+        {status === "declined" && <span>Bet Declined</span>}
+        {status === "declined" && (
+          <span style={{ ...subTextStyles }}>
+            {participantAlias} declined the bet and funds were returned
+          </span>
+        )}
+        {status === "expired" && <span>Bet Expired</span>}
+        {status === "expired" && (
+          <span style={{ ...subTextStyles }}>
+            {participantAlias} didn&apos;t respond in time and funds
+            {Number(contractBalance) > 0
+              ? ` are reclaimable by ${creatorAlias}`
+              : ` were sent to ${creatorAlias}`}
+          </span>
+        )}
+        {status === "settled" && (
+          <span>{isTie ? "Tie!" : `${winnerAlias} won!`}</span>
+        )}
+        {status === "settled" && (
+          <span style={{ ...subTextStyles }}>
+            {arbitratorAlias} determined
+            {isTie
+              ? " the bet was a tie and funds were sent back equally"
+              : ` ${winnerAlias} was the winner; they received ${
+                  formattedAmount * 2
+                } USDC`}
+          </span>
+        )}
+      </div>
+    );
+    intents = [...participantButtons, ...arbitratorButtons, ...creatorButtons];
   } else {
-    // -> Return start screen
-    return c.res({
-      image: (
-        <div style={{ ...backgroundStyles }}>
-          <span style={{ ...subTextStyles }}>{`Bet #${betId}`}</span>
-          <span>Click to see status</span>
-        </div>
-      ),
-      intents: [
-        <Button
-          action={`/bet/${betId}`}
-          value="refresh"
-          children={"See Status"}
-        />,
-        <Button.Link
-          href={`https://arbiscan.io/address/${contractAddress}`}
-          children={"Arbiscan"}
-        />,
-        <Button
-          action={`${url}/create/1`}
-          value="create"
-          children={"Create new"}
-        />,
-      ],
-      title: "WannaBet",
-    });
+    // -> Set image and intents
+    image = (
+      <div style={{ ...backgroundStyles }}>
+        <span style={{ ...subTextStyles }}>{`Bet #${betId}`}</span>
+        <span>Click to see status</span>
+      </div>
+    );
+    intents = [
+      <Button
+        action={`/bet/${betId}`}
+        value="refresh"
+        children={"See Status"}
+      />,
+    ];
   }
+
+  return c.res({
+    image: image,
+    intents: [
+      ...intents,
+      <Button.Link
+        href={`https://arbiscan.io/address/${contractAddress}`}
+        children={"Arbiscan"}
+      />,
+      <Button
+        action={`${url}/create/1`}
+        value="create"
+        children={"Create new"}
+      />,
+    ],
+    title: "WannaBet",
+  });
 };
