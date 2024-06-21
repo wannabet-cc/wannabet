@@ -136,29 +136,36 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
   let image: any, intents: any;
   if (frameData) {
     // -> Fetch bet details & status
-    const { creator, participant, arbitrator, amount, validUntil } =
-      await getBetDetails(c, contractAddress);
-    const winner = await arbitrumClient.readContract({
-      address: contractAddress,
-      abi: betAbi,
-      functionName: "winner",
-    });
-    const status = await arbitrumClient.readContract({
-      address: contractAddress,
-      abi: betAbi,
-      functionName: "getStatus",
-    });
-    const contractBalance = await arbitrumClient.readContract({
-      address: MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
-      abi: FiatTokenProxyAbi,
-      functionName: "balanceOf",
-      args: [contractAddress],
-    });
+    const [
+      { creator, participant, arbitrator, amount, validUntil },
+      winner,
+      status,
+      contractBalance,
+      userData,
+    ] = await Promise.all([
+      getBetDetails(c, contractAddress),
+      arbitrumClient.readContract({
+        address: contractAddress,
+        abi: betAbi,
+        functionName: "winner",
+      }),
+      arbitrumClient.readContract({
+        address: contractAddress,
+        abi: betAbi,
+        functionName: "getStatus",
+      }),
+      arbitrumClient.readContract({
+        address: MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
+        abi: FiatTokenProxyAbi,
+        functionName: "balanceOf",
+        args: [contractAddress],
+      }),
+      fetchUser(c.env.NEYNAR_API_KEY, frameData.fid),
+    ]);
     // -> Check if user is in bet
     let isCreator = false,
       isParticipant = false,
       isArbitrator = false;
-    const userData = await fetchUser(c.env.NEYNAR_API_KEY, frameData.fid);
     const userAddressList = userData.users[0].verified_addresses.eth_addresses;
     userAddressList.forEach((address) => {
       if (address.toLowerCase() === creator.toLowerCase()) isCreator = true;
@@ -204,14 +211,17 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
     const isTie =
       status === "settled" && winner !== creator && winner !== participant;
     const formattedDate = convertTimestampToFormattedDate(Number(validUntil));
-    const { preferredAlias: creatorAlias, preferredPfpUrl: creatorPfp } =
-      await getPreferredAliasAndPfp(c, creator);
-    const {
-      preferredAlias: participantAlias,
-      preferredPfpUrl: participantPfp,
-    } = await getPreferredAliasAndPfp(c, participant);
-    const arbitratorAlias = await getPreferredAlias(c, arbitrator);
-    const winnerAlias = await getPreferredAlias(c, winner);
+    const [
+      { preferredAlias: creatorAlias, preferredPfpUrl: creatorPfp },
+      { preferredAlias: participantAlias, preferredPfpUrl: participantPfp },
+      arbitratorAlias,
+      winnerAlias,
+    ] = await Promise.all([
+      getPreferredAliasAndPfp(c, creator),
+      getPreferredAliasAndPfp(c, participant),
+      getPreferredAlias(c, arbitrator),
+      getPreferredAlias(c, winner),
+    ]);
     const formattedAmount = Number(amount) / 10 ** 6;
     // -> Set image and intents
     image = (
