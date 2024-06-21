@@ -11,7 +11,7 @@ contract BetFactory {
         address contractAddress;
         bool isCreator;
         bool isParticipant;
-        bool isArbitrator;
+        bool isJudge;
     }
 
     // -> State variables
@@ -62,7 +62,7 @@ contract BetFactory {
         uint256 _amount,
         address _token,
         string memory _message,
-        address _arbitrator,
+        address _judge,
         uint256 _validFor
     ) public payable {
         if (msg.value < fee) revert BET__FeeNotEnough();
@@ -78,7 +78,7 @@ contract BetFactory {
                 _amount,
                 _token,
                 _message,
-                _arbitrator,
+                _judge,
                 _validFor,
                 address(this)
             )
@@ -105,7 +105,7 @@ contract BetFactory {
                     address(newBet),
                     true,
                     false,
-                    msg.sender == _arbitrator
+                    msg.sender == _judge
                 )
             );
             userBets[_participant].push(
@@ -114,11 +114,11 @@ contract BetFactory {
                     address(newBet),
                     false,
                     true,
-                    _participant == _arbitrator
+                    _participant == _judge
                 )
             );
-            if (_arbitrator != msg.sender && _arbitrator != _participant)
-                userBets[_arbitrator].push(
+            if (_judge != msg.sender && _judge != _participant)
+                userBets[_judge].push(
                     BetInfo(betCount, address(newBet), false, false, true)
                 );
             // Emit event

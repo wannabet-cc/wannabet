@@ -20,7 +20,7 @@ contract Bet {
     uint256 private immutable _AMOUNT;
     IERC20 private immutable _TOKEN;
     string private _MESSAGE;
-    address private immutable _ARBITRATOR;
+    address private immutable _JUDGE;
     uint256 private immutable _VALID_UNTIL;
     BetFactory private immutable _BET_FACTORY;
 
@@ -54,8 +54,8 @@ contract Bet {
         _;
     }
 
-    modifier onlyArbitrator() {
-        if (msg.sender != _ARBITRATOR) revert BET__Unauthorized();
+    modifier onlyJudge() {
+        if (msg.sender != _JUDGE) revert BET__Unauthorized();
         _;
     }
 
@@ -67,7 +67,7 @@ contract Bet {
         uint256 _amount,
         address _token,
         string memory _message,
-        address _arbitrator,
+        address _judge,
         uint256 _validFor,
         address _factoryContract
     ) {
@@ -77,7 +77,7 @@ contract Bet {
         _AMOUNT = _amount;
         _TOKEN = IERC20(_token);
         _MESSAGE = _message;
-        _ARBITRATOR = _arbitrator;
+        _JUDGE = _judge;
         _VALID_UNTIL = block.timestamp + _validFor;
         _BET_FACTORY = BetFactory(_factoryContract);
     }
@@ -129,7 +129,7 @@ contract Bet {
         _fundsWithdrawn = true;
     }
 
-    function settleBet(address _winner) public onlyArbitrator {
+    function settleBet(address _winner) public onlyJudge {
         if (_status != Status.Accepted) revert BET__InvalidStatus();
         if (
             _winner != _CREATOR &&
@@ -166,7 +166,7 @@ contract Bet {
             uint256 amount,
             IERC20 token,
             string memory message,
-            address arbitrator,
+            address judge,
             uint256 validUntil
         )
     {
@@ -177,7 +177,7 @@ contract Bet {
             _AMOUNT,
             _TOKEN,
             _MESSAGE,
-            _ARBITRATOR,
+            _JUDGE,
             _VALID_UNTIL
         );
     }
