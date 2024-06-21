@@ -168,6 +168,10 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
         isArbitrator = true;
     });
     // -> Create conditional intents
+    const backButton =
+      c.initialPath === "/home"
+        ? [<Button action="/home" children={"Home"} />]
+        : [];
     const participantButtons =
       isParticipant && status === "pending"
         ? [
@@ -264,7 +268,12 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
         <div style={{ display: "flex" }} />
       </div>
     );
-    intents = [...participantButtons, ...arbitratorButtons, ...creatorButtons];
+    intents = [
+      ...backButton,
+      ...participantButtons,
+      ...arbitratorButtons,
+      ...creatorButtons,
+    ];
   } else {
     // -> Set image and intents
     image = (
