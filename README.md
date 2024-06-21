@@ -50,23 +50,13 @@ There are two contracts:
   - [ ] Add Farcaster username compatibility
     - [ ] Show Farcaster username (over ens name and shorthand address) when displayed
     - [ ] Allow user to input Farcaster usernames where applicable
-  - [ ] Deploy
+  - [x] Deploy
     - [x] Deploy as a cloudflare worker
     - [x] Test all flows and transactions
-    - [ ] Set a domain
-- [ ] Farcaster Bot
+    - [x] Set a domain (frame.wannabet.cc)
+- [x] Farcaster Bot
   - [x] Generate signer
   - [x] Set up webhooks for when a bet is created, accepted, and settled
-  - [x] Cast when:
-    - [x] A new bet is created ~~(tag @creator and @participant)~~
-    - [x] A bet is accepted or declined ~~(tag @arbitrator)~~
-    - [x] A bet ties or a winner is chosen ~~(tag @winner)~~
-    - [ ] A bet is almost expired (reply to creation cast; tag @participant)
-    - [ ] A bet is expired (reply to creation cast; tag @creator)
-  - [ ] Tag users when casting
-  - [ ] Deploy
-    - [ ] Deploy bot
-    - [ ] Deploy webhook
-    - [ ] Test to ensure webhook is emitting the correct events
-    - [ ] Test to ensure receipt of webhook events
-    - [ ] Test to ensure the bot is casting correctly
+  - [x] Cast when a bet is created
+  - [x] Tag users when casting
+  - [x] Deploy
