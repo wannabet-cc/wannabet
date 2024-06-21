@@ -1,5 +1,13 @@
 import { Button } from "frog";
-import { backgroundStyles, subTextStyles } from "../shared-styles";
+import {
+  avatarStyles,
+  backgroundStyles,
+  betRoleStyles,
+  ensBackgroundStyles,
+  subTextStyles,
+  vStack,
+  hStack,
+} from "../shared-styles";
 import { arbitrumClientFn } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import {
@@ -8,16 +16,98 @@ import {
 } from "../contracts/addresses";
 import { betAbi } from "../contracts/betAbi";
 import {
-  capitalizeFirstLetter,
+  convertTimestampToFormattedDate,
   fetchUser,
   getBetDetails,
   getPreferredAlias,
+  getPreferredAliasAndPfp,
 } from "../utils";
 import { FiatTokenProxyAbi } from "../contracts/usdcAbi";
 import { type CustomFrameContext } from "..";
 import { BetIdSchema } from "../zodSchemas";
 
+function UserCard(props: {
+  alias: string;
+  pfpUrl: string;
+  role: "Proposer" | "Participant";
+}) {
+  return (
+    <div
+      style={{
+        ...hStack,
+        width: "35%",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          ...avatarStyles,
+          ...ensBackgroundStyles,
+          overflow: "hidden",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {props.pfpUrl && (
+          <img
+            src={props.pfpUrl}
+            width={92}
+            height={92}
+            style={{
+              borderRadius: 9999,
+              boxShadow: "2px 2px 100px 32px rgba(133, 93, 205, 0.3)",
+              objectFit: "cover",
+            }}
+          />
+        )}
+      </div>
+      <div style={{ ...vStack, marginLeft: 16 }}>
+        <span>{props.alias}</span>
+        <span style={{ ...betRoleStyles }}>{props.role}</span>
+      </div>
+    </div>
+  );
+}
+
+function BetAndUserInfoSection(props: {
+  betId: number;
+  creatorAlias: string;
+  creatorPfpUrl: string;
+  participantAlias: string;
+  participantPfpUrl: string;
+}) {
+  return (
+    <div style={{ ...vStack, width: "100%" }}>
+      <span
+        style={{ ...subTextStyles, marginBottom: 12 }}
+      >{`Bet #${props.betId}`}</span>
+      <div
+        style={{
+          ...hStack,
+          alignItems: "center",
+          justifyContent: "space-between",
+          fontSize: 42,
+        }}
+      >
+        <UserCard
+          alias={props.creatorAlias}
+          pfpUrl={props.creatorPfpUrl}
+          role="Proposer"
+        />
+        <div style={{ display: "flex" }}>vs</div>
+        <UserCard
+          alias={props.participantAlias}
+          pfpUrl={props.participantPfpUrl}
+          role="Participant"
+        />
+      </div>
+    </div>
+  );
+}
+
 export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
+  // -> Validate url
   const { betId } = c.req.param();
   const { success, data: parsedBetId } = BetIdSchema.safeParse(Number(betId));
   if (!success) {
@@ -32,176 +122,201 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
     });
   }
 
+  // -> Fetch contract address
   const arbitrumClient = arbitrumClientFn(c);
-
-  const betCount = await arbitrumClient.readContract({
-    address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
-    abi: betFactoryAbi,
-    functionName: "betCount",
-  });
-  if (parsedBetId > betCount) {
-    return c.res({
-      image: (
-        <div style={{ ...backgroundStyles }}>
-          <span>Bet doesn't exist yet</span>
-        </div>
-      ),
-      intents: [<Button action={`/home`} children={"Home"} />],
-    });
-  }
-
   const contractAddress = await arbitrumClient.readContract({
     address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
     abi: betFactoryAbi,
     functionName: "betAddresses",
-    args: [BigInt(betId)],
-  });
-  const contractBalance = await arbitrumClient.readContract({
-    address: MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
-    abi: FiatTokenProxyAbi,
-    functionName: "balanceOf",
-    args: [contractAddress],
-  });
-  const { creator, participant, amount, message, arbitrator } =
-    await getBetDetails(c, contractAddress);
-  const status = await arbitrumClient.readContract({
-    address: contractAddress,
-    abi: betAbi,
-    functionName: "getStatus",
-  });
-  const winner = await arbitrumClient.readContract({
-    address: contractAddress,
-    abi: betAbi,
-    functionName: "winner",
+    args: [BigInt(parsedBetId)],
   });
 
-  const [creatorAlias, participantAlias, winnerAlias] = await Promise.all([
-    getPreferredAlias(c, creator),
-    getPreferredAlias(c, participant),
-    getPreferredAlias(c, winner),
-  ]);
-
+  // -> Check if start screen
   const { frameData, url } = c;
-
-  // -> get user addresses
-  const apiKey = c.env.NEYNAR_API_KEY;
-  const userData = await fetchUser(apiKey, frameData!.fid);
-  const userAddressList = userData.users[0].verified_addresses.eth_addresses;
-
-  // -> check if at least one address is involved in the bet
-  let isCreator = false,
-    isParticipant = false,
-    isArbitrator = false;
-  userAddressList.forEach((address) => {
-    const lcAddress = address.toLowerCase();
-    if (lcAddress === creator.toLowerCase()) isCreator = true;
-    if (lcAddress === participant.toLowerCase()) isParticipant = true;
-    if (lcAddress === arbitrator.toLowerCase()) isArbitrator = true;
-  });
-
-  const isTie = winner !== creator && winner !== participant;
-
-  const convertedAmount = Number(amount) / 10 ** 6;
-
-  const participantButtons =
-    isParticipant && status === "pending"
-      ? [
-          <Button.Transaction
-            action={`${url}/accept`}
-            target={`/tx/authorize?spender=${contractAddress}&amount=${amount}`}
-            children={"Accept"}
-          />,
-          <Button.Transaction
-            action={url}
-            target={`/tx/decline?contract=${contractAddress}`}
-            children={"Decline"}
-          />,
-        ]
-      : [];
-  const arbitratorButtons =
-    isArbitrator && status === "accepted"
-      ? [<Button action={`${url}/settle`} children={"Settle"} />]
-      : [];
-  const creatorButtons =
-    isCreator && status === "expired" && Number(contractBalance) > 0
-      ? [
-          <Button.Transaction
-            target={`/tx/retrieve?contract=${contractAddress}`}
-            children={"Retrieve funds"}
-          />,
-        ]
-      : [];
-
-  return c.res({
-    image: (
-      <div style={{ ...backgroundStyles }}>
-        <span>WannaBet #{betId}</span>
-        <span style={{ ...subTextStyles, marginTop: 20 }}>
-          <span style={{ textDecorationLine: "underline", marginRight: 12 }}>
-            {creatorAlias}
-          </span>
-          {" bet "}
-          <span
-            style={{
-              textDecorationLine: "underline",
-              marginLeft: 12,
-              marginRight: 12,
-            }}
-          >
-            {participantAlias}
-          </span>
-          {convertedAmount} USDC that:
-        </span>
-        <span
-          style={{
-            ...subTextStyles,
-            marginTop: 30,
-            marginBottom: 48,
-            color: "lightGreen",
-            padding: 8,
-            paddingLeft: 36,
-            borderLeft: "4px",
-          }}
-        >
-          {message}.
-        </span>
-        {status === "pending" && (
-          <span style={{ ...subTextStyles }}>
-            {capitalizeFirstLetter(status)}: {participantAlias} can accept or
-            decline
-          </span>
-        )}
-        {status === "expired" && (
-          <span style={{ ...subTextStyles }}>
-            {capitalizeFirstLetter(status)}: {participantAlias} didn't accept in
-            time. The bet creator can retrieve their funds.
-          </span>
-        )}
-        {status === "declined" && (
-          <span style={{ ...subTextStyles }}>
-            {capitalizeFirstLetter(status)}: {participantAlias} declined the bet
-          </span>
-        )}
-        {status === "accepted" && (
-          <span style={{ ...subTextStyles }}>
-            {capitalizeFirstLetter(status)}: Awaiting {arbitrator}&apos;s
-            decision
-          </span>
-        )}
-        {status === "settled" && (
-          <span style={{ ...subTextStyles }}>
-            {capitalizeFirstLetter(status)}:{" "}
-            {isTie
-              ? "The bet tied and the pot was split."
-              : `${winnerAlias} won.`}
-          </span>
-        )}
+  let image: any, intents: any;
+  if (frameData) {
+    // -> Fail if bet doesn't exist yet
+    if (contractAddress === "0x0000000000000000000000000000000000000000") {
+      return c.res({
+        image: (
+          <div style={{ ...backgroundStyles }}>
+            <span>Bet doesn&apos;t exist yet</span>
+          </div>
+        ),
+        intents: [<Button action="/home" children={"Home"} />],
+        title: "WannaBet",
+      });
+    }
+    // -> Fetch bet details & status
+    const [
+      { creator, participant, arbitrator, amount, validUntil },
+      winner,
+      status,
+      contractBalance,
+      userData,
+    ] = await Promise.all([
+      getBetDetails(c, contractAddress),
+      arbitrumClient.readContract({
+        address: contractAddress,
+        abi: betAbi,
+        functionName: "winner",
+      }),
+      arbitrumClient.readContract({
+        address: contractAddress,
+        abi: betAbi,
+        functionName: "getStatus",
+      }),
+      arbitrumClient.readContract({
+        address: MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
+        abi: FiatTokenProxyAbi,
+        functionName: "balanceOf",
+        args: [contractAddress],
+      }),
+      fetchUser(c.env.NEYNAR_API_KEY, frameData.fid),
+    ]);
+    // -> Check if user is in bet
+    let isCreator = false,
+      isParticipant = false,
+      isArbitrator = false;
+    const userAddressList = userData.users[0].verified_addresses.eth_addresses;
+    userAddressList.forEach((address) => {
+      if (address.toLowerCase() === creator.toLowerCase()) isCreator = true;
+      if (address.toLowerCase() === participant.toLowerCase())
+        isParticipant = true;
+      if (address.toLowerCase() === arbitrator.toLowerCase())
+        isArbitrator = true;
+    });
+    // -> Create conditional intents
+    const backButton =
+      c.initialPath === "/home"
+        ? [<Button action="/home" children={"Home"} />]
+        : [];
+    const participantButtons =
+      isParticipant && status === "pending"
+        ? [
+            <Button.Transaction
+              action={`${url}/accept`}
+              target={`/tx/authorize?spender=${contractAddress}&amount=${amount}`}
+              children={"Accept"}
+            />,
+            <Button.Transaction
+              action={url}
+              target={`/tx/decline?contract=${contractAddress}`}
+              children={"Decline"}
+            />,
+          ]
+        : [];
+    const arbitratorButtons =
+      isArbitrator && status === "accepted"
+        ? [<Button action={`${url}/settle`} children={"Settle"} />]
+        : [];
+    const creatorButtons =
+      isCreator && status === "expired" && Number(contractBalance) > 0
+        ? [
+            <Button.Transaction
+              target={`/tx/retrieve?contract=${contractAddress}`}
+              children={"Retrieve funds"}
+            />,
+          ]
+        : [];
+    // -> Re-format fetched data
+    const isTie =
+      status === "settled" && winner !== creator && winner !== participant;
+    const formattedDate = convertTimestampToFormattedDate(Number(validUntil));
+    const [
+      { preferredAlias: creatorAlias, preferredPfpUrl: creatorPfp },
+      { preferredAlias: participantAlias, preferredPfpUrl: participantPfp },
+      arbitratorAlias,
+      winnerAlias,
+    ] = await Promise.all([
+      getPreferredAliasAndPfp(c, creator),
+      getPreferredAliasAndPfp(c, participant),
+      getPreferredAlias(c, arbitrator),
+      getPreferredAlias(c, winner),
+    ]);
+    const formattedAmount = Number(amount) / 10 ** 6;
+    // -> Set image and intents
+    image = (
+      <div style={{ ...backgroundStyles, justifyContent: "space-between" }}>
+        <BetAndUserInfoSection
+          betId={parsedBetId}
+          creatorAlias={creatorAlias}
+          creatorPfpUrl={creatorPfp}
+          participantAlias={participantAlias}
+          participantPfpUrl={participantPfp}
+        />
+        <div style={{ ...vStack }}>
+          {status === "pending" && <span>Proposed, no response yet</span>}
+          {status === "pending" && (
+            <span style={{ ...subTextStyles }}>
+              Offer expires {formattedDate}
+            </span>
+          )}
+          {status === "accepted" && <span>Bet Accepted</span>}
+          {status === "accepted" && (
+            <span style={{ ...subTextStyles }}>
+              {arbitratorAlias} to determine the winner
+            </span>
+          )}
+          {status === "declined" && <span>Bet Declined</span>}
+          {status === "declined" && (
+            <span style={{ ...subTextStyles }}>
+              {participantAlias} declined the bet and funds were returned
+            </span>
+          )}
+          {status === "expired" && <span>Bet Expired</span>}
+          {status === "expired" && (
+            <span style={{ ...subTextStyles }}>
+              {participantAlias} didn&apos;t respond in time and funds
+              {Number(contractBalance) > 0
+                ? ` are reclaimable by ${creatorAlias}`
+                : ` were sent to ${creatorAlias}`}
+            </span>
+          )}
+          {status === "settled" && (
+            <span>{isTie ? "Tie!" : `${winnerAlias} won!`}</span>
+          )}
+          {status === "settled" && (
+            <span style={{ ...subTextStyles }}>
+              {arbitratorAlias} determined
+              {isTie
+                ? " the bet was a tie and funds were sent back equally"
+                : ` ${winnerAlias} was the winner; they received ${
+                    formattedAmount * 2
+                  } USDC`}
+            </span>
+          )}
+        </div>
+        <div style={{ display: "flex" }} />
       </div>
-    ),
-    intents: [
+    );
+    intents = [
+      ...backButton,
       ...participantButtons,
       ...arbitratorButtons,
       ...creatorButtons,
+    ];
+  } else {
+    // -> Set image and intents
+    image = (
+      <div style={{ ...backgroundStyles, justifyContent: "center" }}>
+        <span style={{ ...subTextStyles }}>{`Bet #${parsedBetId}`}</span>
+        <span>Click to see status</span>
+      </div>
+    );
+    intents = [
+      <Button
+        action={`/bet/${parsedBetId}`}
+        value="refresh"
+        children={"See Status"}
+      />,
+    ];
+  }
+
+  return c.res({
+    image: image,
+    intents: [
+      ...intents,
       <Button.Link
         href={`https://arbiscan.io/address/${contractAddress}`}
         children={"Arbiscan"}
