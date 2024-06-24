@@ -75,14 +75,14 @@ async function handleBetCreated(log: Log) {
   });
   const newContractAddress = decodedTopics.args.contractAddress;
   // Fetch data
-  const { betId, creator, participant, amount, message, arbitrator } =
+  const { betId, creator, participant, amount, message, judge } =
     await getBetDetails(newContractAddress);
-  const [creatorUsername, participantUsername, arbitratorUsername] =
-    await getFarcasterNames([creator, participant, arbitrator]);
+  const [creatorUsername, participantUsername, judgeUsername] =
+    await getFarcasterNames([creator, participant, judge]);
   // Create strings
   const formattedAmount = formatUnits(amount, 6);
   const frameUrl = `${FRAME_BASE_URL}/bet/${betId.toString()}`;
-  const castMessage = `@${creatorUsername} bet @${participantUsername} ${formattedAmount} USDC that \`${message}\`. @${arbitratorUsername} is the arbitrator\n\n${frameUrl}`;
+  const castMessage = `@${creatorUsername} bet @${participantUsername} ${formattedAmount} USDC that \`${message}\`. @${judgeUsername} is the judge\n\n${frameUrl}`;
   console.log(frameUrl, "\n", castMessage);
   // Cast
   await publishCast(castMessage, { frameUrl }); // optionally returns cast hash

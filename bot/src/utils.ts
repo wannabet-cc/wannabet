@@ -35,7 +35,7 @@ async function getBetDetails(betContractAddress: Address) {
     amount,
     token,
     message,
-    arbitrator,
+    judge,
     validUntil,
   ] = await arbitrumClient.readContract({
     address: betContractAddress,
@@ -50,7 +50,7 @@ async function getBetDetails(betContractAddress: Address) {
     amount,
     token,
     message,
-    arbitrator,
+    judge,
     validUntil,
   };
 }
