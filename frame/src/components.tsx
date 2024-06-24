@@ -52,7 +52,7 @@ export function UserCard(props: {
 }
 
 export function BetAndUserInfoSection(props: {
-  betId: number;
+  betId: string | number;
   creatorAlias: string;
   creatorPfpUrl: string;
   participantAlias: string;
