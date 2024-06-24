@@ -4,7 +4,7 @@ import { arbitrumClientFn } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
 import { getBetDetails, getPreferredAlias } from "../utils";
-import { type CustomFrameContext } from "..";
+import { type CustomFrameContext } from "../types";
 import { BetIdSchema } from "../zodSchemas";
 
 export const settleScreen = async (

@@ -1,6 +1,6 @@
 import { Button, TextInput } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
-import { type CustomFrameContext } from "..";
+import { type CustomFrameContext } from "../types";
 import { BetIdSchema } from "../zodSchemas";
 
 export const homeScreen = async (c: CustomFrameContext<"/home">) => {

@@ -15,7 +15,7 @@ import {
   getPreferredAliasAndPfp,
 } from "../utils";
 import { FiatTokenProxyAbi } from "../contracts/usdcAbi";
-import { type CustomFrameContext } from "..";
+import { type CustomFrameContext } from "../types";
 import { BetIdSchema } from "../zodSchemas";
 import { BetAndUserInfoSection } from "../components";
 import { formatUnits } from "viem";

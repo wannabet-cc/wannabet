@@ -3,7 +3,7 @@ import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { arbitrumClientFn } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
-import { type CustomFrameContext } from "..";
+import { type CustomFrameContext } from "../types";
 import { BetIdSchema } from "../zodSchemas";
 import { getBetDetails } from "../utils";
 import { formatUnits } from "viem";

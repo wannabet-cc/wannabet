@@ -1,6 +1,6 @@
 import { Address } from "viem";
 import { betAbi } from "../contracts/betAbi";
-import { type CustomTransactionContext } from "..";
+import { type CustomTransactionContext } from "../types";
 import { AddressSchema } from "../zodSchemas";
 
 export const retrieveTxn = async (

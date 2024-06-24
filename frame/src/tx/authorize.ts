@@ -1,7 +1,7 @@
 import { FiatTokenProxyAbi } from "../contracts/usdcAbi";
 import { MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS } from "../contracts/addresses";
 import { Address } from "viem";
-import { type CustomTransactionContext } from "..";
+import { type CustomTransactionContext } from "../types";
 import { AddressSchema, BetAmountSchema } from "../zodSchemas";
 
 export const authorizeTxn = async (
