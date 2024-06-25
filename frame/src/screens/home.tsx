@@ -30,7 +30,7 @@ export const homeScreen = async (c: CustomFrameContext<"/home">) => {
       ),
       intents: [
         <Button action="/home" children={"Back"} />,
-        <Button action={`/bet/${parsedBetId}`} children={"Yes"} />,
+        <Button action={`/bets/${parsedBetId}`} children={"Yes"} />,
       ],
       title: "WannaBet",
     });
