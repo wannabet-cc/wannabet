@@ -37,7 +37,7 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
   }
 
   // -> Fetch contract address
-  const arbitrumClient = arbitrumClientFn(c);
+  const arbitrumClient = arbitrumClientFn(c.env);
   const contractAddress = await arbitrumClient.readContract({
     address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
     abi: betFactoryAbi,
@@ -69,7 +69,7 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
       contractBalance,
       userData,
     ] = await Promise.all([
-      getBetDetails(c, contractAddress),
+      getBetDetails(c.env, contractAddress),
       arbitrumClient.readContract({
         address: contractAddress,
         abi: betAbi,
@@ -154,10 +154,10 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
       arbitratorAlias,
       winnerAlias,
     ] = await Promise.all([
-      getPreferredAliasAndPfp(c, creator),
-      getPreferredAliasAndPfp(c, participant),
-      getPreferredAlias(c, arbitrator),
-      getPreferredAlias(c, winner),
+      getPreferredAliasAndPfp(c.env, creator),
+      getPreferredAliasAndPfp(c.env, participant),
+      getPreferredAlias(c.env, arbitrator),
+      getPreferredAlias(c.env, winner),
     ]);
     const numAmount = Number(formatUnits(amount, 6));
     // -> Set image and intents

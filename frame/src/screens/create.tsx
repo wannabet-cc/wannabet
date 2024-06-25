@@ -86,7 +86,7 @@ export const createScreen = async (
 
       let participantAddress: Address;
       if (ensNameSuccess) {
-        const mainnetClient = mainnetClientFn(c);
+        const mainnetClient = mainnetClientFn(c.env);
         participantAddress = (await mainnetClient.getEnsAddress({
           name: normalize(parsedEnsName),
         })) as Address;
@@ -247,7 +247,7 @@ export const createScreen = async (
 
       let arbitratorAddress: Address;
       if (ensNameSuccess) {
-        const mainnetClient = mainnetClientFn(c);
+        const mainnetClient = mainnetClientFn(c.env);
         arbitratorAddress = (await mainnetClient.getEnsAddress({
           name: normalize(parsedEnsName),
         })) as Address;
