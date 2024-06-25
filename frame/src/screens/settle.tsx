@@ -22,7 +22,7 @@ export const settleScreen = async (
       intents: [<Button action={`/home`} children={"Home"} />],
     });
   }
-  const betHomeUrl = `/bets/${parsedBetId}`;
+  const betHomePath = `/bets/${parsedBetId}`;
 
   const arbitrumClient = arbitrumClientFn(c.env);
 
@@ -64,19 +64,19 @@ export const settleScreen = async (
       </div>
     ),
     intents: [
-      <Button action={betHomeUrl} children={"Back"} />,
+      <Button action={betHomePath} children={"Back"} />,
       <Button.Transaction
-        action={betHomeUrl}
+        action={betHomePath}
         target={`/tx/settle?contract=${contractAddress}&winner=${creator}`}
         children={creatorAlias}
       />,
       <Button.Transaction
-        action={betHomeUrl}
+        action={betHomePath}
         target={`/tx/settle?contract=${contractAddress}&winner=${participant}`}
         children={participantAlias}
       />,
       <Button.Transaction
-        action={betHomeUrl}
+        action={betHomePath}
         target={`/tx/settle?contract=${contractAddress}&winner=${tieAddress}`}
         children={"Tie"}
       />,

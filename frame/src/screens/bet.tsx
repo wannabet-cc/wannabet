@@ -46,7 +46,7 @@ export const betScreen = async (c: CustomFrameContext<"/bets/:betId">) => {
   });
 
   // -> Check if start screen
-  const { frameData, url } = c;
+  const { frameData } = c;
   let image: any, intents: any;
   if (frameData) {
     // -> Fail if bet doesn't exist yet
@@ -109,12 +109,12 @@ export const betScreen = async (c: CustomFrameContext<"/bets/:betId">) => {
       isParticipant && status === "pending"
         ? [
             <Button.Transaction
-              action={`${url}/accept`}
+              action={`${c.req.path}/accept`}
               target={`/tx/authorize?spender=${contractAddress}&amount=${amount}`}
               children={"Accept"}
             />,
             <Button.Transaction
-              action={url}
+              action={c.req.path}
               target={`/tx/decline?contract=${contractAddress}`}
               children={"Decline"}
             />,
@@ -122,7 +122,7 @@ export const betScreen = async (c: CustomFrameContext<"/bets/:betId">) => {
         : [];
     const arbitratorButtons =
       isArbitrator && status === "accepted"
-        ? [<Button action={`${url}/settle`} children={"Settle"} />]
+        ? [<Button action={`${c.req.path}/settle`} children={"Settle"} />]
         : [];
     const creatorButtons =
       isCreator && status === "expired" && Number(contractBalance) > 0
@@ -139,7 +139,7 @@ export const betScreen = async (c: CustomFrameContext<"/bets/:betId">) => {
         children={"Arbiscan"}
       />,
       <Button
-        action={`${url}/create/1`}
+        action={`${c.req.path}/create/1`}
         value="create"
         children={"Start new bet"}
       />,

@@ -24,13 +24,13 @@ export const createScreen = async (
   );
   const { success: pageNumSuccess, data: parsedPageNum } =
     CreatePageNumSchema.safeParse(Number(pageNum));
-  const betUrl = `/bets/${parsedBetId}`;
-  const nextPageUrl = parsedPageNum
-    ? `${betUrl}/create/${parsedPageNum + 1}`
-    : betUrl;
-  const prevPageUrl = parsedPageNum
-    ? `${betUrl}/create/${parsedPageNum - 1}`
-    : betUrl;
+  const betHomePath = `/bets/${parsedBetId}`;
+  const nextPagePath = parsedPageNum
+    ? `${betHomePath}/create/${parsedPageNum + 1}`
+    : betHomePath;
+  const prevPagePath = parsedPageNum
+    ? `${betHomePath}/create/${parsedPageNum - 1}`
+    : betHomePath;
   if (!betIdSuccess || !pageNumSuccess) {
     return c.res({
       image: (
@@ -39,7 +39,10 @@ export const createScreen = async (
         </div>
       ),
       intents: [
-        <Button action={betIdSuccess ? betUrl : "/home"} children={"Back"} />,
+        <Button
+          action={betIdSuccess ? betHomePath : "/home"}
+          children={"Back"}
+        />,
       ],
     });
   }
@@ -69,8 +72,8 @@ export const createScreen = async (
       ),
       intents: [
         <TextInput placeholder="e.g. example.eth or 0xabc..." />,
-        <Button action={betUrl} value="back" children={"Back"} />,
-        <Button action={nextPageUrl} value="continue" children={"Continue"} />,
+        <Button action={betHomePath} value="back" children={"Back"} />,
+        <Button action={nextPagePath} value="continue" children={"Continue"} />,
       ],
     });
   } else if (parsedPageNum === 2) {
@@ -100,7 +103,7 @@ export const createScreen = async (
               <span>error - Input needs to be a valid address or ens name</span>
             </div>
           ),
-          intents: [<Button action={prevPageUrl} children="Back" />],
+          intents: [<Button action={prevPagePath} children="Back" />],
         });
       }
       // Update state
@@ -118,8 +121,8 @@ export const createScreen = async (
       ),
       intents: [
         <TextInput placeholder="e.g. 5" />,
-        <Button action={prevPageUrl} value="back" children={"Back"} />,
-        <Button action={nextPageUrl} value="continue" children={"Continue"} />,
+        <Button action={prevPagePath} value="back" children={"Back"} />,
+        <Button action={nextPagePath} value="continue" children={"Continue"} />,
       ],
     });
   } else if (parsedPageNum === 3) {
@@ -139,7 +142,7 @@ export const createScreen = async (
               </span>
             </div>
           ),
-          intents: [<Button action={prevPageUrl} children="Back" />],
+          intents: [<Button action={prevPagePath} children="Back" />],
         });
       // Update state
       const state = deriveState((previousState) => {
@@ -159,8 +162,8 @@ export const createScreen = async (
       ),
       intents: [
         <TextInput placeholder="e.g. ETH price will be $5k by..." />,
-        <Button action={prevPageUrl} value="back" children={"Back"} />,
-        <Button action={nextPageUrl} value="continue" children={"Continue"} />,
+        <Button action={prevPagePath} value="back" children={"Back"} />,
+        <Button action={nextPagePath} value="continue" children={"Continue"} />,
       ],
     });
   } else if (parsedPageNum === 4) {
@@ -187,8 +190,8 @@ export const createScreen = async (
       ),
       intents: [
         <TextInput placeholder="e.g. 7" />,
-        <Button action={prevPageUrl} value="back" children={"Back"} />,
-        <Button action={nextPageUrl} value="continue" children={"Continue"} />,
+        <Button action={prevPagePath} value="back" children={"Back"} />,
+        <Button action={nextPagePath} value="continue" children={"Continue"} />,
       ],
     });
   } else if (parsedPageNum === 5) {
@@ -209,7 +212,7 @@ export const createScreen = async (
               </span>
             </div>
           ),
-          intents: [<Button action={prevPageUrl} children="Back" />],
+          intents: [<Button action={prevPagePath} children="Back" />],
         });
       // Update state
       const state = deriveState((previousState) => {
@@ -230,8 +233,8 @@ export const createScreen = async (
       ),
       intents: [
         <TextInput placeholder="e.g. example.eth or 0xabc..." />,
-        <Button action={prevPageUrl} value="back" children={"Back"} />,
-        <Button action={nextPageUrl} value="continue" children={"Continue"} />,
+        <Button action={prevPagePath} value="back" children={"Back"} />,
+        <Button action={nextPagePath} value="continue" children={"Continue"} />,
       ],
     });
   } else if (parsedPageNum === 6) {
@@ -261,7 +264,7 @@ export const createScreen = async (
               <span>error - Input needs to be a valid address or ens name</span>
             </div>
           ),
-          intents: [<Button action={prevPageUrl} children="Back" />],
+          intents: [<Button action={prevPagePath} children="Back" />],
         });
       }
       // Update state
@@ -280,9 +283,9 @@ export const createScreen = async (
         </div>
       ),
       intents: [
-        <Button action={prevPageUrl} value="back" children={"Back"} />,
+        <Button action={prevPagePath} value="back" children={"Back"} />,
         <Button.Transaction
-          action={nextPageUrl}
+          action={nextPagePath}
           target={`/tx/authorize?spender=${MAINNET_BET_FACTORY_CONTRACT_ADDRESS}&amount=${bigIntAmount}`}
           children={"Authorize"}
         />,
@@ -300,7 +303,7 @@ export const createScreen = async (
       ),
       intents: [
         <Button.Transaction
-          action={nextPageUrl}
+          action={nextPagePath}
           target="/tx/create"
           children={"Create bet"}
         />,
@@ -318,7 +321,7 @@ export const createScreen = async (
           </span>
         </div>
       ),
-      intents: [<Button action={betUrl} children={"Finish"} />],
+      intents: [<Button action={betHomePath} children={"Finish"} />],
     });
   }
 };
