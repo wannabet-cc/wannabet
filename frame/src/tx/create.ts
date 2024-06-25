@@ -4,7 +4,7 @@ import {
   MAINNET_ARBITRUM_USDC_CONTRACT_ADDRESS,
   MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
 } from "../contracts/addresses";
-import { type CustomTransactionContext } from "..";
+import { type CustomTransactionContext } from "../types";
 
 export const createTxn = async (c: CustomTransactionContext<"/tx/create">) => {
   const { previousState } = c;

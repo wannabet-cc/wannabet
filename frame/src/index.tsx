@@ -1,9 +1,5 @@
-import {
-  Frog,
-  type Context,
-  type FrameContext,
-  type TransactionContext,
-} from "frog";
+import { Frog } from "frog";
+import { type CustomEnv } from "./types";
 // import { devtools } from "frog/dev";
 // import { serveStatic } from "frog/serve-static";
 
@@ -22,33 +18,6 @@ import { acceptTxn } from "./tx/accept";
 import { declineTxn } from "./tx/decline";
 import { settleTxn } from "./tx/settle";
 import { retrieveTxn } from "./tx/retrieve";
-import { Address } from "viem";
-
-type CustomEnv = {
-  Bindings: {
-    NEYNAR_API_KEY: string;
-    MAINNET_ALCHEMY_URL: string;
-    ARBITRUM_ALCHEMY_URL: string;
-  };
-  State: {
-    participant: Address | string;
-    arbitrator: Address | string;
-    amount: number;
-    message: string;
-    validForDays: number;
-  };
-};
-
-export type CustomContext<path extends string = string> = Context<
-  CustomEnv,
-  path
->;
-export type CustomFrameContext<path extends string = string> = FrameContext<
-  CustomEnv,
-  path
->;
-export type CustomTransactionContext<path extends string = string> =
-  TransactionContext<CustomEnv, path>;
 
 export const app = new Frog<CustomEnv>({
   browserLocation: "/",

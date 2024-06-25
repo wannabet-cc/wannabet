@@ -4,7 +4,7 @@ import { arbitrumClientFn } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
 import { getBetDetails, getPreferredAlias } from "../utils";
-import { type CustomFrameContext } from "..";
+import { type CustomFrameContext } from "../types";
 import { BetIdSchema } from "../zodSchemas";
 
 export const settleScreen = async (
@@ -24,7 +24,7 @@ export const settleScreen = async (
   }
   const betHomeUrl = `/bet/${parsedBetId}`;
 
-  const arbitrumClient = arbitrumClientFn(c);
+  const arbitrumClient = arbitrumClientFn(c.env);
 
   const contractAddress = await arbitrumClient.readContract({
     address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
@@ -33,14 +33,14 @@ export const settleScreen = async (
     args: [BigInt(betId)],
   });
   const { creator, participant, message } = await getBetDetails(
-    c,
+    c.env,
     contractAddress
   );
   const tieAddress = "0x0000000000000000000000000000000000000000"; // Zeros as winner means tie
 
   const [creatorAlias, participantAlias] = await Promise.all([
-    getPreferredAlias(c, creator),
-    getPreferredAlias(c, participant),
+    getPreferredAlias(c.env, creator),
+    getPreferredAlias(c.env, participant),
   ]);
 
   return c.res({

@@ -1,16 +1,16 @@
 import { createPublicClient, http } from "viem";
 import { mainnet, arbitrum } from "viem/chains";
-import { type CustomContext } from ".";
+import { type CustomEnvVars } from "./types";
 
-export const mainnetClientFn = (c: CustomContext) => {
+export const mainnetClientFn = (env: CustomEnvVars) => {
   return createPublicClient({
     chain: mainnet,
-    transport: http(c.env.MAINNET_ALCHEMY_URL),
+    transport: http(env.MAINNET_ALCHEMY_URL),
   });
 };
-export const arbitrumClientFn = (c: CustomContext) => {
+export const arbitrumClientFn = (env: CustomEnvVars) => {
   return createPublicClient({
     chain: arbitrum,
-    transport: http(c.env.ARBITRUM_ALCHEMY_URL),
+    transport: http(env.ARBITRUM_ALCHEMY_URL),
   });
 };

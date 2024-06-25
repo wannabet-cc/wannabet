@@ -1,7 +1,7 @@
 import { Address } from "viem";
 import { normalize } from "viem/ens";
 import { arbitrumClientFn, mainnetClientFn } from "./viem";
-import { type CustomContext } from ".";
+import { type CustomEnvVars } from "./types";
 import { betAbi } from "./contracts/betAbi";
 
 function shortenHexAddress(address: Address) {
@@ -25,9 +25,9 @@ function convertTimestampToFormattedDate(timestamp: number): string {
   return new Intl.DateTimeFormat("en-US", options).format(date);
 }
 
-async function getPreferredAlias(c: CustomContext, address: Address) {
+async function getPreferredAlias(env: CustomEnvVars, address: Address) {
   let preferredAlias: string;
-  const ensName = await mainnetClientFn(c).getEnsName({
+  const ensName = await mainnetClientFn(env).getEnsName({
     address,
   });
   if (ensName) {
@@ -40,10 +40,10 @@ async function getPreferredAlias(c: CustomContext, address: Address) {
   return preferredAlias;
 }
 
-async function getPreferredAliasAndPfp(c: CustomContext, address: Address) {
+async function getPreferredAliasAndPfp(env: CustomEnvVars, address: Address) {
   // Set preferred name
   let preferredAlias: string;
-  const ensName = await mainnetClientFn(c).getEnsName({
+  const ensName = await mainnetClientFn(env).getEnsName({
     address,
   });
   if (ensName) {
@@ -55,7 +55,7 @@ async function getPreferredAliasAndPfp(c: CustomContext, address: Address) {
   }
   // Set preferred avatar
   let preferredPfpUrl: string;
-  const ensAvatar = await mainnetClientFn(c).getEnsAvatar({
+  const ensAvatar = await mainnetClientFn(env).getEnsAvatar({
     name: normalize(ensName || ""),
   });
   if (ensAvatar) {
@@ -68,7 +68,7 @@ async function getPreferredAliasAndPfp(c: CustomContext, address: Address) {
   return { preferredAlias, preferredPfpUrl };
 }
 
-async function getBetDetails(c: CustomContext, betContractAddress: Address) {
+async function getBetDetails(env: CustomEnvVars, betContractAddress: Address) {
   const [
     betId,
     creator,
@@ -78,7 +78,7 @@ async function getBetDetails(c: CustomContext, betContractAddress: Address) {
     message,
     arbitrator,
     validUntil,
-  ] = await arbitrumClientFn(c).readContract({
+  ] = await arbitrumClientFn(env).readContract({
     address: betContractAddress,
     abi: betAbi,
     functionName: "betDetails",

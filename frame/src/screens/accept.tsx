@@ -3,7 +3,7 @@ import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { arbitrumClientFn } from "../viem";
 import { betFactoryAbi } from "../contracts/betFactoryAbi";
 import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
-import { type CustomFrameContext } from "..";
+import { type CustomFrameContext } from "../types";
 import { BetIdSchema } from "../zodSchemas";
 import { getBetDetails } from "../utils";
 import { formatUnits } from "viem";
@@ -24,7 +24,7 @@ export const acceptScreen = async (
     });
   }
 
-  const arbitrumClient = arbitrumClientFn(c);
+  const arbitrumClient = arbitrumClientFn(c.env);
 
   const contractAddress = await arbitrumClient.readContract({
     address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
@@ -32,7 +32,7 @@ export const acceptScreen = async (
     functionName: "betAddresses",
     args: [BigInt(betId)],
   });
-  const { amount } = await getBetDetails(c, contractAddress);
+  const { amount } = await getBetDetails(c.env, contractAddress);
   const numAmount = formatUnits(amount, 6);
 
   return c.res({

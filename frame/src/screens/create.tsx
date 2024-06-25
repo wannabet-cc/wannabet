@@ -1,7 +1,7 @@
 import { Button, TextInput } from "frog";
 import { backgroundStyles, subTextStyles } from "../shared-styles";
 import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "../contracts/addresses";
-import { type CustomFrameContext } from "..";
+import { type CustomFrameContext } from "../types";
 import {
   AddressSchema,
   BetAmountSchema,
@@ -86,7 +86,7 @@ export const createScreen = async (
 
       let participantAddress: Address;
       if (ensNameSuccess) {
-        const mainnetClient = mainnetClientFn(c);
+        const mainnetClient = mainnetClientFn(c.env);
         participantAddress = (await mainnetClient.getEnsAddress({
           name: normalize(parsedEnsName),
         })) as Address;
@@ -247,7 +247,7 @@ export const createScreen = async (
 
       let arbitratorAddress: Address;
       if (ensNameSuccess) {
-        const mainnetClient = mainnetClientFn(c);
+        const mainnetClient = mainnetClientFn(c.env);
         arbitratorAddress = (await mainnetClient.getEnsAddress({
           name: normalize(parsedEnsName),
         })) as Address;
