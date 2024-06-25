@@ -15,7 +15,7 @@ import { normalize } from "viem/ens";
 import { Address, parseUnits } from "viem";
 
 export const createScreen = async (
-  c: CustomFrameContext<"/bet/:betId/create/:pageNum">
+  c: CustomFrameContext<"/bets/:betId/create/:pageNum">
 ) => {
   // Validate params
   const { betId, pageNum } = c.req.param();
@@ -24,7 +24,7 @@ export const createScreen = async (
   );
   const { success: pageNumSuccess, data: parsedPageNum } =
     CreatePageNumSchema.safeParse(Number(pageNum));
-  const betUrl = `/bet/${parsedBetId}`;
+  const betUrl = `/bets/${parsedBetId}`;
   const nextPageUrl = parsedPageNum
     ? `${betUrl}/create/${parsedPageNum + 1}`
     : betUrl;

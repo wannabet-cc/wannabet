@@ -20,7 +20,7 @@ import { BetIdSchema } from "../zodSchemas";
 import { BetAndUserInfoSection } from "../components";
 import { formatUnits } from "viem";
 
-export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
+export const betScreen = async (c: CustomFrameContext<"/bets/:betId">) => {
   // -> Validate url
   const { betId } = c.req.param();
   const { success, data: parsedBetId } = BetIdSchema.safeParse(Number(betId));
@@ -233,11 +233,7 @@ export const betScreen = async (c: CustomFrameContext<"/bet/:betId">) => {
       </div>
     );
     intents = [
-      <Button
-        action={`/bet/${parsedBetId}`}
-        value="refresh"
-        children={"See Status"}
-      />,
+      <Button action={c.req.path} value="refresh" children={"See Status"} />,
     ];
   }
 

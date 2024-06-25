@@ -8,7 +8,7 @@ import { type CustomFrameContext } from "../types";
 import { BetIdSchema } from "../zodSchemas";
 
 export const settleScreen = async (
-  c: CustomFrameContext<"/bet/:betId/settle">
+  c: CustomFrameContext<"/bets/:betId/settle">
 ) => {
   const { betId } = c.req.param();
   const { success, data: parsedBetId } = BetIdSchema.safeParse(Number(betId));
@@ -22,7 +22,7 @@ export const settleScreen = async (
       intents: [<Button action={`/home`} children={"Home"} />],
     });
   }
-  const betHomeUrl = `/bet/${parsedBetId}`;
+  const betHomeUrl = `/bets/${parsedBetId}`;
 
   const arbitrumClient = arbitrumClientFn(c.env);
 

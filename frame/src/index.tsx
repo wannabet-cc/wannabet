@@ -35,10 +35,10 @@ export const app = new Frog<CustomEnv>({
 app.get("/", (ctx) => ctx.html(<Home />));
 
 app.frame("/home", homeScreen);
-app.frame("/bet/:betId", betScreen);
-app.frame("/bet/:betId/accept", acceptScreen);
-app.frame("/bet/:betId/settle", settleScreen);
-app.frame("/bet/:betId/create/:pageNum", createScreen);
+app.frame("/bets/:betId", betScreen);
+app.frame("/bets/:betId/accept", acceptScreen);
+app.frame("/bets/:betId/settle", settleScreen);
+app.frame("/bets/:betId/create/:pageNum", createScreen);
 
 app.transaction("/tx/authorize", authorizeTxn);
 app.transaction("/tx/create", createTxn);

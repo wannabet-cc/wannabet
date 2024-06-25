@@ -9,7 +9,7 @@ import { getBetDetails } from "../utils";
 import { formatUnits } from "viem";
 
 export const acceptScreen = async (
-  c: CustomFrameContext<"/bet/:betId/accept">
+  c: CustomFrameContext<"/bets/:betId/accept">
 ) => {
   const { betId } = c.req.param();
   const { success, data: parsedBetId } = BetIdSchema.safeParse(Number(betId));
@@ -46,7 +46,7 @@ export const acceptScreen = async (
     ),
     intents: [
       <Button.Transaction
-        action={`/bet/${parsedBetId}`}
+        action={`/bets/${parsedBetId}`}
         target={`/tx/accept?contract=${contractAddress}`}
         children={"Accept"}
       />,
