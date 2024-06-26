@@ -28,16 +28,12 @@ export function BetListComponent({
     <Tabs defaultValue="recent" className="w-full max-w-sm">
       <TabsList>
         <TabsTrigger value="recent">Recent</TabsTrigger>
-        <TabsTrigger value="large">Large</TabsTrigger>
         <TabsTrigger value="my">Mine</TabsTrigger>
       </TabsList>
       <TabsContent value="recent">
         <BetListCard title="Recent bets">
           <BetList setBetFn={setBetFn} />
         </BetListCard>
-      </TabsContent>
-      <TabsContent value="large">
-        <BetListCard title="Large bets">&lt;bet table&gt;</BetListCard>
       </TabsContent>
       <TabsContent value="my">
         <BetListCard title="My bets">&lt;bet table&gt;</BetListCard>
