@@ -6,17 +6,24 @@ import { TabsContent } from "@radix-ui/react-tabs";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "./ui/table";
 import { useQuery } from "react-query";
-import { getFormattedBetsFromIds } from "@/services/services";
+import {
+  type FormattedBetDetails,
+  getRecentFormattedBets,
+} from "@/services/services";
 import { LoadingSpinner } from "./ui/spinner";
+import { useState } from "react";
 
-export function BetListComponent() {
+export function BetListComponent({
+  setBetFn,
+}: {
+  setBetFn: (bet: FormattedBetDetails) => void;
+}) {
   return (
     <Tabs defaultValue="recent" className="w-full max-w-sm">
       <TabsList>
@@ -25,45 +32,55 @@ export function BetListComponent() {
         <TabsTrigger value="my">Mine</TabsTrigger>
       </TabsList>
       <TabsContent value="recent">
-        <BetListCard>
-          <BetList />
+        <BetListCard title="Recent bets">
+          <BetList setBetFn={setBetFn} />
         </BetListCard>
       </TabsContent>
       <TabsContent value="large">
-        <BetListCard>&lt;bet table&gt;</BetListCard>
+        <BetListCard title="Large bets">&lt;bet table&gt;</BetListCard>
       </TabsContent>
       <TabsContent value="my">
-        <BetListCard>&lt;bet table&gt;</BetListCard>
+        <BetListCard title="My bets">&lt;bet table&gt;</BetListCard>
       </TabsContent>
     </Tabs>
   );
 }
 
-function BetListCard({ children }: { children: React.ReactNode }) {
+function BetListCard({
+  children,
+  title,
+}: {
+  children: React.ReactNode;
+  title: string;
+}) {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-lg">Bets</CardTitle>
+        <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
       <CardContent className="flex justify-center pt-4">{children}</CardContent>
     </Card>
   );
 }
 
-function BetList() {
+function BetList({
+  setBetFn,
+}: {
+  setBetFn: (bet: FormattedBetDetails) => void;
+}) {
+  const [page, setPage] = useState(1);
   const { isLoading, error, isSuccess, data } = useQuery({
     queryKey: ["betData"],
-    queryFn: () => getFormattedBetsFromIds([3, 4, 5]),
+    queryFn: () => getRecentFormattedBets(page, 5),
   });
 
-  if (isLoading) <LoadingSpinner />;
+  if (isLoading) return <LoadingSpinner />;
 
   if (error) return "An error has occurred: " + error;
 
   if (isSuccess)
     return (
       <Table>
-        <TableCaption>All recent WannaBet contract bets</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>bet</TableHead>
@@ -73,7 +90,11 @@ function BetList() {
         </TableHeader>
         <TableBody>
           {data.map((bet, i) => (
-            <TableRow key={i}>
+            <TableRow
+              key={i}
+              onClick={() => setBetFn(bet)}
+              className="cursor-pointer"
+            >
               <TableCell>{bet.betId}</TableCell>
               <TableCell>{bet.amount} usdc</TableCell>
               <TableCell>

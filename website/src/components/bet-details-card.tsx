@@ -1,44 +1,40 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
   TableCaption,
   TableCell,
-  TableHead,
-  TableHeader,
   TableRow,
 } from "./ui/table";
+import { FormattedBetDetails } from "@/services/services";
 
-export function BetDetailsCard() {
+export function BetDetailsCard({
+  currentBet,
+}: {
+  currentBet: FormattedBetDetails | undefined;
+}) {
   return (
-    <Card className="mt-10 w-full max-w-md">
-      <CardHeader>
-        <CardTitle className="text-lg">Bet #{"4"}</CardTitle>
-        {/* <CardDescription></CardDescription> */}
-      </CardHeader>
-      <CardContent className="grid gap-4">
-        <BetDetails
-          betId={4}
-          creator="limes.eth"
-          participant="ncale.eth"
-          amount={1}
-          chain="Arbitrum"
-          token="USDC"
-          message="Test bet message"
-          judge="slobo.eth"
-          status="pending"
-          actions="buttons"
-        />
-      </CardContent>
-      {/* <CardFooter></CardFooter> */}
-    </Card>
+    currentBet && (
+      <Card className="mt-10 w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-lg">Bet #{currentBet.betId}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <BetDetails
+            betId={currentBet.betId}
+            creator={currentBet.creatorAlias}
+            participant={currentBet.participantAlias}
+            amount={currentBet.amount}
+            chain="Arbitrum"
+            token="USDC"
+            message={currentBet.message}
+            judge={currentBet.judgeAlias}
+            status="?"
+            actions="?"
+          />
+        </CardContent>
+      </Card>
+    )
   );
 }
 
@@ -56,7 +52,7 @@ function BetDetails(props: {
 }) {
   return (
     <Table>
-      <TableCaption>Details of WannaBet #{}</TableCaption>
+      <TableCaption>Details of WannaBet #{props.betId}</TableCaption>
       <TableBody>
         <TableRow>
           <TableCell>parties</TableCell>
