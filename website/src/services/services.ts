@@ -71,7 +71,7 @@ export const getRawBetFromId = async (
   }
 };
 
-type FormattedBetDetails = {
+export type FormattedBetDetails = {
   betId: number;
   creator: Address;
   creatorAlias: string;
@@ -143,3 +143,36 @@ export const getFormattedBetsFromIds = async (
     throw new Error(errorMsg);
   }
 };
+
+export const getRecentFormattedBets = async (
+  page: number = 1,
+  numBetsPerPage: number = 5,
+): Promise<FormattedBetDetails[]> => {
+  console.log("Running getRecentFormattedBets...");
+  try {
+    const betCount = await arbitrumClient.readContract({
+      address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
+      abi: betFactoryAbi,
+      functionName: "betCount",
+    });
+    const bets = getBetIdArray(Number(betCount), page, numBetsPerPage);
+    return await getFormattedBetsFromIds(bets);
+  } catch (error) {
+    const errorMsg = "Failed to get recent formatted bets";
+    console.error(errorMsg + ": " + error);
+    throw new Error(errorMsg);
+  }
+};
+
+function getBetIdArray(betCount: number, page: number, numBetsPerPage: number) {
+  let bets: any;
+  if (page * numBetsPerPage > betCount) {
+    const lastPage = Math.floor(betCount / numBetsPerPage);
+    const startNum = betCount - lastPage * numBetsPerPage;
+    bets = Array.from({ length: startNum }, (_, i) => startNum - i);
+  } else {
+    const startNum = betCount - (page - 1) * numBetsPerPage;
+    bets = Array.from({ length: numBetsPerPage }, (_, i) => startNum - i);
+  }
+  return bets;
+}
