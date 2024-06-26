@@ -6,6 +6,7 @@ import { Address, formatUnits } from "viem";
 import { getPreferredAlias } from "@/lib/utils";
 
 type RawBetDetails = {
+  betId: bigint;
   creator: Address;
   participant: Address;
   amount: bigint;
@@ -13,6 +14,42 @@ type RawBetDetails = {
   message: string;
   judge: Address;
   validUntil: bigint;
+};
+
+export const getRawBetFromAddress = async (
+  betContractAddress: Address,
+): Promise<RawBetDetails> => {
+  console.log("Running getRawBetFromAddress...");
+  try {
+    const [
+      betId,
+      creator,
+      participant,
+      amount,
+      token,
+      message,
+      judge,
+      validUntil,
+    ] = await arbitrumClient.readContract({
+      address: betContractAddress,
+      abi: betAbi,
+      functionName: "betDetails",
+    });
+    return {
+      betId,
+      creator,
+      participant,
+      amount,
+      token,
+      message,
+      judge,
+      validUntil,
+    };
+  } catch (error) {
+    const errorMsg = "Failed to get raw bet details from address";
+    console.error(errorMsg + ": " + error);
+    throw new Error(errorMsg);
+  }
 };
 
 export const getRawBetFromId = async (
@@ -34,26 +71,8 @@ export const getRawBetFromId = async (
   }
 };
 
-export const getRawBetFromAddress = async (
-  betContractAddress: Address,
-): Promise<RawBetDetails> => {
-  console.log("Running getRawBetFromAddress...");
-  try {
-    const [_, creator, participant, amount, token, message, judge, validUntil] =
-      await arbitrumClient.readContract({
-        address: betContractAddress,
-        abi: betAbi,
-        functionName: "betDetails",
-      });
-    return { creator, participant, amount, token, message, judge, validUntil };
-  } catch (error) {
-    const errorMsg = "Failed to get raw bet details from address";
-    console.error(errorMsg + ": " + error);
-    throw new Error(errorMsg);
-  }
-};
-
 type FormattedBetDetails = {
+  betId: number;
   creator: Address;
   creatorAlias: string;
   participant: Address;
@@ -77,6 +96,7 @@ export const formatBet = async (
       getPreferredAlias(rawBetDetails.judge),
     ]);
     return {
+      betId: Number(rawBetDetails.betId),
       creator: rawBetDetails.creator,
       creatorAlias,
       participant: rawBetDetails.participant,
@@ -104,6 +124,21 @@ export const getFormattedBetFromId = async (
     return await formatBet(rawBetData);
   } catch (error) {
     const errorMsg = "Failed to get formatted bet details from bet id";
+    console.error(errorMsg + ": " + error);
+    throw new Error(errorMsg);
+  }
+};
+
+export const getFormattedBetsFromIds = async (
+  betIds: number[],
+): Promise<FormattedBetDetails[]> => {
+  console.log("Running getFormattedBetsFromIds...");
+  try {
+    return await Promise.all(
+      betIds.map((betId) => getFormattedBetFromId(betId)),
+    );
+  } catch (error) {
+    const errorMsg = "Failed to get formatted bet details from bet ids";
     console.error(errorMsg + ": " + error);
     throw new Error(errorMsg);
   }
