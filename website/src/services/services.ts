@@ -49,11 +49,8 @@ type BetQueryResponse = { data: { bet: RawBet } };
 export const getRawBetFromId = async (betId: number): Promise<RawBet> => {
   console.log("Running getRawBetFromId...");
   try {
-    console.log(betId);
     const query = generateBetQuery(betId);
-    console.log(query);
     const result = await queryGqlApi<BetQueryResponse>(BET_API_URL, query);
-    console.log(result);
     return result.data.bet;
   } catch (error) {
     const errorMsg = "Failed to get raw bet details from bet id";
@@ -78,7 +75,6 @@ export const getRecentRawBets = async (numBets: number): Promise<RawBets> => {
   console.log("Running getRecentRawBets...");
   try {
     const query = generateRecentBetsQuery(numBets);
-    console.log(query);
     const result = await queryGqlApi<BetsQueryResponse>(BET_API_URL, query);
     return result.data.bets;
   } catch (error) {
@@ -94,7 +90,6 @@ export const getUserRawBets = async (
   console.log("Running getRecentRawBets...");
   try {
     const query = generateUserBetsQuery(user, numBets);
-    console.log(query);
     const result = await queryGqlApi<BetsQueryResponse>(BET_API_URL, query);
     return result.data.bets;
   } catch (error) {
