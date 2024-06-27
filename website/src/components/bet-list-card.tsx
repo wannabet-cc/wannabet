@@ -25,7 +25,7 @@ export function BetListComponent({
   setBetFn: (bet: FormattedBetDetails) => void;
 }) {
   return (
-    <Tabs defaultValue="recent" className="w-full max-w-sm">
+    <Tabs defaultValue="recent" className="w-full max-w-md">
       <TabsList>
         <TabsTrigger value="recent">Recent</TabsTrigger>
         <TabsTrigger value="my">Mine</TabsTrigger>
@@ -79,9 +79,10 @@ function BetList({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>bet</TableHead>
+            <TableHead className="text-center">bet</TableHead>
             <TableHead>amount</TableHead>
             <TableHead>participants</TableHead>
+            <TableHead className="text-center">active?</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -91,12 +92,19 @@ function BetList({
               onClick={() => setBetFn(bet)}
               className="cursor-pointer"
             >
-              <TableCell>{bet.betId}</TableCell>
-              <TableCell>{bet.amount} usdc</TableCell>
+              <TableCell className="text-center">{bet.betId}</TableCell>
+              <TableCell>{bet.amount} USDC</TableCell>
               <TableCell>
                 {bet.creatorAlias}
                 <span className="text-muted-foreground"> vs </span>
                 {bet.participantAlias}
+              </TableCell>
+              <TableCell className="text-center">
+                {bet.status === "pending" || bet.status === "accepted" ? (
+                  <span className="text-green-700">✓</span>
+                ) : (
+                  <span className="text-red-700">𐄂</span>
+                )}
               </TableCell>
             </TableRow>
           ))}

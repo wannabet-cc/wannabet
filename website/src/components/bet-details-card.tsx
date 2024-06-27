@@ -29,8 +29,8 @@ export function BetDetailsCard({
             token="USDC"
             message={currentBet.message}
             judge={currentBet.judgeAlias}
-            status="?"
-            actions="?"
+            status={currentBet.status}
+            actions="..."
           />
         </CardContent>
       </Card>
