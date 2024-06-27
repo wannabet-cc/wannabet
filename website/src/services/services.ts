@@ -1,8 +1,8 @@
-import { betAbi } from "./betAbi";
-import { arbitrumClient } from "./viem";
-import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "./addresses";
-import { betFactoryAbi } from "./betFactoryAbi";
 import { Address, formatUnits } from "viem";
+import { arbitrumClient } from "./viem";
+import { BET_FACTORY_CONTRACT_ADDRESS } from "@/config";
+import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
+import { BetAbi } from "@/abis/BetAbi";
 import { getPreferredAlias } from "@/lib/utils";
 
 type BetStatus = "expired" | "pending" | "accepted" | "declined" | "settled";
@@ -34,12 +34,12 @@ export const getRawBetFromAddress = async (
       validUntil,
     ] = await arbitrumClient.readContract({
       address: betContractAddress,
-      abi: betAbi,
+      abi: BetAbi,
       functionName: "betDetails",
     });
     const status = (await arbitrumClient.readContract({
       address: betContractAddress,
-      abi: betAbi,
+      abi: BetAbi,
       functionName: "getStatus",
     })) as BetStatus;
     return {
@@ -66,8 +66,8 @@ export const getRawBetFromId = async (
   console.log("Running getRawBetFromId...");
   try {
     const betContractAddress = await arbitrumClient.readContract({
-      address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
-      abi: betFactoryAbi,
+      address: BET_FACTORY_CONTRACT_ADDRESS,
+      abi: BetFactoryAbi,
       functionName: "betAddresses",
       args: [BigInt(betId)],
     });
@@ -161,8 +161,8 @@ export const getRecentFormattedBets = async (
   console.log("Running getRecentFormattedBets...");
   try {
     const betCount = await arbitrumClient.readContract({
-      address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
-      abi: betFactoryAbi,
+      address: BET_FACTORY_CONTRACT_ADDRESS,
+      abi: BetFactoryAbi,
       functionName: "betCount",
     });
     const bets = getBetIdArray(Number(betCount), page, numBetsPerPage);

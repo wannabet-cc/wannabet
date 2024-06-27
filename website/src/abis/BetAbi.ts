@@ -1,4 +1,4 @@
-export const betAbi = [
+export const BetAbi = [
   {
     inputs: [
       { internalType: "uint256", name: "_betId", type: "uint256" },

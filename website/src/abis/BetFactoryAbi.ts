@@ -1,4 +1,4 @@
-export const betFactoryAbi = [
+export const BetFactoryAbi = [
   {
     inputs: [{ internalType: "uint256", name: "_initialFee", type: "uint256" }],
     stateMutability: "nonpayable",
