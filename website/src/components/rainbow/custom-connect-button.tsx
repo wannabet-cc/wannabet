@@ -83,3 +83,36 @@ export function CustomConnectButton() {
     </ConnectButton.Custom>
   );
 }
+
+export function CustomConnectButtonSecondary() {
+  return (
+    <ConnectButton.Custom>
+      {({ account, chain, openConnectModal, mounted }) => {
+        const connected = mounted && account && chain;
+        return (
+          <div
+            {...(!mounted && {
+              "aria-hidden": true,
+              className: "opacity-0 pointer-events-none select-none",
+            })}
+          >
+            {(() => {
+              if (!connected) {
+                return (
+                  <Button
+                    variant="outline"
+                    onClick={openConnectModal}
+                    type="button"
+                  >
+                    Connect Wallet
+                  </Button>
+                );
+              }
+              return <></>;
+            })()}
+          </div>
+        );
+      }}
+    </ConnectButton.Custom>
+  );
+}

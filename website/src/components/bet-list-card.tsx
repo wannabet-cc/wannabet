@@ -20,6 +20,8 @@ import {
 } from "@/services/services";
 import { LoadingSpinner } from "./ui/spinner";
 import { Button } from "./ui/button";
+import { useAccount } from "wagmi";
+import { CustomConnectButtonSecondary } from "./rainbow/custom-connect-button";
 
 export function BetListComponent({
   setBetFn,
@@ -81,11 +83,13 @@ function RecentBetList({
 }
 
 function MyBetList({ setBetFn }: { setBetFn: (bet: FormattedBet) => void }) {
+  const account = useAccount();
   const { isPending, error, isSuccess, data } = useQuery({
-    queryKey: ["recentBetData"],
-    queryFn: () =>
-      getUserFormattedBets("0x5db9534804B440Aa1937eA0CDE734FAE1043C996", 5),
+    queryKey: ["myBetData"],
+    queryFn: () => getUserFormattedBets(account.address!, 5),
+    enabled: account.isConnected,
   });
+  if (account.isDisconnected) return <CustomConnectButtonSecondary />;
   if (isPending) return <LoadingSpinner />;
   if (error) return "An error has occurred: " + error;
   if (isSuccess) return <BetList data={data} setBetFn={setBetFn} />;
