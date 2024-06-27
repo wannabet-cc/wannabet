@@ -6,20 +6,22 @@ import {
   TableCell,
   TableRow,
 } from "./ui/table";
-import { FormattedBetDetails } from "@/services/services";
+import { type FormattedBet } from "@/services/services";
 
 export function BetDetailsCard({
   currentBet,
 }: {
-  currentBet: FormattedBetDetails | undefined;
+  currentBet: FormattedBet | undefined;
 }) {
   return (
-    currentBet && (
-      <Card className="mt-10 w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-lg">Bet #{currentBet.betId}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4">
+    <Card className="mt-10 w-full max-w-md">
+      <CardHeader>
+        <CardTitle className="text-lg">
+          {currentBet ? `Bet #${currentBet.betId}` : "Select a bet"}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        {currentBet && (
           <BetDetails
             betId={currentBet.betId}
             creator={currentBet.creatorAlias}
@@ -32,9 +34,9 @@ export function BetDetailsCard({
             status={currentBet.status}
             actions="..."
           />
-        </CardContent>
-      </Card>
-    )
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

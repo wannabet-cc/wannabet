@@ -3,10 +3,10 @@
 import { BetListComponent } from "@/components/bet-list-card";
 import { BetDetailsCard } from "@/components/bet-details-card";
 import { useState } from "react";
-import { FormattedBetDetails } from "@/services/services";
+import { type FormattedBet } from "@/services/services";
 
 export default function Home() {
-  const [currentBet, setCurrentBet] = useState<FormattedBetDetails | undefined>(
+  const [currentBet, setCurrentBet] = useState<FormattedBet | undefined>(
     undefined,
   );
   return (

@@ -12,24 +12,27 @@ import {
   TableRow,
 } from "./ui/table";
 import { useQuery } from "react-query";
-import {
-  type FormattedBetDetails,
-  getRecentFormattedBets,
-} from "@/services/services";
+import { type FormattedBet, getRecentFormattedBets } from "@/services/services";
 import { LoadingSpinner } from "./ui/spinner";
 import { useState } from "react";
+import { Button } from "./ui/button";
 
 export function BetListComponent({
   setBetFn,
 }: {
-  setBetFn: (bet: FormattedBetDetails) => void;
+  setBetFn: (bet: FormattedBet) => void;
 }) {
   return (
     <Tabs defaultValue="recent" className="w-full max-w-md">
-      <TabsList>
-        <TabsTrigger value="recent">Recent</TabsTrigger>
-        <TabsTrigger value="my">Mine</TabsTrigger>
-      </TabsList>
+      <div className="flex justify-between">
+        <TabsList>
+          <TabsTrigger value="recent">Recent</TabsTrigger>
+          <TabsTrigger value="my">Mine</TabsTrigger>
+        </TabsList>
+        <Button variant="outline" size={"sm"}>
+          + Create New
+        </Button>
+      </div>
       <TabsContent value="recent">
         <BetListCard title="Recent bets">
           <RecentBetList setBetFn={setBetFn} />
@@ -64,23 +67,19 @@ function BetListCard({
 function RecentBetList({
   setBetFn,
 }: {
-  setBetFn: (bet: FormattedBetDetails) => void;
+  setBetFn: (bet: FormattedBet) => void;
 }) {
   const [page, setPage] = useState(1);
   const { isLoading, error, isSuccess, data } = useQuery({
     queryKey: ["betData"],
-    queryFn: () => getRecentFormattedBets(page, 5),
+    queryFn: () => getRecentFormattedBets(4),
   });
   if (isLoading) return <LoadingSpinner />;
   if (error) return "An error has occurred: " + error;
-  if (isSuccess) return <BetList data={data} setBetFn={setBetFn} />;
+  if (isSuccess) return <BetList data={data.items} setBetFn={setBetFn} />;
 }
 
-function MyBetList({
-  setBetFn,
-}: {
-  setBetFn: (bet: FormattedBetDetails) => void;
-}) {
+function MyBetList({ setBetFn }: { setBetFn: (bet: FormattedBet) => void }) {
   return <>&lt;bet table&gt;</>;
 }
 
@@ -88,8 +87,8 @@ function BetList({
   data,
   setBetFn,
 }: {
-  data: FormattedBetDetails[];
-  setBetFn: (bet: FormattedBetDetails) => void;
+  data: FormattedBet[];
+  setBetFn: (bet: FormattedBet) => void;
 }) {
   return (
     <Table>
