@@ -5,6 +5,7 @@ import { betFactoryAbi } from "./betFactoryAbi";
 import { Address, formatUnits } from "viem";
 import { getPreferredAlias } from "@/lib/utils";
 
+type BetStatus = "expired" | "pending" | "accepted" | "declined" | "settled";
 type RawBetDetails = {
   betId: bigint;
   creator: Address;
@@ -14,6 +15,7 @@ type RawBetDetails = {
   message: string;
   judge: Address;
   validUntil: bigint;
+  status: BetStatus;
 };
 
 export const getRawBetFromAddress = async (
@@ -35,6 +37,11 @@ export const getRawBetFromAddress = async (
       abi: betAbi,
       functionName: "betDetails",
     });
+    const status = (await arbitrumClient.readContract({
+      address: betContractAddress,
+      abi: betAbi,
+      functionName: "getStatus",
+    })) as BetStatus;
     return {
       betId,
       creator,
@@ -44,6 +51,7 @@ export const getRawBetFromAddress = async (
       message,
       judge,
       validUntil,
+      status,
     };
   } catch (error) {
     const errorMsg = "Failed to get raw bet details from address";
@@ -83,6 +91,7 @@ export type FormattedBetDetails = {
   judge: Address;
   judgeAlias: string;
   validUntil: bigint;
+  status: BetStatus;
 };
 
 export const formatBet = async (
@@ -107,6 +116,7 @@ export const formatBet = async (
       judge: rawBetDetails.judge,
       judgeAlias,
       validUntil: rawBetDetails.validUntil,
+      status: rawBetDetails.status,
     };
   } catch (error) {
     const errorMsg = "Failed to format bet details from raw bet details";
