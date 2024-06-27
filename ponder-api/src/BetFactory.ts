@@ -24,6 +24,7 @@ ponder.on("BetFactory:BetCreated", async ({ event, context }) => {
     await Bet.create({
       id: betId,
       data: {
+        contractAddress: event.args.contractAddress,
         creator,
         participant,
         amount,
