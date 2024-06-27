@@ -23,7 +23,16 @@ ponder.on("BetFactory:BetCreated", async ({ event, context }) => {
     const { Bet } = context.db;
     await Bet.create({
       id: betId,
-      data: { creator, participant, amount, token, message, judge, validUntil },
+      data: {
+        creator,
+        participant,
+        amount,
+        token,
+        message,
+        judge,
+        validUntil,
+        createdTime: event.block.timestamp,
+      },
     });
   } catch (error) {
     const errorMsg = "Failed to create bet record";

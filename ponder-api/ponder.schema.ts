@@ -10,5 +10,6 @@ export default createSchema((p) => ({
     message: p.string(),
     judge: p.hex(),
     validUntil: p.bigint(),
+    createdTime: p.bigint(),
   }),
 }));
