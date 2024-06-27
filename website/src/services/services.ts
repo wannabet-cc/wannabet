@@ -86,10 +86,11 @@ export const getRecentRawBets = async (numBets: number): Promise<RawBets> => {
 export const getUserRawBets = async (
   user: Address,
   numBets: number,
+  page?: Partial<{ afterCursor: string; beforeCursor: string }>,
 ): Promise<RawBets> => {
   console.log("Running getRecentRawBets...");
   try {
-    const query = generateUserBetsQuery(user, numBets);
+    const query = generateUserBetsQuery(user, numBets, page);
     const result = await queryGqlApi<BetsQueryResponse>(BET_API_URL, query);
     return result.data.bets;
   } catch (error) {
@@ -221,10 +222,11 @@ export const getRecentFormattedBets = async (
 export const getUserFormattedBets = async (
   user: Address,
   numBets: number,
+  page?: Partial<{ afterCursor: string; beforeCursor: string }>,
 ): Promise<FormattedBets> => {
   console.log("Running getUserFormattedBets...");
   try {
-    const rawBets = await getUserRawBets(user, numBets);
+    const rawBets = await getUserRawBets(user, numBets, page);
     const formattedBets = await Promise.all(
       rawBets.items.map((bet) => formatBet(bet)),
     );

@@ -14,11 +14,11 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import {
   type FormattedBet,
+  type FormattedBets,
   getRecentFormattedBets,
   getUserFormattedBets,
 } from "@/services/services";
 import { LoadingSpinner } from "./ui/spinner";
-import { useState } from "react";
 import { Button } from "./ui/button";
 
 export function BetListComponent({
@@ -27,15 +27,13 @@ export function BetListComponent({
   setBetFn: (bet: FormattedBet) => void;
 }) {
   return (
-    <Tabs defaultValue="recent" className="w-full max-w-md">
+    <Tabs defaultValue="recent" className="w-full max-w-md space-y-2">
       <div className="flex justify-between">
         <TabsList>
           <TabsTrigger value="recent">Recent</TabsTrigger>
           <TabsTrigger value="my">Mine</TabsTrigger>
         </TabsList>
-        <Button variant="outline" size={"sm"}>
-          + Create New
-        </Button>
+        <Button variant="ghost">+ Create New</Button>
       </div>
       <TabsContent value="recent">
         <BetListCard title="Recent bets">
@@ -59,7 +57,7 @@ function BetListCard({
   title: string;
 }) {
   return (
-    <Card className="w-full">
+    <Card className="max-h-[512px] w-full">
       <CardHeader>
         <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
@@ -73,32 +71,31 @@ function RecentBetList({
 }: {
   setBetFn: (bet: FormattedBet) => void;
 }) {
-  const [page, setPage] = useState(1);
-  const { isLoading, error, isSuccess, data } = useQuery({
+  const { isPending, error, isSuccess, data } = useQuery({
     queryKey: ["recentBetData"],
-    queryFn: () => getRecentFormattedBets(4),
+    queryFn: () => getRecentFormattedBets(5),
   });
-  if (isLoading) return <LoadingSpinner />;
+  if (isPending) return <LoadingSpinner />;
   if (error) return "An error has occurred: " + error;
-  if (isSuccess) return <BetList data={data.items} setBetFn={setBetFn} />;
+  if (isSuccess) return <BetList data={data} setBetFn={setBetFn} />;
 }
 
 function MyBetList({ setBetFn }: { setBetFn: (bet: FormattedBet) => void }) {
-  const { isLoading, error, isSuccess, data } = useQuery({
+  const { isPending, error, isSuccess, data } = useQuery({
     queryKey: ["recentBetData"],
     queryFn: () =>
-      getUserFormattedBets("0x5db9534804B440Aa1937eA0CDE734FAE1043C996", 4),
+      getUserFormattedBets("0x5db9534804B440Aa1937eA0CDE734FAE1043C996", 5),
   });
-  if (isLoading) return <LoadingSpinner />;
+  if (isPending) return <LoadingSpinner />;
   if (error) return "An error has occurred: " + error;
-  if (isSuccess) return <BetList data={data.items} setBetFn={setBetFn} />;
+  if (isSuccess) return <BetList data={data} setBetFn={setBetFn} />;
 }
 
 function BetList({
   data,
   setBetFn,
 }: {
-  data: FormattedBet[];
+  data: FormattedBets;
   setBetFn: (bet: FormattedBet) => void;
 }) {
   return (
@@ -112,7 +109,7 @@ function BetList({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.map((bet, i) => (
+        {data.items.map((bet, i) => (
           <TableRow
             key={i}
             onClick={() => setBetFn(bet)}
