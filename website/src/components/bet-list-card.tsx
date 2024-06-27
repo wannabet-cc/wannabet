@@ -12,7 +12,11 @@ import {
   TableRow,
 } from "./ui/table";
 import { useQuery } from "react-query";
-import { type FormattedBet, getRecentFormattedBets } from "@/services/services";
+import {
+  type FormattedBet,
+  getRecentFormattedBets,
+  getUserFormattedBets,
+} from "@/services/services";
 import { LoadingSpinner } from "./ui/spinner";
 import { useState } from "react";
 import { Button } from "./ui/button";
@@ -71,7 +75,7 @@ function RecentBetList({
 }) {
   const [page, setPage] = useState(1);
   const { isLoading, error, isSuccess, data } = useQuery({
-    queryKey: ["betData"],
+    queryKey: ["recentBetData"],
     queryFn: () => getRecentFormattedBets(4),
   });
   if (isLoading) return <LoadingSpinner />;
@@ -80,7 +84,14 @@ function RecentBetList({
 }
 
 function MyBetList({ setBetFn }: { setBetFn: (bet: FormattedBet) => void }) {
-  return <>&lt;bet table&gt;</>;
+  const { isLoading, error, isSuccess, data } = useQuery({
+    queryKey: ["recentBetData"],
+    queryFn: () =>
+      getUserFormattedBets("0x5db9534804B440Aa1937eA0CDE734FAE1043C996", 4),
+  });
+  if (isLoading) return <LoadingSpinner />;
+  if (error) return "An error has occurred: " + error;
+  if (isSuccess) return <BetList data={data.items} setBetFn={setBetFn} />;
 }
 
 function BetList({

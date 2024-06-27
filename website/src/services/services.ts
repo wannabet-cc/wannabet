@@ -1,13 +1,13 @@
 import { Address, formatUnits } from "viem";
 import { arbitrumClient } from "./viem";
-import { BET_API_URL, BET_FACTORY_CONTRACT_ADDRESS } from "@/config";
-import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
+import { BET_API_URL } from "@/config";
 import { BetAbi } from "@/abis/BetAbi";
 import { getPreferredAlias } from "@/lib/utils";
 import {
   generateBetQuery,
   generateBetsQuery,
   generateRecentBetsQuery,
+  generateUserBetsQuery,
 } from "./queries";
 
 // General getter function
@@ -78,6 +78,22 @@ export const getRecentRawBets = async (numBets: number): Promise<RawBets> => {
   console.log("Running getRecentRawBets...");
   try {
     const query = generateRecentBetsQuery(numBets);
+    console.log(query);
+    const result = await queryGqlApi<BetsQueryResponse>(BET_API_URL, query);
+    return result.data.bets;
+  } catch (error) {
+    const errorMsg = "Failed to get raw bet details from bet id";
+    console.error(errorMsg + ": " + error);
+    throw new Error(errorMsg);
+  }
+};
+export const getUserRawBets = async (
+  user: Address,
+  numBets: number,
+): Promise<RawBets> => {
+  console.log("Running getRecentRawBets...");
+  try {
+    const query = generateUserBetsQuery(user, numBets);
     console.log(query);
     const result = await queryGqlApi<BetsQueryResponse>(BET_API_URL, query);
     return result.data.bets;
@@ -197,6 +213,23 @@ export const getRecentFormattedBets = async (
   console.log("Running getRecentFormattedBets...");
   try {
     const rawBets = await getRecentRawBets(numBets);
+    const formattedBets = await Promise.all(
+      rawBets.items.map((bet) => formatBet(bet)),
+    );
+    return { items: formattedBets };
+  } catch (error) {
+    const errorMsg = "Failed to get formatted bet details from bet ids";
+    console.error(errorMsg + ": " + error);
+    throw new Error(errorMsg);
+  }
+};
+export const getUserFormattedBets = async (
+  user: Address,
+  numBets: number,
+): Promise<FormattedBets> => {
+  console.log("Running getUserFormattedBets...");
+  try {
+    const rawBets = await getUserRawBets(user, numBets);
     const formattedBets = await Promise.all(
       rawBets.items.map((bet) => formatBet(bet)),
     );
