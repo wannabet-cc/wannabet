@@ -1,6 +1,6 @@
 import { createPublicClient, http } from "viem";
 import { mainnet, arbitrum } from "viem/chains";
-import { MAINNET_ALCHEMY_URL, ARBITRUM_ALCHEMY_URL } from "./config";
+import { MAINNET_ALCHEMY_URL, ARBITRUM_ALCHEMY_URL } from "../config";
 
 const mainnetClient = createPublicClient({
   chain: mainnet,

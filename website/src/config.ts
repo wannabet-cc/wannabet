@@ -1,0 +1,2 @@
+export const MAINNET_ALCHEMY_URL = process.env.MAINNET_ALCHEMY_URL;
+export const ARBITRUM_ALCHEMY_URL = process.env.ARBITRUM_ALCHEMY_URL;
