@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   type FormattedBet,
   getRecentFormattedBets,
