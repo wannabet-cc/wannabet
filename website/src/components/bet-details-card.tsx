@@ -7,6 +7,22 @@ import {
   TableRow,
 } from "./ui/table";
 import { type FormattedBet } from "@/services/services";
+import { CustomConnectButton } from "./rainbow/custom-connect-button";
+
+export function BetDetailsComponent({
+  currentBet,
+}: {
+  currentBet: FormattedBet | undefined;
+}) {
+  return (
+    <div className="w-full max-w-md space-y-2">
+      <div className="flex justify-end">
+        <CustomConnectButton />
+      </div>
+      <BetDetailsCard currentBet={currentBet} />
+    </div>
+  );
+}
 
 export function BetDetailsCard({
   currentBet,
@@ -14,7 +30,7 @@ export function BetDetailsCard({
   currentBet: FormattedBet | undefined;
 }) {
   return (
-    <Card className="mt-10 w-full max-w-md">
+    <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle className="text-lg">
           {currentBet ? `Bet #${currentBet.betId}` : "Select a bet"}
