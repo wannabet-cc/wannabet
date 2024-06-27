@@ -35,7 +35,9 @@ export function BetListComponent({
           <TabsTrigger value="recent">Recent</TabsTrigger>
           <TabsTrigger value="my">Mine</TabsTrigger>
         </TabsList>
-        <Button variant="ghost">+ Create New</Button>
+        <Button variant="ghost" disabled className="line-through">
+          + Create New
+        </Button>
       </div>
       <TabsContent value="recent">
         <BetListCard title="Recent bets">
