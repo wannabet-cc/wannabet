@@ -32,11 +32,13 @@ export function BetListComponent({
       </TabsList>
       <TabsContent value="recent">
         <BetListCard title="Recent bets">
-          <BetList setBetFn={setBetFn} />
+          <RecentBetList setBetFn={setBetFn} />
         </BetListCard>
       </TabsContent>
       <TabsContent value="my">
-        <BetListCard title="My bets">&lt;bet table&gt;</BetListCard>
+        <BetListCard title="My bets">
+          <MyBetList setBetFn={setBetFn} />
+        </BetListCard>
       </TabsContent>
     </Tabs>
   );
@@ -59,7 +61,7 @@ function BetListCard({
   );
 }
 
-function BetList({
+function RecentBetList({
   setBetFn,
 }: {
   setBetFn: (bet: FormattedBetDetails) => void;
@@ -69,46 +71,60 @@ function BetList({
     queryKey: ["betData"],
     queryFn: () => getRecentFormattedBets(page, 5),
   });
-
   if (isLoading) return <LoadingSpinner />;
-
   if (error) return "An error has occurred: " + error;
+  if (isSuccess) return <BetList data={data} setBetFn={setBetFn} />;
+}
 
-  if (isSuccess)
-    return (
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="text-center">bet</TableHead>
-            <TableHead>amount</TableHead>
-            <TableHead>participants</TableHead>
-            <TableHead className="text-center">active?</TableHead>
+function MyBetList({
+  setBetFn,
+}: {
+  setBetFn: (bet: FormattedBetDetails) => void;
+}) {
+  return <>&lt;bet table&gt;</>;
+}
+
+function BetList({
+  data,
+  setBetFn,
+}: {
+  data: FormattedBetDetails[];
+  setBetFn: (bet: FormattedBetDetails) => void;
+}) {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="text-center">bet</TableHead>
+          <TableHead>amount</TableHead>
+          <TableHead>participants</TableHead>
+          <TableHead className="text-center">active?</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {data.map((bet, i) => (
+          <TableRow
+            key={i}
+            onClick={() => setBetFn(bet)}
+            className="cursor-pointer"
+          >
+            <TableCell className="text-center">{bet.betId}</TableCell>
+            <TableCell>{bet.amount} USDC</TableCell>
+            <TableCell>
+              {bet.creatorAlias}
+              <span className="text-muted-foreground"> vs </span>
+              {bet.participantAlias}
+            </TableCell>
+            <TableCell className="text-center">
+              {bet.status === "pending" || bet.status === "accepted" ? (
+                <span className="text-green-700">✓</span>
+              ) : (
+                <span className="text-red-700">𐄂</span>
+              )}
+            </TableCell>
           </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.map((bet, i) => (
-            <TableRow
-              key={i}
-              onClick={() => setBetFn(bet)}
-              className="cursor-pointer"
-            >
-              <TableCell className="text-center">{bet.betId}</TableCell>
-              <TableCell>{bet.amount} USDC</TableCell>
-              <TableCell>
-                {bet.creatorAlias}
-                <span className="text-muted-foreground"> vs </span>
-                {bet.participantAlias}
-              </TableCell>
-              <TableCell className="text-center">
-                {bet.status === "pending" || bet.status === "accepted" ? (
-                  <span className="text-green-700">✓</span>
-                ) : (
-                  <span className="text-red-700">𐄂</span>
-                )}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    );
+        ))}
+      </TableBody>
+    </Table>
+  );
 }
