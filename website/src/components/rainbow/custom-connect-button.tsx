@@ -24,7 +24,7 @@ export function CustomConnectButton() {
               if (!connected) {
                 return (
                   <Button
-                    variant="outline"
+                    variant="default"
                     onClick={openConnectModal}
                     type="button"
                   >
@@ -35,7 +35,7 @@ export function CustomConnectButton() {
               if (chain.unsupported) {
                 return (
                   <Button
-                    variant="outline"
+                    variant="default"
                     onClick={openChainModal}
                     type="button"
                   >
@@ -67,7 +67,7 @@ export function CustomConnectButton() {
                   )}
                   <div style={{ display: "flex", gap: 12 }}>
                     <Button
-                      variant="default"
+                      variant="outline"
                       onClick={openAccountModal}
                       type="button"
                     >
