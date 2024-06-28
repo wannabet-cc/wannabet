@@ -17,7 +17,7 @@ import { getTokenNameFromAddress } from "@/lib/utils";
 import { BetAbi } from "@/abis/BetAbi";
 import { USDC_CONTRACT_ADDRESS } from "@/config";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
-import { Address, parseUnits } from "viem";
+import { Address } from "viem";
 
 export function BetDetailsComponent({
   currentBet,
