@@ -1,4 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -27,6 +33,18 @@ export function BetDetailsCard({
         <CardTitle className="text-lg">
           {currentBet ? `Bet #${currentBet.betId}` : "Select a bet"}
         </CardTitle>
+        <CardDescription>
+          {currentBet ? (
+            <a
+              href={`https://arbiscan.io/address/${currentBet.contractAddress}`}
+              target="_blank"
+            >
+              See on Arbiscan
+            </a>
+          ) : (
+            ""
+          )}
+        </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
         {currentBet && <BetDetails bet={currentBet} />}
