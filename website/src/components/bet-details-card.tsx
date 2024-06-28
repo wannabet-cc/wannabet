@@ -20,7 +20,7 @@ import { getTokenNameFromAddress } from "@/lib/utils";
 import { BetAbi } from "@/abis/BetAbi";
 import { USDC_CONTRACT_ADDRESS } from "@/config";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
-import { Address } from "viem";
+import { Address, parseUnits } from "viem";
 
 export function BetDetailsCard({
   currentBet,
@@ -198,6 +198,7 @@ function ActionButtons({
             address: bet.contractAddress,
             abi: BetAbi,
             functionName: "acceptBet",
+            value: parseUnits("0.0002", 18),
           })
         }
       >
