@@ -1,4 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -14,7 +20,8 @@ import { getTokenNameFromAddress } from "@/lib/utils";
 import { BetAbi } from "@/abis/BetAbi";
 import { USDC_CONTRACT_ADDRESS } from "@/config";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
-import { Address } from "viem";
+import { Address, parseUnits } from "viem";
+import { useToast } from "./ui/use-toast";
 
 export function BetDetailsCard({
   currentBet,
@@ -27,6 +34,18 @@ export function BetDetailsCard({
         <CardTitle className="text-lg">
           {currentBet ? `Bet #${currentBet.betId}` : "Select a bet"}
         </CardTitle>
+        <CardDescription>
+          {currentBet ? (
+            <a
+              href={`https://arbiscan.io/address/${currentBet.contractAddress}`}
+              target="_blank"
+            >
+              See on Arbiscan
+            </a>
+          ) : (
+            ""
+          )}
+        </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
         {currentBet && <BetDetails bet={currentBet} />}
@@ -121,13 +140,14 @@ function ActionButtons({
   userAddress: Address;
   bet: FormattedBet;
 }) {
+  const { toast } = useToast();
   const { data: contractBalance } = useReadContract({
     address: USDC_CONTRACT_ADDRESS,
     abi: FiatTokenProxyAbi,
     functionName: "balanceOf",
     args: [bet.contractAddress],
   });
-  const { writeContract, status, isPending } = useWriteContract();
+  const { writeContractAsync, isPending } = useWriteContract();
 
   const isCreator = userAddress.toLowerCase() === bet.creator,
     isParticipant = userAddress.toLowerCase() === bet.participant,
@@ -140,11 +160,14 @@ function ActionButtons({
         size="sm"
         disabled={isPending}
         onClick={() =>
-          writeContract({
-            address: bet.contractAddress,
-            abi: BetAbi,
-            functionName: "retrieveTokens",
-          })
+          writeContractAsync(
+            {
+              address: bet.contractAddress,
+              abi: BetAbi,
+              functionName: "retrieveTokens",
+            },
+            { onSuccess: () => toast({ title: "Bet retrieved successfully" }) },
+          )
         }
       >
         Retrieve funds
@@ -160,28 +183,23 @@ function ActionButtons({
         variant="default"
         size="sm"
         disabled={isPending}
-        onClick={() =>
-          writeContract({
+        onClick={async () => {
+          await writeContractAsync({
             address: USDC_CONTRACT_ADDRESS,
             abi: FiatTokenProxyAbi,
             functionName: "approve",
             args: [bet.contractAddress, bet.bigintAmount],
-          })
-        }
-      >
-        Authorize
-      </Button>
-      <Button
-        variant="secondary"
-        size="sm"
-        disabled={isPending}
-        onClick={() =>
-          writeContract({
-            address: bet.contractAddress,
-            abi: BetAbi,
-            functionName: "acceptBet",
-          })
-        }
+          });
+          writeContractAsync(
+            {
+              address: bet.contractAddress,
+              abi: BetAbi,
+              functionName: "acceptBet",
+              value: parseUnits("0.0002", 18),
+            },
+            { onSuccess: () => toast({ title: "Bet accepted successfully" }) },
+          );
+        }}
       >
         Accept
       </Button>
@@ -190,11 +208,14 @@ function ActionButtons({
         size="sm"
         disabled={isPending}
         onClick={() =>
-          writeContract({
-            address: bet.contractAddress,
-            abi: BetAbi,
-            functionName: "declineBet",
-          })
+          writeContractAsync(
+            {
+              address: bet.contractAddress,
+              abi: BetAbi,
+              functionName: "declineBet",
+            },
+            { onSuccess: () => toast({ title: "Bet declined successfully" }) },
+          )
         }
       >
         Decline
@@ -208,12 +229,15 @@ function ActionButtons({
         size="sm"
         disabled={isPending}
         onClick={() =>
-          writeContract({
-            address: bet.contractAddress,
-            abi: BetAbi,
-            functionName: "settleBet",
-            args: [bet.creator],
-          })
+          writeContractAsync(
+            {
+              address: bet.contractAddress,
+              abi: BetAbi,
+              functionName: "settleBet",
+              args: [bet.creator],
+            },
+            { onSuccess: () => toast({ title: "Bet settled successfully" }) },
+          )
         }
       >
         {bet.creatorAlias}
@@ -223,12 +247,15 @@ function ActionButtons({
         size="sm"
         disabled={isPending}
         onClick={() =>
-          writeContract({
-            address: bet.contractAddress,
-            abi: BetAbi,
-            functionName: "settleBet",
-            args: [bet.participant],
-          })
+          writeContractAsync(
+            {
+              address: bet.contractAddress,
+              abi: BetAbi,
+              functionName: "settleBet",
+              args: [bet.participant],
+            },
+            { onSuccess: () => toast({ title: "Bet settled successfully" }) },
+          )
         }
       >
         {bet.participantAlias}
@@ -238,12 +265,15 @@ function ActionButtons({
         size="sm"
         disabled={isPending}
         onClick={() =>
-          writeContract({
-            address: bet.contractAddress,
-            abi: BetAbi,
-            functionName: "settleBet",
-            args: ["0x0000000000000000000000000000000000000000"],
-          })
+          writeContractAsync(
+            {
+              address: bet.contractAddress,
+              abi: BetAbi,
+              functionName: "settleBet",
+              args: ["0x0000000000000000000000000000000000000000"],
+            },
+            { onSuccess: () => toast({ title: "Bet settled successfully" }) },
+          )
         }
       >
         Tie
