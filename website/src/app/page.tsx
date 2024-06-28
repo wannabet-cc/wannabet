@@ -10,17 +10,12 @@ export default function Home() {
     FormattedBet | "create" | undefined
   >(undefined);
   return (
-    <main className="mt-8 flex min-h-screen flex-col items-center gap-4 p-1 lg:mt-0 lg:flex-row lg:items-start lg:justify-center lg:p-24">
-      <div>
-        <div className="mb-4 flex justify-end lg:hidden">
-          <CustomConnectButton />
-        </div>
-        <ExplorerComponent
-          currentView={currentView}
-          setViewFn={setCurrentView}
-        />
-        <ViewComponent currentView={currentView} />
+    <main className="mx-auto mt-8 flex min-h-screen flex-col items-end gap-4 p-1 lg:mt-0 lg:flex-row lg:items-start lg:justify-center lg:p-24">
+      <div className="mb-4 flex justify-end lg:hidden">
+        <CustomConnectButton />
       </div>
+      <ExplorerComponent currentView={currentView} setViewFn={setCurrentView} />
+      <ViewComponent currentView={currentView} />
     </main>
   );
 }
