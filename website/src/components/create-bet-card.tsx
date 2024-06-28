@@ -24,10 +24,11 @@ import {
 import { BET_FACTORY_CONTRACT_ADDRESS, USDC_CONTRACT_ADDRESS } from "@/config";
 import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
 import { Address, parseUnits } from "viem";
-import { getAddressFromTokenName } from "@/lib/utils";
+import { fetchEnsAddress, getAddressFromTokenName } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { useToast } from "./ui/use-toast";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
+import { useState } from "react";
 
 export function CreateBetCard() {
   return (
@@ -43,24 +44,25 @@ export function CreateBetCard() {
 }
 
 const addressRegex = /^0x[a-fA-F0-9]{40}$/;
-// const ensRegex = /^.{3,}\.eth$/; // /^[a-z0-9]+\.eth$/;
-// const ensOrAddressSchema = z
-//   .string()
-//   .refine((value) => ensRegex.test(value) || addressRegex.test(value), {
-//     message: "Invalid ENS name or ethereum address",
-//   });
+const ensRegex = /^.{3,}\.eth$/; // /^[a-z0-9]+\.eth$/;
+const ensOrAddressSchema = z
+  .string()
+  .refine((value) => ensRegex.test(value) || addressRegex.test(value), {
+    message: "Invalid ENS name or ethereum address",
+  });
 
 const formSchema = z.object({
-  participant: z.string().regex(addressRegex),
+  participant: ensOrAddressSchema,
   amount: z.coerce.number().positive(),
   token: z.literal("USDC"),
   message: z.string(),
   validForDays: z.coerce.number().positive().lte(14),
-  judge: z.string().regex(addressRegex),
+  judge: ensOrAddressSchema,
 });
 
 function CreateBetForm() {
   const account = useAccount();
+  const [submitLoading, setSubmitLoading] = useState(false); // temporary
   const {
     data: hash,
     writeContractAsync,
@@ -83,12 +85,22 @@ function CreateBetForm() {
   const { toast } = useToast();
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    setSubmitLoading(true); // temporary
     // token: get contract address from string name
     const tokenAddress = getAddressFromTokenName(values.token);
     // amount: add decimals and convert to bigint
     const bigintAmount = parseUnits(values.amount.toString(), 6);
     // validFor: change days to seconds and convert to bigint
     const validFor = BigInt(values.validForDays * 24 * 60 * 60);
+    // ens names
+    const [participantAddress, judgeAddress] = await Promise.all([
+      addressRegex.test(values.participant)
+        ? values.participant
+        : (await fetchEnsAddress(values.participant)).address,
+      addressRegex.test(values.judge)
+        ? values.judge
+        : (await fetchEnsAddress(values.judge)).address,
+    ]);
     // write contract: approve bet factory
     await writeContractAsync({
       address: USDC_CONTRACT_ADDRESS,
@@ -103,11 +115,11 @@ function CreateBetForm() {
         abi: BetFactoryAbi,
         functionName: "createBet",
         args: [
-          values.participant as Address,
+          participantAddress as Address,
           bigintAmount,
           tokenAddress as Address,
           values.message,
-          values.judge as Address,
+          judgeAddress as Address,
           validFor,
         ],
         value: parseUnits("0.0002", 18),
@@ -118,6 +130,7 @@ function CreateBetForm() {
         },
       },
     );
+    setSubmitLoading(false); // temporary
   };
 
   return (
@@ -132,7 +145,11 @@ function CreateBetForm() {
               <FormItem>
                 <FormLabel>Participant</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="0xabc..." type="text" />
+                  <Input
+                    {...field}
+                    placeholder="abc.eth or 0xabc..."
+                    type="text"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -223,7 +240,11 @@ function CreateBetForm() {
               <FormItem>
                 <FormLabel>Judge</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="0xabc..." type="text" />
+                  <Input
+                    {...field}
+                    placeholder="abc.eth or 0xabc..."
+                    type="text"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -236,9 +257,9 @@ function CreateBetForm() {
           <Button
             className="w-fit"
             type="submit"
-            disabled={account.isDisconnected || isPending}
+            disabled={account.isDisconnected || isPending || submitLoading} // submitLoading is temporary
           >
-            {isPending ? "Confirming..." : "Submit"}
+            {isPending || submitLoading ? "Confirming..." : "Submit"}
           </Button>
         </div>
       </form>

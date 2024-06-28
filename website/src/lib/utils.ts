@@ -22,6 +22,19 @@ export function abbreviateHex(hex: Address) {
   return `${hex.slice(0, 5)}...${hex.slice(-3)}`;
 }
 
+type EnsIdeasResponse = {
+  address: Address;
+  name: string;
+  displayName: string;
+  avatar: string;
+};
+export async function fetchEnsAddress(ensName: string) {
+  const ensIdeasUrl = "https://api.ensideas.com/ens/resolve/";
+  return (await fetch(ensIdeasUrl + ensName).then((res) =>
+    res.json(),
+  )) as EnsIdeasResponse;
+}
+
 export function getTokenNameFromAddress(address: Address): string {
   if (address.toLowerCase() === USDC_CONTRACT_ADDRESS.toLowerCase())
     return "USDC";
