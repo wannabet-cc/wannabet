@@ -27,3 +27,7 @@ export function getTokenNameFromAddress(address: Address): string {
     return "USDC";
   else return "error";
 }
+export function getAddressFromTokenName(tokenName: "USDC"): Address | string {
+  if (tokenName === "USDC") return USDC_CONTRACT_ADDRESS;
+  else return "error";
+}
