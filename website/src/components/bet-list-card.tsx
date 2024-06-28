@@ -1,8 +1,6 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
-import { TabsContent } from "@radix-ui/react-tabs";
 import {
   Table,
   TableBody,
@@ -19,41 +17,10 @@ import {
   getUserFormattedBets,
 } from "@/services/services";
 import { LoadingSpinner } from "./ui/spinner";
-import { Button } from "./ui/button";
 import { useAccount } from "wagmi";
 import { CustomConnectButtonSecondary } from "./rainbow/custom-connect-button";
 
-export function BetListComponent({
-  setBetFn,
-}: {
-  setBetFn: (bet: FormattedBet) => void;
-}) {
-  return (
-    <Tabs defaultValue="recent" className="w-full max-w-md space-y-2">
-      <div className="flex justify-between">
-        <TabsList>
-          <TabsTrigger value="recent">Recent</TabsTrigger>
-          <TabsTrigger value="my">Mine</TabsTrigger>
-        </TabsList>
-        <Button variant="ghost" disabled className="line-through">
-          + Create New
-        </Button>
-      </div>
-      <TabsContent value="recent">
-        <BetListCard title="Recent bets">
-          <RecentBetList setBetFn={setBetFn} />
-        </BetListCard>
-      </TabsContent>
-      <TabsContent value="my">
-        <BetListCard title="My bets">
-          <MyBetList setBetFn={setBetFn} />
-        </BetListCard>
-      </TabsContent>
-    </Tabs>
-  );
-}
-
-function BetListCard({
+export function BetListCard({
   children,
   title,
 }: {
@@ -70,7 +37,7 @@ function BetListCard({
   );
 }
 
-function RecentBetList({
+export function RecentBetList({
   setBetFn,
 }: {
   setBetFn: (bet: FormattedBet) => void;
@@ -84,7 +51,11 @@ function RecentBetList({
   if (isSuccess) return <BetList data={data} setBetFn={setBetFn} />;
 }
 
-function MyBetList({ setBetFn }: { setBetFn: (bet: FormattedBet) => void }) {
+export function MyBetList({
+  setBetFn,
+}: {
+  setBetFn: (bet: FormattedBet) => void;
+}) {
   const account = useAccount();
   const { isPending, error, isSuccess, data } = useQuery({
     queryKey: ["myBetData"],

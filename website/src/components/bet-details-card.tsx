@@ -7,10 +7,7 @@ import {
   TableRow,
 } from "./ui/table";
 import { type FormattedBet } from "@/services/services";
-import {
-  CustomConnectButton,
-  CustomConnectButtonSecondary,
-} from "./rainbow/custom-connect-button";
+import { CustomConnectButtonSecondary } from "./rainbow/custom-connect-button";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { Button } from "./ui/button";
 import { getTokenNameFromAddress } from "@/lib/utils";
@@ -18,21 +15,6 @@ import { BetAbi } from "@/abis/BetAbi";
 import { USDC_CONTRACT_ADDRESS } from "@/config";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { Address } from "viem";
-
-export function BetDetailsComponent({
-  currentBet,
-}: {
-  currentBet: FormattedBet | undefined;
-}) {
-  return (
-    <div className="w-full max-w-md space-y-2">
-      <div className="flex justify-end">
-        <CustomConnectButton />
-      </div>
-      <BetDetailsCard currentBet={currentBet} />
-    </div>
-  );
-}
 
 export function BetDetailsCard({
   currentBet,
