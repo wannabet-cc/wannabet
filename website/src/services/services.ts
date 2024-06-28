@@ -110,6 +110,7 @@ export type FormattedBet = {
   participant: Address;
   participantAlias: string;
   amount: number;
+  bigintAmount: bigint;
   token: Address;
   message: string;
   judge: Address;
@@ -158,6 +159,7 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
       participant,
       participantAlias,
       amount: Number(formatUnits(BigInt(rawBet.amount), 6)),
+      bigintAmount: BigInt(rawBet.amount),
       token: rawBet.token as Address,
       message: rawBet.message,
       judge,
