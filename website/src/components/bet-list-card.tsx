@@ -1,8 +1,6 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
-import { TabsContent } from "@radix-ui/react-tabs";
 import {
   Table,
   TableBody,
@@ -11,40 +9,18 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
-  type FormattedBetDetails,
+  type FormattedBet,
+  type FormattedBets,
   getRecentFormattedBets,
+  getUserFormattedBets,
 } from "@/services/services";
 import { LoadingSpinner } from "./ui/spinner";
-import { useState } from "react";
+import { useAccount } from "wagmi";
+import { CustomConnectButtonSecondary } from "./rainbow/custom-connect-button";
 
-export function BetListComponent({
-  setBetFn,
-}: {
-  setBetFn: (bet: FormattedBetDetails) => void;
-}) {
-  return (
-    <Tabs defaultValue="recent" className="w-full max-w-md">
-      <TabsList>
-        <TabsTrigger value="recent">Recent</TabsTrigger>
-        <TabsTrigger value="my">Mine</TabsTrigger>
-      </TabsList>
-      <TabsContent value="recent">
-        <BetListCard title="Recent bets">
-          <RecentBetList setBetFn={setBetFn} />
-        </BetListCard>
-      </TabsContent>
-      <TabsContent value="my">
-        <BetListCard title="My bets">
-          <MyBetList setBetFn={setBetFn} />
-        </BetListCard>
-      </TabsContent>
-    </Tabs>
-  );
-}
-
-function BetListCard({
+export function BetListCard({
   children,
   title,
 }: {
@@ -52,7 +28,7 @@ function BetListCard({
   title: string;
 }) {
   return (
-    <Card className="w-full">
+    <Card className="max-h-[512px] w-full">
       <CardHeader>
         <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
@@ -61,35 +37,43 @@ function BetListCard({
   );
 }
 
-function RecentBetList({
+export function RecentBetList({
   setBetFn,
 }: {
-  setBetFn: (bet: FormattedBetDetails) => void;
+  setBetFn: (bet: FormattedBet) => void;
 }) {
-  const [page, setPage] = useState(1);
-  const { isLoading, error, isSuccess, data } = useQuery({
-    queryKey: ["betData"],
-    queryFn: () => getRecentFormattedBets(page, 5),
+  const { isPending, error, isSuccess, data } = useQuery({
+    queryKey: ["recentBetData"],
+    queryFn: () => getRecentFormattedBets(5),
   });
-  if (isLoading) return <LoadingSpinner />;
+  if (isPending) return <LoadingSpinner />;
   if (error) return "An error has occurred: " + error;
   if (isSuccess) return <BetList data={data} setBetFn={setBetFn} />;
 }
 
-function MyBetList({
+export function MyBetList({
   setBetFn,
 }: {
-  setBetFn: (bet: FormattedBetDetails) => void;
+  setBetFn: (bet: FormattedBet) => void;
 }) {
-  return <>&lt;bet table&gt;</>;
+  const account = useAccount();
+  const { isPending, error, isSuccess, data } = useQuery({
+    queryKey: ["myBetData"],
+    queryFn: () => getUserFormattedBets(account.address!, 5),
+    enabled: account.isConnected,
+  });
+  if (account.isDisconnected) return <CustomConnectButtonSecondary />;
+  if (isPending) return <LoadingSpinner />;
+  if (error) return "An error has occurred: " + error;
+  if (isSuccess) return <BetList data={data} setBetFn={setBetFn} />;
 }
 
 function BetList({
   data,
   setBetFn,
 }: {
-  data: FormattedBetDetails[];
-  setBetFn: (bet: FormattedBetDetails) => void;
+  data: FormattedBets;
+  setBetFn: (bet: FormattedBet) => void;
 }) {
   return (
     <Table>
@@ -102,7 +86,7 @@ function BetList({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.map((bet, i) => (
+        {data.items.map((bet, i) => (
           <TableRow
             key={i}
             onClick={() => setBetFn(bet)}

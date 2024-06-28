@@ -1,77 +1,98 @@
-import { betAbi } from "./betAbi";
-import { arbitrumClient } from "./viem";
-import { MAINNET_BET_FACTORY_CONTRACT_ADDRESS } from "./addresses";
-import { betFactoryAbi } from "./betFactoryAbi";
 import { Address, formatUnits } from "viem";
+import { arbitrumClient } from "./viem";
+import { BET_API_URL } from "@/config";
+import { BetAbi } from "@/abis/BetAbi";
 import { getPreferredAlias } from "@/lib/utils";
+import {
+  generateBetQuery,
+  generateBetsQuery,
+  generateRecentBetsQuery,
+  generateUserBetsQuery,
+} from "./queries";
 
-type BetStatus = "expired" | "pending" | "accepted" | "declined" | "settled";
-type RawBetDetails = {
-  betId: bigint;
-  creator: Address;
-  participant: Address;
-  amount: bigint;
-  token: Address;
+// General getter function
+async function queryGqlApi<T>(url: string, query: string): Promise<T> {
+  console.log("Running queryGqlApi...");
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
+  return res.json() as Promise<T>;
+}
+
+// Raw data types
+type RawBet = {
+  id: string;
+  contractAddress: string;
+  creator: string;
+  participant: string;
+  amount: string;
+  token: string;
   message: string;
-  judge: Address;
-  validUntil: bigint;
-  status: BetStatus;
+  judge: string;
+  createdTime: string;
+  validUntil: string;
+};
+type RawBets = {
+  items: RawBet[];
+  pageInfo?: {
+    hasPreviousPage: boolean;
+    startCursor: string;
+    hasNextPage: false;
+    endCursor: string;
+  };
 };
 
-export const getRawBetFromAddress = async (
-  betContractAddress: Address,
-): Promise<RawBetDetails> => {
-  console.log("Running getRawBetFromAddress...");
+// Get raw data
+type BetQueryResponse = { data: { bet: RawBet } };
+export const getRawBetFromId = async (betId: number): Promise<RawBet> => {
+  console.log("Running getRawBetFromId...");
   try {
-    const [
-      betId,
-      creator,
-      participant,
-      amount,
-      token,
-      message,
-      judge,
-      validUntil,
-    ] = await arbitrumClient.readContract({
-      address: betContractAddress,
-      abi: betAbi,
-      functionName: "betDetails",
-    });
-    const status = (await arbitrumClient.readContract({
-      address: betContractAddress,
-      abi: betAbi,
-      functionName: "getStatus",
-    })) as BetStatus;
-    return {
-      betId,
-      creator,
-      participant,
-      amount,
-      token,
-      message,
-      judge,
-      validUntil,
-      status,
-    };
+    const query = generateBetQuery(betId);
+    const result = await queryGqlApi<BetQueryResponse>(BET_API_URL, query);
+    return result.data.bet;
   } catch (error) {
-    const errorMsg = "Failed to get raw bet details from address";
+    const errorMsg = "Failed to get raw bet details from bet id";
     console.error(errorMsg + ": " + error);
     throw new Error(errorMsg);
   }
 };
-
-export const getRawBetFromId = async (
-  betId: number,
-): Promise<RawBetDetails> => {
-  console.log("Running getRawBetFromId...");
+type BetsQueryResponse = { data: { bets: RawBets } };
+export const getRawBetsFromIds = async (betIds: number[]): Promise<RawBets> => {
+  console.log("Running getRawBetsFromIds...");
   try {
-    const betContractAddress = await arbitrumClient.readContract({
-      address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
-      abi: betFactoryAbi,
-      functionName: "betAddresses",
-      args: [BigInt(betId)],
-    });
-    return await getRawBetFromAddress(betContractAddress);
+    const query = generateBetsQuery(betIds);
+    const result = await queryGqlApi<BetsQueryResponse>(BET_API_URL, query);
+    return result.data.bets;
+  } catch (error) {
+    const errorMsg = "Failed to get raw bet details from bet id";
+    console.error(errorMsg + ": " + error);
+    throw new Error(errorMsg);
+  }
+};
+export const getRecentRawBets = async (numBets: number): Promise<RawBets> => {
+  console.log("Running getRecentRawBets...");
+  try {
+    const query = generateRecentBetsQuery(numBets);
+    const result = await queryGqlApi<BetsQueryResponse>(BET_API_URL, query);
+    return result.data.bets;
+  } catch (error) {
+    const errorMsg = "Failed to get raw bet details from bet id";
+    console.error(errorMsg + ": " + error);
+    throw new Error(errorMsg);
+  }
+};
+export const getUserRawBets = async (
+  user: Address,
+  numBets: number,
+  page?: Partial<{ afterCursor: string; beforeCursor: string }>,
+): Promise<RawBets> => {
+  console.log("Running getRecentRawBets...");
+  try {
+    const query = generateUserBetsQuery(user, numBets, page);
+    const result = await queryGqlApi<BetsQueryResponse>(BET_API_URL, query);
+    return result.data.bets;
   } catch (error) {
     const errorMsg = "Failed to get raw bet details from bet id";
     console.error(errorMsg + ": " + error);
@@ -79,110 +100,142 @@ export const getRawBetFromId = async (
   }
 };
 
-export type FormattedBetDetails = {
+// Formatted data types
+type BetStatus = "expired" | "pending" | "accepted" | "declined" | "settled";
+export type FormattedBet = {
   betId: number;
+  contractAddress: Address;
   creator: Address;
   creatorAlias: string;
   participant: Address;
   participantAlias: string;
   amount: number;
+  bigintAmount: bigint;
   token: Address;
   message: string;
   judge: Address;
   judgeAlias: string;
-  validUntil: bigint;
+  validUntil: Date;
+  createdTime: Date;
   status: BetStatus;
 };
+export type FormattedBets = {
+  items: FormattedBet[];
+  pageInfo?: {
+    hasPreviousPage: boolean;
+    startCursor: string;
+    hasNextPage: false;
+    endCursor: string;
+  };
+};
 
-export const formatBet = async (
-  rawBetDetails: RawBetDetails,
-): Promise<FormattedBetDetails> => {
+// Utility function for formatting a bet
+export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
   console.log("Running formatBet...");
   try {
-    const [creatorAlias, participantAlias, judgeAlias] = await Promise.all([
-      getPreferredAlias(rawBetDetails.creator),
-      getPreferredAlias(rawBetDetails.participant),
-      getPreferredAlias(rawBetDetails.judge),
-    ]);
+    // re-cast variables as the correct types
+    const contractAddress = rawBet.contractAddress as Address,
+      creator = rawBet.creator as Address,
+      participant = rawBet.participant as Address,
+      judge = rawBet.judge as Address;
+    // get aliases and bet status
+    const [creatorAlias, participantAlias, judgeAlias, status] =
+      await Promise.all([
+        getPreferredAlias(creator),
+        getPreferredAlias(participant),
+        getPreferredAlias(judge),
+        arbitrumClient.readContract({
+          address: contractAddress,
+          abi: BetAbi,
+          functionName: "getStatus",
+        }),
+      ]);
+    // return
     return {
-      betId: Number(rawBetDetails.betId),
-      creator: rawBetDetails.creator,
+      betId: Number(rawBet.id),
+      contractAddress,
+      creator,
       creatorAlias,
-      participant: rawBetDetails.participant,
+      participant,
       participantAlias,
-      amount: Number(formatUnits(rawBetDetails.amount, 6)),
-      token: rawBetDetails.token,
-      message: rawBetDetails.message,
-      judge: rawBetDetails.judge,
+      amount: Number(formatUnits(BigInt(rawBet.amount), 6)),
+      bigintAmount: BigInt(rawBet.amount),
+      token: rawBet.token as Address,
+      message: rawBet.message,
+      judge,
       judgeAlias,
-      validUntil: rawBetDetails.validUntil,
-      status: rawBetDetails.status,
+      validUntil: new Date(Number(rawBet.validUntil) * 1000),
+      createdTime: new Date(Number(rawBet.createdTime) * 1000),
+      status: status as BetStatus,
     };
   } catch (error) {
-    const errorMsg = "Failed to format bet details from raw bet details";
+    const errorMsg = "Failed to format bets from raw bets";
     console.error(errorMsg + ": " + error);
     throw new Error(errorMsg);
   }
 };
 
+// Get formatted data
 export const getFormattedBetFromId = async (
   betId: number,
-): Promise<FormattedBetDetails> => {
+): Promise<FormattedBet> => {
   console.log("Running getFormattedBetFromId...");
   try {
-    const rawBetData = await getRawBetFromId(betId);
-    return await formatBet(rawBetData);
+    const rawBet = await getRawBetFromId(betId);
+    return formatBet(rawBet);
   } catch (error) {
     const errorMsg = "Failed to get formatted bet details from bet id";
     console.error(errorMsg + ": " + error);
     throw new Error(errorMsg);
   }
 };
-
 export const getFormattedBetsFromIds = async (
   betIds: number[],
-): Promise<FormattedBetDetails[]> => {
+): Promise<FormattedBets> => {
   console.log("Running getFormattedBetsFromIds...");
   try {
-    return await Promise.all(
-      betIds.map((betId) => getFormattedBetFromId(betId)),
+    const rawBets = await getRawBetsFromIds(betIds);
+    const formattedBets = await Promise.all(
+      rawBets.items.map((bet) => formatBet(bet)),
     );
+    return { items: formattedBets };
   } catch (error) {
     const errorMsg = "Failed to get formatted bet details from bet ids";
     console.error(errorMsg + ": " + error);
     throw new Error(errorMsg);
   }
 };
-
 export const getRecentFormattedBets = async (
-  page: number = 1,
-  numBetsPerPage: number = 5,
-): Promise<FormattedBetDetails[]> => {
+  numBets: number,
+): Promise<FormattedBets> => {
   console.log("Running getRecentFormattedBets...");
   try {
-    const betCount = await arbitrumClient.readContract({
-      address: MAINNET_BET_FACTORY_CONTRACT_ADDRESS,
-      abi: betFactoryAbi,
-      functionName: "betCount",
-    });
-    const bets = getBetIdArray(Number(betCount), page, numBetsPerPage);
-    return await getFormattedBetsFromIds(bets);
+    const rawBets = await getRecentRawBets(numBets);
+    const formattedBets = await Promise.all(
+      rawBets.items.map((bet) => formatBet(bet)),
+    );
+    return { items: formattedBets };
   } catch (error) {
-    const errorMsg = "Failed to get recent formatted bets";
+    const errorMsg = "Failed to get formatted bet details from bet ids";
     console.error(errorMsg + ": " + error);
     throw new Error(errorMsg);
   }
 };
-
-function getBetIdArray(betCount: number, page: number, numBetsPerPage: number) {
-  let bets: any;
-  if (page * numBetsPerPage > betCount) {
-    const lastPage = Math.floor(betCount / numBetsPerPage);
-    const startNum = betCount - lastPage * numBetsPerPage;
-    bets = Array.from({ length: startNum }, (_, i) => startNum - i);
-  } else {
-    const startNum = betCount - (page - 1) * numBetsPerPage;
-    bets = Array.from({ length: numBetsPerPage }, (_, i) => startNum - i);
+export const getUserFormattedBets = async (
+  user: Address,
+  numBets: number,
+  page?: Partial<{ afterCursor: string; beforeCursor: string }>,
+): Promise<FormattedBets> => {
+  console.log("Running getUserFormattedBets...");
+  try {
+    const rawBets = await getUserRawBets(user, numBets, page);
+    const formattedBets = await Promise.all(
+      rawBets.items.map((bet) => formatBet(bet)),
+    );
+    return { items: formattedBets };
+  } catch (error) {
+    const errorMsg = "Failed to get formatted bet details from bet ids";
+    console.error(errorMsg + ": " + error);
+    throw new Error(errorMsg);
   }
-  return bets;
-}
+};

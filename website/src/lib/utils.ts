@@ -1,3 +1,4 @@
+import { USDC_CONTRACT_ADDRESS } from "@/config";
 import { mainnetClient } from "@/services/viem";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -19,4 +20,10 @@ export async function getPreferredAlias(address: Address) {
 
 export function abbreviateHex(hex: Address) {
   return `${hex.slice(0, 5)}...${hex.slice(-3)}`;
+}
+
+export function getTokenNameFromAddress(address: Address): string {
+  if (address.toLowerCase() === USDC_CONTRACT_ADDRESS.toLowerCase())
+    return "USDC";
+  else return "error";
 }

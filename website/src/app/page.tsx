@@ -1,18 +1,17 @@
 "use client";
 
-import { BetListComponent } from "@/components/bet-list-card";
-import { BetDetailsCard } from "@/components/bet-details-card";
 import { useState } from "react";
-import { FormattedBetDetails } from "@/services/services";
+import { type FormattedBet } from "@/services/services";
+import { ExplorerComponent, ViewComponent } from "@/components/main-components";
 
 export default function Home() {
-  const [currentBet, setCurrentBet] = useState<FormattedBetDetails | undefined>(
-    undefined,
-  );
+  const [currentView, setCurrentView] = useState<
+    FormattedBet | "create" | undefined
+  >(undefined);
   return (
     <main className="flex min-h-screen items-start justify-center gap-4 p-24">
-      <BetListComponent setBetFn={setCurrentBet} />
-      <BetDetailsCard currentBet={currentBet} />
+      <ExplorerComponent setViewFn={setCurrentView} />
+      <ViewComponent currentBet={currentView} />
     </main>
   );
 }
