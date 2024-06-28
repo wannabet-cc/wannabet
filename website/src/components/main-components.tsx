@@ -45,7 +45,7 @@ export function ViewComponent({
 }) {
   return (
     <div className="w-full max-w-md space-y-2">
-      <div className="flex justify-end">
+      <div className="hidden lg:flex lg:justify-end">
         <CustomConnectButton />
       </div>
       {currentView === "create" ? (
