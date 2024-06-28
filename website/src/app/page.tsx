@@ -10,8 +10,8 @@ export default function Home() {
   >(undefined);
   return (
     <main className="flex min-h-screen items-start justify-center gap-4 p-24">
-      <ExplorerComponent setViewFn={setCurrentView} />
-      <ViewComponent currentBet={currentView} />
+      <ExplorerComponent currentView={currentView} setViewFn={setCurrentView} />
+      <ViewComponent currentView={currentView} />
     </main>
   );
 }

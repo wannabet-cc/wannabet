@@ -38,8 +38,10 @@ export function BetListCard({
 }
 
 export function RecentBetList({
+  currentView,
   setBetFn,
 }: {
+  currentView: FormattedBet | "create" | undefined;
   setBetFn: (bet: FormattedBet) => void;
 }) {
   const { isPending, error, isSuccess, data } = useQuery({
@@ -48,12 +50,17 @@ export function RecentBetList({
   });
   if (isPending) return <LoadingSpinner />;
   if (error) return "An error has occurred: " + error;
-  if (isSuccess) return <BetList data={data} setBetFn={setBetFn} />;
+  if (isSuccess)
+    return (
+      <BetList data={data} currentView={currentView} setBetFn={setBetFn} />
+    );
 }
 
 export function MyBetList({
+  currentView,
   setBetFn,
 }: {
+  currentView: FormattedBet | "create" | undefined;
   setBetFn: (bet: FormattedBet) => void;
 }) {
   const account = useAccount();
@@ -65,14 +72,19 @@ export function MyBetList({
   if (account.isDisconnected) return <CustomConnectButtonSecondary />;
   if (isPending) return <LoadingSpinner />;
   if (error) return "An error has occurred: " + error;
-  if (isSuccess) return <BetList data={data} setBetFn={setBetFn} />;
+  if (isSuccess)
+    return (
+      <BetList data={data} currentView={currentView} setBetFn={setBetFn} />
+    );
 }
 
 function BetList({
   data,
+  currentView,
   setBetFn,
 }: {
   data: FormattedBets;
+  currentView: FormattedBet | "create" | undefined;
   setBetFn: (bet: FormattedBet) => void;
 }) {
   return (
@@ -90,7 +102,10 @@ function BetList({
           <TableRow
             key={i}
             onClick={() => setBetFn(bet)}
-            className="cursor-pointer"
+            data-current-bet={
+              typeof currentView === "object" && bet.betId === currentView.betId
+            }
+            className="cursor-pointer data-[current-bet=true]:bg-muted"
           >
             <TableCell className="text-center">{bet.betId}</TableCell>
             <TableCell>{bet.amount} USDC</TableCell>

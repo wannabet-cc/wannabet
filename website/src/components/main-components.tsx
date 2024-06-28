@@ -7,8 +7,10 @@ import { BetDetailsCard } from "./bet-details-card";
 import { CreateBetCard } from "./create-bet-card";
 
 export function ExplorerComponent({
+  currentView,
   setViewFn,
 }: {
+  currentView: FormattedBet | "create" | undefined;
   setViewFn: (view: FormattedBet | "create") => void;
 }) {
   return (
@@ -24,12 +26,12 @@ export function ExplorerComponent({
       </div>
       <TabsContent value="recent">
         <BetListCard title="Recent bets">
-          <RecentBetList setBetFn={setViewFn} />
+          <RecentBetList currentView={currentView} setBetFn={setViewFn} />
         </BetListCard>
       </TabsContent>
       <TabsContent value="my">
         <BetListCard title="My bets">
-          <MyBetList setBetFn={setViewFn} />
+          <MyBetList currentView={currentView} setBetFn={setViewFn} />
         </BetListCard>
       </TabsContent>
     </Tabs>
@@ -37,19 +39,19 @@ export function ExplorerComponent({
 }
 
 export function ViewComponent({
-  currentBet,
+  currentView,
 }: {
-  currentBet: FormattedBet | "create" | undefined;
+  currentView: FormattedBet | "create" | undefined;
 }) {
   return (
     <div className="w-full max-w-md space-y-2">
       <div className="flex justify-end">
         <CustomConnectButton />
       </div>
-      {currentBet === "create" ? (
+      {currentView === "create" ? (
         <CreateBetCard />
       ) : (
-        <BetDetailsCard currentBet={currentBet} />
+        <BetDetailsCard currentBet={currentView} />
       )}
     </div>
   );
