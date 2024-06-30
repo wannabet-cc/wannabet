@@ -30,9 +30,9 @@ contract Bet is ReentrancyGuard {
     address public winner;
 
     // -> Events
-    event BetAccepted(address indexed factoryContract);
-    event BetDeclined(address indexed factoryContract);
-    event BetSettled(address indexed factoryContract, address indexed winner);
+    event BetAccepted();
+    event BetDeclined();
+    event BetSettled(address indexed winner);
 
     // -> Errors
     error BET__Unauthorized();
@@ -93,7 +93,7 @@ contract Bet is ReentrancyGuard {
         _status = Status.Accepted;
 
         // Emit event
-        emit BetAccepted(address(_BET_FACTORY));
+        emit BetAccepted();
 
         // Interactions: Token transfer
         bool success = _TOKEN.transferFrom(msg.sender, address(this), _AMOUNT);
@@ -115,7 +115,7 @@ contract Bet is ReentrancyGuard {
         _status = Status.Declined;
 
         // Emit event
-        emit BetDeclined(address(_BET_FACTORY));
+        emit BetDeclined();
 
         // Interactions: Token transfer
         bool success = _TOKEN.transfer(_CREATOR, _AMOUNT);
@@ -149,7 +149,7 @@ contract Bet is ReentrancyGuard {
         winner = _winner;
 
         // Emit event
-        emit BetSettled(address(_BET_FACTORY), _winner);
+        emit BetSettled(_winner);
 
         // Interactions: Token transfer
         if (_winner == 0x0000000000000000000000000000000000000000) {
