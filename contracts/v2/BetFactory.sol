@@ -30,6 +30,7 @@ contract BetFactory is Ownable, ReentrancyGuard {
         address participant,
         uint256 indexed amount
     );
+    event FeeChanged(uint256 oldFee, uint256 newFee);
 
     // -> Errors
     error BET__Unauthorized();
@@ -44,7 +45,9 @@ contract BetFactory is Ownable, ReentrancyGuard {
     }
 
     function changeFee(uint256 _newFee) public virtual onlyOwner {
+        uint256 oldFee = _fee;
         _fee = _newFee;
+        emit FeeChanged(oldFee, _newFee);
     }
 
     function createBet(
