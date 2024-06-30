@@ -83,53 +83,59 @@ contract Bet {
     }
 
     function acceptBet() public payable onlyParticipant {
+        // Checks
         if (msg.value < _BET_FACTORY.fee()) revert BET__FeeNotEnough();
         if (_isExpired()) revert BET__Expired();
         if (_status != Status.Pending) revert BET__InvalidStatus();
 
-        // Transfer tokens to contract
+        // Update state
+        _status = Status.Accepted;
+
+        // Emit event
+        emit BetAccepted(address(_BET_FACTORY));
+
+        // Interactions: Token transfer
         bool success = _TOKEN.transferFrom(msg.sender, address(this), _AMOUNT);
         if (!success) revert BET__FailedTransfer();
 
-        // Send fee to factory contract owner
+        // Interactions: Send ETH fee
         (bool feeSuccess, ) = payable(_BET_FACTORY.owner()).call{
             value: msg.value
         }("");
         if (!feeSuccess) revert BET__FailedEthTransfer();
-
-        // Update state variables
-        _status = Status.Accepted;
-        // Emit event
-        emit BetAccepted(address(_BET_FACTORY));
     }
 
     function declineBet() public onlyParticipant {
+        // Checks
         if (_isExpired()) revert BET__Expired();
         if (_status != Status.Pending) revert BET__InvalidStatus();
 
-        // Return tokens to original party
-        bool success = _TOKEN.transfer(_CREATOR, _AMOUNT);
-        if (!success) revert BET__FailedTransfer();
-
-        // Update state variables
+        // Update state
         _status = Status.Declined;
+
         // Emit event
         emit BetDeclined(address(_BET_FACTORY));
+
+        // Interactions: Token transfer
+        bool success = _TOKEN.transfer(_CREATOR, _AMOUNT);
+        if (!success) revert BET__FailedTransfer();
     }
 
     function retrieveTokens() public onlyCreator {
+        // Checks
         if (!_isExpired()) revert BET__InvalidStatus();
         if (_fundsWithdrawn) revert BET__FundsAlreadyWithdrawn();
 
-        // Return tokens to bet creator
-        bool success = _TOKEN.transfer(_CREATOR, _AMOUNT);
-        if (!success) revert BET__FailedTransfer();
-
         // Update state
         _fundsWithdrawn = true;
+
+        // Interactions: Token transfer
+        bool success = _TOKEN.transfer(_CREATOR, _AMOUNT);
+        if (!success) revert BET__FailedTransfer();
     }
 
     function settleBet(address _winner) public onlyJudge {
+        // Checks
         if (_status != Status.Accepted) revert BET__InvalidStatus();
         if (
             _winner != _CREATOR &&
@@ -137,7 +143,14 @@ contract Bet {
             _winner != 0x0000000000000000000000000000000000000000
         ) revert BET__BadInput();
 
-        // Transfer tokens to winner
+        // Update state
+        _status = Status.Settled;
+        winner = _winner;
+
+        // Emit event
+        emit BetSettled(address(_BET_FACTORY), _winner);
+
+        // Interactions: Token transfer
         if (_winner == 0x0000000000000000000000000000000000000000) {
             // In tie event, the funds are returned
             bool success1 = _TOKEN.transfer(_CREATOR, _AMOUNT);
@@ -148,12 +161,6 @@ contract Bet {
             bool success = _TOKEN.transfer(_winner, _AMOUNT * 2);
             if (!success) revert BET__FailedTransfer();
         }
-
-        // Update state variables
-        _status = Status.Settled;
-        winner = _winner;
-        // Emit event
-        emit BetSettled(address(_BET_FACTORY), _winner);
     }
 
     function betDetails()

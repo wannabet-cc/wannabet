@@ -54,14 +54,18 @@ contract BetFactory is Ownable {
         address _judge,
         uint256 _validFor
     ) public payable {
+        // Checks
         if (msg.value < _fee) revert BET__FeeNotEnough();
         if (msg.sender == _participant) revert BET__BadInput();
         if (_amount <= 0) revert BET__BadInput();
         if (_validFor < 3600) revert("Bet must be valid for at least 1 hour");
 
+        // Update state
+        uint256 newBetCount = betCount + 1;
+
         try
             new Bet(
-                betCount + 1,
+                newBetCount,
                 msg.sender,
                 _participant,
                 _amount,
@@ -72,20 +76,8 @@ contract BetFactory is Ownable {
                 address(this)
             )
         returns (Bet newBet) {
-            // Transfer tokens to new contract
-            bool tokenSuccess = IERC20(_token).transferFrom(
-                msg.sender,
-                address(newBet),
-                _amount
-            );
-            if (!tokenSuccess) revert BET__FailedTokenTransfer();
-
-            // Send fee to owner
-            (bool feeSuccess, ) = payable(owner()).call{value: msg.value}("");
-            if (!feeSuccess) revert BET__FailedEthTransfer();
-
-            // Update state variables
-            betCount++;
+            // Update state
+            betCount = newBetCount;
             betAddresses[betCount] = address(newBet);
             betIds[address(newBet)] = betCount;
             userBets[msg.sender].push(
@@ -110,8 +102,21 @@ contract BetFactory is Ownable {
                 userBets[_judge].push(
                     BetInfo(betCount, address(newBet), false, false, true)
                 );
+
             // Emit event
             emit BetCreated(address(newBet), msg.sender, _participant, _amount);
+
+            // Interactions: Token transfer
+            bool tokenSuccess = IERC20(_token).transferFrom(
+                msg.sender,
+                address(newBet),
+                _amount
+            );
+            if (!tokenSuccess) revert BET__FailedTokenTransfer();
+
+            // Interactions: Send ETH fee
+            (bool feeSuccess, ) = payable(owner()).call{value: msg.value}("");
+            if (!feeSuccess) revert BET__FailedEthTransfer();
         } catch {
             revert("Deployment or token transfer failed");
         }
