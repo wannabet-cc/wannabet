@@ -2,9 +2,10 @@
 pragma solidity ^0.8.24;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {BetFactory} from "./BetFactory.sol";
 
-contract Bet {
+contract Bet is ReentrancyGuard {
     // -> Type declarations
     enum Status {
         Pending,
@@ -82,7 +83,7 @@ contract Bet {
         _BET_FACTORY = BetFactory(_factoryContract);
     }
 
-    function acceptBet() public payable onlyParticipant {
+    function acceptBet() public payable onlyParticipant nonReentrant {
         // Checks
         if (msg.value < _BET_FACTORY.fee()) revert BET__FeeNotEnough();
         if (_isExpired()) revert BET__Expired();
@@ -105,7 +106,7 @@ contract Bet {
         if (!feeSuccess) revert BET__FailedEthTransfer();
     }
 
-    function declineBet() public onlyParticipant {
+    function declineBet() public onlyParticipant nonReentrant {
         // Checks
         if (_isExpired()) revert BET__Expired();
         if (_status != Status.Pending) revert BET__InvalidStatus();
@@ -121,7 +122,7 @@ contract Bet {
         if (!success) revert BET__FailedTransfer();
     }
 
-    function retrieveTokens() public onlyCreator {
+    function retrieveTokens() public onlyCreator nonReentrant {
         // Checks
         if (!_isExpired()) revert BET__InvalidStatus();
         if (_fundsWithdrawn) revert BET__FundsAlreadyWithdrawn();
@@ -134,7 +135,7 @@ contract Bet {
         if (!success) revert BET__FailedTransfer();
     }
 
-    function settleBet(address _winner) public onlyJudge {
+    function settleBet(address _winner) public onlyJudge nonReentrant {
         // Checks
         if (_status != Status.Accepted) revert BET__InvalidStatus();
         if (

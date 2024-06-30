@@ -3,9 +3,10 @@ pragma solidity ^0.8.24;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Bet} from "contracts/Bet.sol";
 
-contract BetFactory is Ownable {
+contract BetFactory is Ownable, ReentrancyGuard {
     // -> Type declarations
     struct BetInfo {
         uint256 betId;
@@ -53,7 +54,7 @@ contract BetFactory is Ownable {
         string memory _message,
         address _judge,
         uint256 _validFor
-    ) public payable {
+    ) public payable nonReentrant {
         // Checks
         if (msg.value < _fee) revert BET__FeeNotEnough();
         if (msg.sender == _participant) revert BET__BadInput();
