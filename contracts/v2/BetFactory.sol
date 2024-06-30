@@ -58,6 +58,11 @@ contract BetFactory is Ownable, ReentrancyGuard {
         // Checks
         if (msg.value < _fee) revert BET__FeeNotEnough();
         if (msg.sender == _participant) revert BET__BadInput();
+        if (
+            _participant == address(0) ||
+            _judge == address(0) ||
+            _token == address(0)
+        ) revert BET__BadInput();
         if (_amount <= 0) revert BET__BadInput();
         if (_validFor < 3600) revert("Bet must be valid for at least 1 hour");
 
