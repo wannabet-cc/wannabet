@@ -2,10 +2,13 @@
 pragma solidity ^0.8.24;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {BetFactory} from "./BetFactory.sol";
 
 contract Bet is ReentrancyGuard {
+    using SafeERC20 for IERC20;
+
     // -> Type declarations
     enum Status {
         Pending,
@@ -28,11 +31,12 @@ contract Bet is ReentrancyGuard {
     Status private _status = Status.Pending;
     bool private _fundsWithdrawn = false;
     address public winner;
+    string public judgementReason;
 
     // -> Events
-    event BetAccepted(address indexed factoryContract);
-    event BetDeclined(address indexed factoryContract);
-    event BetSettled(address indexed factoryContract, address indexed winner);
+    event BetAccepted();
+    event BetDeclined();
+    event BetSettled(address indexed winner, string reason);
 
     // -> Errors
     error BET__Unauthorized();
@@ -93,11 +97,10 @@ contract Bet is ReentrancyGuard {
         _status = Status.Accepted;
 
         // Emit event
-        emit BetAccepted(address(_BET_FACTORY));
+        emit BetAccepted();
 
         // Interactions: Token transfer
-        bool success = _TOKEN.transferFrom(msg.sender, address(this), _AMOUNT);
-        if (!success) revert BET__FailedTransfer();
+        _TOKEN.safeTransferFrom(msg.sender, address(this), _AMOUNT);
 
         // Interactions: Send ETH fee
         (bool feeSuccess, ) = payable(_BET_FACTORY.owner()).call{
@@ -115,11 +118,10 @@ contract Bet is ReentrancyGuard {
         _status = Status.Declined;
 
         // Emit event
-        emit BetDeclined(address(_BET_FACTORY));
+        emit BetDeclined();
 
         // Interactions: Token transfer
-        bool success = _TOKEN.transfer(_CREATOR, _AMOUNT);
-        if (!success) revert BET__FailedTransfer();
+        _TOKEN.safeTransfer(_CREATOR, _AMOUNT);
     }
 
     function retrieveTokens() public onlyCreator nonReentrant {
@@ -131,11 +133,13 @@ contract Bet is ReentrancyGuard {
         _fundsWithdrawn = true;
 
         // Interactions: Token transfer
-        bool success = _TOKEN.transfer(_CREATOR, _AMOUNT);
-        if (!success) revert BET__FailedTransfer();
+        _TOKEN.safeTransfer(_CREATOR, _AMOUNT);
     }
 
-    function settleBet(address _winner) public onlyJudge nonReentrant {
+    function settleBet(
+        address _winner,
+        string memory _reason
+    ) public onlyJudge nonReentrant {
         // Checks
         if (_status != Status.Accepted) revert BET__InvalidStatus();
         if (
@@ -147,20 +151,19 @@ contract Bet is ReentrancyGuard {
         // Update state
         _status = Status.Settled;
         winner = _winner;
+        judgementReason = _reason;
 
         // Emit event
-        emit BetSettled(address(_BET_FACTORY), _winner);
+        emit BetSettled(_winner, _reason);
 
         // Interactions: Token transfer
         if (_winner == 0x0000000000000000000000000000000000000000) {
             // In tie event, the funds are returned
-            bool success1 = _TOKEN.transfer(_CREATOR, _AMOUNT);
-            bool success2 = _TOKEN.transfer(_PARTICIPANT, _AMOUNT);
-            if (!success1 || !success2) revert BET__FailedTransfer();
+            _TOKEN.safeTransfer(_CREATOR, _AMOUNT);
+            _TOKEN.safeTransfer(_PARTICIPANT, _AMOUNT);
         } else {
             // In winning event, all funds are transfered to the winner
-            bool success = _TOKEN.transfer(_winner, _AMOUNT * 2);
-            if (!success) revert BET__FailedTransfer();
+            _TOKEN.safeTransfer(_winner, _AMOUNT * 2);
         }
     }
 
