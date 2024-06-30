@@ -1,4 +1,4 @@
-import { USDC_CONTRACT_ADDRESS } from "@/config";
+import { BASE_USDC_ADDRESS } from "@/config";
 import { mainnetClient } from "@/services/viem";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -36,11 +36,10 @@ export async function fetchEnsAddress(ensName: string) {
 }
 
 export function getTokenNameFromAddress(address: Address): string {
-  if (address.toLowerCase() === USDC_CONTRACT_ADDRESS.toLowerCase())
-    return "USDC";
+  if (address.toLowerCase() === BASE_USDC_ADDRESS.toLowerCase()) return "USDC";
   else return "error";
 }
 export function getAddressFromTokenName(tokenName: "USDC"): Address | string {
-  if (tokenName === "USDC") return USDC_CONTRACT_ADDRESS;
+  if (tokenName === "USDC") return BASE_USDC_ADDRESS;
   else return "error";
 }

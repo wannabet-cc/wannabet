@@ -18,7 +18,7 @@ import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { Button } from "./ui/button";
 import { getTokenNameFromAddress } from "@/lib/utils";
 import { BetAbi } from "@/abis/BetAbi";
-import { USDC_CONTRACT_ADDRESS } from "@/config";
+import { BASE_USDC_ADDRESS } from "@/config";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { Address, parseUnits } from "viem";
 import { useToast } from "./ui/use-toast";
@@ -142,7 +142,7 @@ function ActionButtons({
 }) {
   const { toast } = useToast();
   const { data: contractBalance } = useReadContract({
-    address: USDC_CONTRACT_ADDRESS,
+    address: BASE_USDC_ADDRESS,
     abi: FiatTokenProxyAbi,
     functionName: "balanceOf",
     args: [bet.contractAddress],
@@ -185,7 +185,7 @@ function ActionButtons({
         disabled={isPending}
         onClick={async () => {
           await writeContractAsync({
-            address: USDC_CONTRACT_ADDRESS,
+            address: BASE_USDC_ADDRESS,
             abi: FiatTokenProxyAbi,
             functionName: "approve",
             args: [bet.contractAddress, bet.bigintAmount],
@@ -234,7 +234,7 @@ function ActionButtons({
               address: bet.contractAddress,
               abi: BetAbi,
               functionName: "settleBet",
-              args: [bet.creator],
+              args: [bet.creator, ""],
             },
             { onSuccess: () => toast({ title: "Bet settled successfully" }) },
           )
@@ -252,7 +252,7 @@ function ActionButtons({
               address: bet.contractAddress,
               abi: BetAbi,
               functionName: "settleBet",
-              args: [bet.participant],
+              args: [bet.participant, ""],
             },
             { onSuccess: () => toast({ title: "Bet settled successfully" }) },
           )
@@ -270,7 +270,7 @@ function ActionButtons({
               address: bet.contractAddress,
               abi: BetAbi,
               functionName: "settleBet",
-              args: ["0x0000000000000000000000000000000000000000"],
+              args: ["0x0000000000000000000000000000000000000000", ""],
             },
             { onSuccess: () => toast({ title: "Bet settled successfully" }) },
           )

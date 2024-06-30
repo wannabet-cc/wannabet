@@ -1,5 +1,5 @@
 import { Address, formatUnits } from "viem";
-import { arbitrumClient } from "./viem";
+import { baseClient } from "./viem";
 import { BET_API_URL } from "@/config";
 import { BetAbi } from "@/abis/BetAbi";
 import { getPreferredAlias } from "@/lib/utils";
@@ -144,7 +144,7 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
         getPreferredAlias(creator),
         getPreferredAlias(participant),
         getPreferredAlias(judge),
-        arbitrumClient.readContract({
+        baseClient.readContract({
           address: contractAddress,
           abi: BetAbi,
           functionName: "getStatus",
