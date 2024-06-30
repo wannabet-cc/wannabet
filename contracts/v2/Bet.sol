@@ -2,10 +2,13 @@
 pragma solidity ^0.8.24;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {BetFactory} from "./BetFactory.sol";
 
 contract Bet is ReentrancyGuard {
+    using SafeERC20 for IERC20;
+
     // -> Type declarations
     enum Status {
         Pending,
@@ -96,8 +99,7 @@ contract Bet is ReentrancyGuard {
         emit BetAccepted();
 
         // Interactions: Token transfer
-        bool success = _TOKEN.transferFrom(msg.sender, address(this), _AMOUNT);
-        if (!success) revert BET__FailedTransfer();
+        _TOKEN.safeTransferFrom(msg.sender, address(this), _AMOUNT);
 
         // Interactions: Send ETH fee
         (bool feeSuccess, ) = payable(_BET_FACTORY.owner()).call{
@@ -118,8 +120,7 @@ contract Bet is ReentrancyGuard {
         emit BetDeclined();
 
         // Interactions: Token transfer
-        bool success = _TOKEN.transfer(_CREATOR, _AMOUNT);
-        if (!success) revert BET__FailedTransfer();
+        _TOKEN.safeTransfer(_CREATOR, _AMOUNT);
     }
 
     function retrieveTokens() public onlyCreator nonReentrant {
@@ -131,8 +132,7 @@ contract Bet is ReentrancyGuard {
         _fundsWithdrawn = true;
 
         // Interactions: Token transfer
-        bool success = _TOKEN.transfer(_CREATOR, _AMOUNT);
-        if (!success) revert BET__FailedTransfer();
+        _TOKEN.safeTransfer(_CREATOR, _AMOUNT);
     }
 
     function settleBet(address _winner) public onlyJudge nonReentrant {
@@ -154,13 +154,11 @@ contract Bet is ReentrancyGuard {
         // Interactions: Token transfer
         if (_winner == 0x0000000000000000000000000000000000000000) {
             // In tie event, the funds are returned
-            bool success1 = _TOKEN.transfer(_CREATOR, _AMOUNT);
-            bool success2 = _TOKEN.transfer(_PARTICIPANT, _AMOUNT);
-            if (!success1 || !success2) revert BET__FailedTransfer();
+            _TOKEN.safeTransfer(_CREATOR, _AMOUNT);
+            _TOKEN.safeTransfer(_PARTICIPANT, _AMOUNT);
         } else {
             // In winning event, all funds are transfered to the winner
-            bool success = _TOKEN.transfer(_winner, _AMOUNT * 2);
-            if (!success) revert BET__FailedTransfer();
+            _TOKEN.safeTransfer(_winner, _AMOUNT * 2);
         }
     }
 

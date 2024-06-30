@@ -2,11 +2,14 @@
 pragma solidity ^0.8.24;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Bet} from "contracts/Bet.sol";
 
 contract BetFactory is Ownable, ReentrancyGuard {
+    using SafeERC20 for IERC20;
+
     // -> Type declarations
     struct BetInfo {
         uint256 betId;
@@ -26,9 +29,9 @@ contract BetFactory is Ownable, ReentrancyGuard {
     // -> Events
     event BetCreated(
         address indexed contractAddress,
-        address indexed creator,
+        address creator,
         address participant,
-        uint256 indexed amount
+        uint256 amount
     );
     event FeeChanged(uint256 oldFee, uint256 newFee);
 
@@ -116,12 +119,11 @@ contract BetFactory is Ownable, ReentrancyGuard {
             emit BetCreated(address(newBet), msg.sender, _participant, _amount);
 
             // Interactions: Token transfer
-            bool tokenSuccess = IERC20(_token).transferFrom(
+            IERC20(_token).safeTransferFrom(
                 msg.sender,
                 address(newBet),
                 _amount
             );
-            if (!tokenSuccess) revert BET__FailedTokenTransfer();
 
             // Interactions: Send ETH fee
             (bool feeSuccess, ) = payable(owner()).call{value: msg.value}("");
