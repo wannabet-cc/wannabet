@@ -31,11 +31,12 @@ contract Bet is ReentrancyGuard {
     Status private _status = Status.Pending;
     bool private _fundsWithdrawn = false;
     address public winner;
+    string public judgementReason;
 
     // -> Events
     event BetAccepted();
     event BetDeclined();
-    event BetSettled(address indexed winner);
+    event BetSettled(address indexed winner, string reason);
 
     // -> Errors
     error BET__Unauthorized();
@@ -135,7 +136,10 @@ contract Bet is ReentrancyGuard {
         _TOKEN.safeTransfer(_CREATOR, _AMOUNT);
     }
 
-    function settleBet(address _winner) public onlyJudge nonReentrant {
+    function settleBet(
+        address _winner,
+        string memory _reason
+    ) public onlyJudge nonReentrant {
         // Checks
         if (_status != Status.Accepted) revert BET__InvalidStatus();
         if (
@@ -147,9 +151,10 @@ contract Bet is ReentrancyGuard {
         // Update state
         _status = Status.Settled;
         winner = _winner;
+        judgementReason = _reason;
 
         // Emit event
-        emit BetSettled(_winner);
+        emit BetSettled(_winner, _reason);
 
         // Interactions: Token transfer
         if (_winner == 0x0000000000000000000000000000000000000000) {
