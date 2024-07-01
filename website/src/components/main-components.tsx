@@ -5,6 +5,7 @@ import { BetListCard, MyBetList, RecentBetList } from "./bet-list-card";
 import { CustomConnectButton } from "./rainbow/custom-connect-button";
 import { BetDetailsCard } from "./bet-details-card";
 import { CreateBetCard } from "./create-bet-card";
+import Link from "next/link";
 
 export function ExplorerComponent({
   currentView,
@@ -16,7 +17,7 @@ export function ExplorerComponent({
   return (
     <Tabs defaultValue="recent" className="w-full max-w-md space-y-2">
       <div className="mb-8 hidden text-3xl font-semibold lg:flex">
-        WannaBet 🤝
+        <Link href="https://wannabet.cc">WannaBet 🤝</Link>
       </div>
       <div className="flex justify-between">
         <TabsList>
