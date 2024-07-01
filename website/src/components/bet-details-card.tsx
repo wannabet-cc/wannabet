@@ -107,15 +107,30 @@ function BetDetails({ bet }: { bet: FormattedBet }) {
         <TableRow>
           <TableCell>status</TableCell>
           <TableCell>
-            {bet.status}{" "}
+            {bet.status}
+            {bet.status === "settled" &&
+              (() => {
+                if (bet.winner === "0x0000000000000000000000000000000000000000")
+                  return ": tie";
+                else if (bet.winner.toLowerCase() === bet.creator)
+                  return `: ${bet.creatorAlias} won`;
+                else if (bet.winner.toLowerCase() === bet.participant)
+                  return `: ${bet.participantAlias} won`;
+                else return "";
+              })()}
             <span className="text-xs text-muted-foreground">
               {bet.status === "pending"
-                ? `(expires ${bet.validUntil.toLocaleString()})`
+                ? ` (expires ${bet.validUntil.toLocaleString()})`
                 : ""}
               {bet.status === "expired"
-                ? `(${bet.validUntil.toLocaleString()})`
+                ? ` (${bet.validUntil.toLocaleString()})`
                 : ""}
             </span>
+            {bet.judgementReason && (
+              <p className="text-xs text-muted-foreground">
+                reason: {bet.judgementReason}
+              </p>
+            )}
           </TableCell>
         </TableRow>
         <TableRow>

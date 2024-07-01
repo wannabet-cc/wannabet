@@ -118,6 +118,8 @@ export type FormattedBet = {
   validUntil: Date;
   createdTime: Date;
   status: BetStatus;
+  winner: Address;
+  judgementReason: string;
 };
 export type FormattedBets = {
   items: FormattedBet[];
@@ -139,17 +141,33 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
       participant = rawBet.participant as Address,
       judge = rawBet.judge as Address;
     // get aliases and bet status
-    const [creatorAlias, participantAlias, judgeAlias, status] =
-      await Promise.all([
-        getPreferredAlias(creator),
-        getPreferredAlias(participant),
-        getPreferredAlias(judge),
-        baseClient.readContract({
-          address: contractAddress,
-          abi: BetAbi,
-          functionName: "getStatus",
-        }),
-      ]);
+    const [
+      creatorAlias,
+      participantAlias,
+      judgeAlias,
+      status,
+      winner,
+      judgementReason,
+    ] = await Promise.all([
+      getPreferredAlias(creator),
+      getPreferredAlias(participant),
+      getPreferredAlias(judge),
+      baseClient.readContract({
+        address: contractAddress,
+        abi: BetAbi,
+        functionName: "getStatus",
+      }),
+      baseClient.readContract({
+        address: contractAddress,
+        abi: BetAbi,
+        functionName: "winner",
+      }),
+      baseClient.readContract({
+        address: contractAddress,
+        abi: BetAbi,
+        functionName: "judgementReason",
+      }),
+    ]);
     // return
     return {
       betId: Number(rawBet.id),
@@ -167,6 +185,8 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
       validUntil: new Date(Number(rawBet.validUntil) * 1000),
       createdTime: new Date(Number(rawBet.createdTime) * 1000),
       status: status as BetStatus,
+      winner,
+      judgementReason,
     };
   } catch (error) {
     const errorMsg = "Failed to format bets from raw bets";
