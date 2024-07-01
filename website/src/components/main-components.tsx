@@ -15,6 +15,9 @@ export function ExplorerComponent({
 }) {
   return (
     <Tabs defaultValue="recent" className="w-full max-w-md space-y-2">
+      <div className="mb-8 hidden text-3xl font-semibold lg:flex">
+        WannaBet 🤝
+      </div>
       <div className="flex justify-between">
         <TabsList>
           <TabsTrigger value="recent">Recent</TabsTrigger>
@@ -44,7 +47,7 @@ export function ViewComponent({
   currentView: FormattedBet | "create" | undefined;
 }) {
   return (
-    <div className="w-full max-w-md space-y-2">
+    <div className="w-full max-w-md space-y-2 lg:mt-[68px]">
       <div className="hidden lg:flex lg:justify-end">
         <CustomConnectButton />
       </div>
