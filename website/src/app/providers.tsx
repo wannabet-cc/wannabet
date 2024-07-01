@@ -1,14 +1,16 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { WagmiProvider } from "wagmi";
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { WagmiProvider, createConfig, http } from "wagmi";
 import { base } from "wagmi/chains";
+import { BASE_ALCHEMY_URL } from "@/config";
 
-const config = getDefaultConfig({
-  appName: "WannaBet App",
-  projectId: "YOUR_PROJECT_ID",
+const config = createConfig({
   chains: [base],
+  transports: {
+    [base.id]: http(BASE_ALCHEMY_URL),
+  },
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
 
