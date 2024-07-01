@@ -37,10 +37,10 @@ export function BetDetailsCard({
         <CardDescription>
           {currentBet ? (
             <a
-              href={`https://arbiscan.io/address/${currentBet.contractAddress}`}
+              href={`https://basescan.org/address/${currentBet.contractAddress}`}
               target="_blank"
             >
-              See on Arbiscan
+              See on Basescan
             </a>
           ) : (
             ""
