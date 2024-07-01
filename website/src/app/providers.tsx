@@ -1,12 +1,14 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { WagmiProvider, createConfig, http } from "wagmi";
+import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { WagmiProvider, http } from "wagmi";
 import { base } from "wagmi/chains";
 import { BASE_ALCHEMY_URL } from "@/config";
 
-const config = createConfig({
+const config = getDefaultConfig({
+  appName: "WannaBet",
+  projectId: "YOUR_PROJECT_ID",
   chains: [base],
   transports: {
     [base.id]: http(BASE_ALCHEMY_URL),
