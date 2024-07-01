@@ -140,6 +140,7 @@ function ActionButtons({
   userAddress: Address;
   bet: FormattedBet;
 }) {
+  const account = useAccount();
   const { toast } = useToast();
   const { data: contractBalance } = useReadContract({
     address: BASE_USDC_ADDRESS,
@@ -283,9 +284,15 @@ function ActionButtons({
 
   return (
     <div className="flex gap-1">
-      {isCreator && bet.status === "expired" && creatorActions}
-      {isParticipant && bet.status === "pending" && participantActions}
-      {isJudge && bet.status === "accepted" && judgeActions}
+      {account.chainId === 8453 ? (
+        <>
+          {isCreator && bet.status === "expired" && creatorActions}
+          {isParticipant && bet.status === "pending" && participantActions}
+          {isJudge && bet.status === "accepted" && judgeActions}
+        </>
+      ) : (
+        "Wrong chain"
+      )}
       <span className="hidden only:inline-block">...</span>
     </div>
   );
