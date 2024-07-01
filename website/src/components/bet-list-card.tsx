@@ -28,7 +28,7 @@ export function BetListCard({
   title: string;
 }) {
   return (
-    <Card className="max-h-[512px] w-full">
+    <Card className="h-fit w-full">
       <CardHeader>
         <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
