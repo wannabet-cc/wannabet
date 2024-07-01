@@ -46,7 +46,7 @@ export function RecentBetList({
 }) {
   const { isPending, error, isSuccess, data } = useQuery({
     queryKey: ["recentBetData"],
-    queryFn: () => getRecentFormattedBets(5),
+    queryFn: () => getRecentFormattedBets(15),
   });
   if (isPending) return <LoadingSpinner />;
   if (error) return "An error has occurred: " + error;
@@ -66,7 +66,7 @@ export function MyBetList({
   const account = useAccount();
   const { isPending, error, isSuccess, data } = useQuery({
     queryKey: ["myBetData"],
-    queryFn: () => getUserFormattedBets(account.address!, 5),
+    queryFn: () => getUserFormattedBets(account.address!, 15),
     enabled: account.isConnected,
   });
   if (account.isDisconnected) return <CustomConnectButtonSecondary />;
