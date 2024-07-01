@@ -1,7 +1,7 @@
 import { ponder } from "@/generated";
 import { BetAbi } from "../abis/BetAbi";
 
-ponder.on("BetFactory:BetCreated", async ({ event, context }) => {
+ponder.on("BetFactoryBase:BetCreated", async ({ event, context }) => {
   console.log("Indexing event: BetFactory:BetCreated");
   try {
     // read contract data
@@ -24,6 +24,7 @@ ponder.on("BetFactory:BetCreated", async ({ event, context }) => {
     await Bet.create({
       id: betId,
       data: {
+        chainId: 8453,
         contractAddress: event.args.contractAddress,
         creator,
         participant,

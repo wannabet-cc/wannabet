@@ -21,7 +21,7 @@ import {
   useWriteContract,
   type BaseError,
 } from "wagmi";
-import { BET_FACTORY_CONTRACT_ADDRESS, USDC_CONTRACT_ADDRESS } from "@/config";
+import { BASE_BET_FACTORY_ADDRESS, BASE_USDC_ADDRESS } from "@/config";
 import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
 import { Address, parseUnits } from "viem";
 import { fetchEnsAddress, getAddressFromTokenName } from "@/lib/utils";
@@ -103,15 +103,15 @@ function CreateBetForm() {
     ]);
     // write contract: approve bet factory
     await writeContractAsync({
-      address: USDC_CONTRACT_ADDRESS,
+      address: BASE_USDC_ADDRESS,
       abi: FiatTokenProxyAbi,
       functionName: "approve",
-      args: [BET_FACTORY_CONTRACT_ADDRESS, bigintAmount],
+      args: [BASE_BET_FACTORY_ADDRESS, bigintAmount],
     });
     // write contract: create bet
     await writeContractAsync(
       {
-        address: BET_FACTORY_CONTRACT_ADDRESS,
+        address: BASE_BET_FACTORY_ADDRESS,
         abi: BetFactoryAbi,
         functionName: "createBet",
         args: [

@@ -1,4 +1,4 @@
-export const betAbi = [
+export const BetAbi = [
   {
     inputs: [
       { internalType: "uint256", name: "_betId", type: "uint256" },
@@ -14,6 +14,16 @@ export const betAbi = [
     stateMutability: "nonpayable",
     type: "constructor",
   },
+  {
+    inputs: [{ internalType: "address", name: "target", type: "address" }],
+    name: "AddressEmptyCode",
+    type: "error",
+  },
+  {
+    inputs: [{ internalType: "address", name: "account", type: "address" }],
+    name: "AddressInsufficientBalance",
+    type: "error",
+  },
   { inputs: [], name: "BET__BadInput", type: "error" },
   { inputs: [], name: "BET__Expired", type: "error" },
   { inputs: [], name: "BET__FailedEthTransfer", type: "error" },
@@ -22,46 +32,29 @@ export const betAbi = [
   { inputs: [], name: "BET__FundsAlreadyWithdrawn", type: "error" },
   { inputs: [], name: "BET__InvalidStatus", type: "error" },
   { inputs: [], name: "BET__Unauthorized", type: "error" },
+  { inputs: [], name: "FailedInnerCall", type: "error" },
+  { inputs: [], name: "ReentrancyGuardReentrantCall", type: "error" },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "factoryContract",
-        type: "address",
-      },
-    ],
-    name: "BetAccepted",
-    type: "event",
+    inputs: [{ internalType: "address", name: "token", type: "address" }],
+    name: "SafeERC20FailedOperation",
+    type: "error",
   },
+  { anonymous: false, inputs: [], name: "BetAccepted", type: "event" },
+  { anonymous: false, inputs: [], name: "BetDeclined", type: "event" },
   {
     anonymous: false,
     inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "factoryContract",
-        type: "address",
-      },
-    ],
-    name: "BetDeclined",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "factoryContract",
-        type: "address",
-      },
       {
         indexed: true,
         internalType: "address",
         name: "winner",
         type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "reason",
+        type: "string",
       },
     ],
     name: "BetSettled",
@@ -106,13 +99,23 @@ export const betAbi = [
   },
   {
     inputs: [],
+    name: "judgementReason",
+    outputs: [{ internalType: "string", name: "", type: "string" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "retrieveTokens",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "_winner", type: "address" }],
+    inputs: [
+      { internalType: "address", name: "_winner", type: "address" },
+      { internalType: "string", name: "_reason", type: "string" },
+    ],
     name: "settleBet",
     outputs: [],
     stateMutability: "nonpayable",
