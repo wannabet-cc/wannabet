@@ -13,7 +13,6 @@ const config = getDefaultConfig({
   transports: {
     [base.id]: http(BASE_ALCHEMY_URL),
   },
-  ssr: true, // If your dApp uses server side rendering (SSR)
 });
 
 const queryClient = new QueryClient();

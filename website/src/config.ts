@@ -5,8 +5,8 @@
 export const MAINNET_ALCHEMY_URL = process.env.NEXT_PUBLIC_MAINNET_ALCHEMY_URL;
 export const ARB_ALCHEMY_URL = process.env.NEXT_PUBLIC_ARB_ALCHEMY_URL;
 export const BASE_ALCHEMY_URL = process.env.NEXT_PUBLIC_BASE_ALCHEMY_URL;
-export const WC_PROJECT_ID =
-  process.env.WC_PROJECT_ID || process.env.NEXT_PUBLIC_WC_PROJECT_ID || "";
+export const WC_PROJECT_ID = process.env.WC_PROJECT_ID || "YOUR_PROJECT_ID";
+console.log(WC_PROJECT_ID);
 
 // Smart contract constants
 // Chain: Arbitrum
