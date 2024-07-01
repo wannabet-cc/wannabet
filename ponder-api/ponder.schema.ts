@@ -3,6 +3,7 @@ import { createSchema } from "@ponder/core";
 export default createSchema((p) => ({
   Bet: p.createTable({
     id: p.bigint(),
+    chainId: p.int(),
     contractAddress: p.hex(),
     creator: p.hex(),
     participant: p.hex(),
