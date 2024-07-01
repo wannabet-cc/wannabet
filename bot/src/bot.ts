@@ -8,7 +8,7 @@ import {
   getEventNameFromSignature,
   getFarcasterNames,
 } from "./utils";
-import { betFactoryAbi } from "./contracts/betFactoryAbi";
+import { BetFactoryAbi } from "./contracts/BetFactoryAbi";
 
 const bot: Express = express();
 
@@ -65,7 +65,7 @@ export default bot;
 async function handleBetCreated(log: Log) {
   // Parse the new bet contract address
   const decodedTopics = decodeEventLog({
-    abi: betFactoryAbi,
+    abi: BetFactoryAbi,
     eventName: "BetCreated",
     data: log.data as Hex,
     topics: [
