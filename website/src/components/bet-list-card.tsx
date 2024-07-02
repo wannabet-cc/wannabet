@@ -94,7 +94,7 @@ function BetList({
           <TableHead className="text-center">bet</TableHead>
           <TableHead>amount</TableHead>
           <TableHead>participants</TableHead>
-          <TableHead className="text-center">active?</TableHead>
+          <TableHead className="text-center">status</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -115,10 +115,16 @@ function BetList({
               {bet.participantAlias}
             </TableCell>
             <TableCell className="text-center">
-              {bet.status === "pending" || bet.status === "accepted" ? (
+              {bet.status === "pending" ? (
+                <span>⌛️</span>
+              ) : bet.status === "accepted" ? (
                 <span className="text-green-700">✓</span>
+              ) : bet.status === "declined" || bet.status === "expired" ? (
+                <span className="text-lg leading-none text-red-700">𐄂</span>
+              ) : bet.status === "settled" ? (
+                <span>💰</span>
               ) : (
-                <span className="text-red-700">𐄂</span>
+                "..."
               )}
             </TableCell>
           </TableRow>
