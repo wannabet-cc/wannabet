@@ -71,10 +71,13 @@ export const getRawBetsFromIds = async (betIds: number[]): Promise<RawBets> => {
     throw new Error(errorMsg);
   }
 };
-export const getRecentRawBets = async (numBets: number): Promise<RawBets> => {
+export const getRecentRawBets = async (
+  numBets: number,
+  page?: Partial<{ afterCursor: string; beforeCursor: string }>,
+): Promise<RawBets> => {
   console.log("Running getRecentRawBets...");
   try {
-    const query = generateRecentBetsQuery(numBets);
+    const query = generateRecentBetsQuery(numBets, page);
     const result = await queryGqlApi<BetsQueryResponse>(BET_API_URL, query);
     return result.data.bets;
   } catch (error) {
@@ -227,14 +230,15 @@ export const getFormattedBetsFromIds = async (
 };
 export const getRecentFormattedBets = async (
   numBets: number,
+  page?: Partial<{ afterCursor: string; beforeCursor: string }>,
 ): Promise<FormattedBets> => {
   console.log("Running getRecentFormattedBets...");
   try {
-    const rawBets = await getRecentRawBets(numBets);
+    const rawBets = await getRecentRawBets(numBets, page);
     const formattedBets = await Promise.all(
       rawBets.items.map((bet) => formatBet(bet)),
     );
-    return { items: formattedBets };
+    return { items: formattedBets, pageInfo: rawBets.pageInfo };
   } catch (error) {
     const errorMsg = "Failed to get formatted bet details from bet ids";
     console.error(errorMsg + ": " + error);
@@ -252,7 +256,7 @@ export const getUserFormattedBets = async (
     const formattedBets = await Promise.all(
       rawBets.items.map((bet) => formatBet(bet)),
     );
-    return { items: formattedBets };
+    return { items: formattedBets, pageInfo: rawBets.pageInfo };
   } catch (error) {
     const errorMsg = "Failed to get formatted bet details from bet ids";
     console.error(errorMsg + ": " + error);
