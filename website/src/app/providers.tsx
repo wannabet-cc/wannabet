@@ -4,14 +4,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { WagmiProvider, http } from "wagmi";
 import { base } from "wagmi/chains";
-import { BASE_ALCHEMY_URL, WC_PROJECT_ID } from "@/config";
 
 const config = getDefaultConfig({
   appName: "WannaBet",
-  projectId: WC_PROJECT_ID,
+  projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || "",
   chains: [base],
   transports: {
-    [base.id]: http(BASE_ALCHEMY_URL),
+    [base.id]: http(process.env.NEXT_PUBLIC_BASE_ALCHEMY_URL),
   },
 });
 
