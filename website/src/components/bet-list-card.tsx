@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { useQuery } from "@tanstack/react-query";
+import { type InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
 import {
   type FormattedBet,
   type FormattedBets,
@@ -19,6 +19,9 @@ import {
 import { LoadingSpinner } from "./ui/spinner";
 import { useAccount } from "wagmi";
 import { CustomConnectButtonSecondary } from "./rainbow/custom-connect-button";
+import React from "react";
+import { ScrollArea } from "./ui/scroll-area";
+import { Button } from "./ui/button";
 
 export function BetListCard({
   children,
@@ -44,16 +47,37 @@ export function RecentBetList({
   currentView: FormattedBet | "create" | undefined;
   setBetFn: (bet: FormattedBet) => void;
 }) {
-  const { isPending, error, isSuccess, data } = useQuery({
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery({
     queryKey: ["recentBetData"],
-    queryFn: () => getRecentFormattedBets(15),
+    queryFn: ({ pageParam = "" }) =>
+      getRecentFormattedBets(6, { afterCursor: pageParam }),
+    initialPageParam: "",
+    getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
+    maxPages: 7,
   });
-  if (isPending) return <LoadingSpinner />;
-  if (error) return "An error has occurred: " + error;
-  if (isSuccess)
-    return (
-      <BetList data={data} currentView={currentView} setBetFn={setBetFn} />
-    );
+  return status === "pending" ? (
+    <LoadingSpinner />
+  ) : status === "error" ? (
+    "An error has occurred: " + { error }
+  ) : (
+    <BetList
+      data={data}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+      isFetching={isFetching}
+      fetchNextPage={fetchNextPage}
+      currentView={currentView}
+      setBetFn={setBetFn}
+    />
+  );
 }
 
 export function MyBetList({
@@ -64,66 +88,134 @@ export function MyBetList({
   setBetFn: (bet: FormattedBet) => void;
 }) {
   const account = useAccount();
-  const { isPending, error, isSuccess, data } = useQuery({
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery({
     queryKey: ["myBetData"],
-    queryFn: () => getUserFormattedBets(account.address!, 15),
+    queryFn: ({ pageParam = "" }) =>
+      getUserFormattedBets(account.address!, 6, { afterCursor: pageParam }),
+    initialPageParam: "",
+    getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
+    maxPages: 7,
     enabled: account.isConnected,
   });
-  if (account.isDisconnected) return <CustomConnectButtonSecondary />;
-  if (isPending) return <LoadingSpinner />;
-  if (error) return "An error has occurred: " + error;
-  if (isSuccess)
-    return (
-      <BetList data={data} currentView={currentView} setBetFn={setBetFn} />
-    );
+  return account.isDisconnected ? (
+    <CustomConnectButtonSecondary />
+  ) : status === "pending" ? (
+    <LoadingSpinner />
+  ) : status === "error" ? (
+    "An error has occurred: " + { error }
+  ) : (
+    <BetList
+      data={data}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+      isFetching={isFetching}
+      fetchNextPage={fetchNextPage}
+      currentView={currentView}
+      setBetFn={setBetFn}
+    />
+  );
 }
 
 function BetList({
   data,
+  hasNextPage,
+  isFetchingNextPage,
+  isFetching,
+  fetchNextPage,
   currentView,
   setBetFn,
 }: {
-  data: FormattedBets;
+  data: InfiniteData<FormattedBets, unknown> | undefined;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  isFetching: boolean;
+  fetchNextPage: any;
   currentView: FormattedBet | "create" | undefined;
   setBetFn: (bet: FormattedBet) => void;
 }) {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="text-center">bet</TableHead>
-          <TableHead>amount</TableHead>
-          <TableHead>participants</TableHead>
-          <TableHead className="text-center">active?</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data.items.map((bet, i) => (
-          <TableRow
-            key={i}
-            onClick={() => setBetFn(bet)}
-            data-current-bet={
-              typeof currentView === "object" && bet.betId === currentView.betId
-            }
-            className="cursor-pointer data-[current-bet=true]:bg-muted"
-          >
-            <TableCell className="text-center">{bet.betId}</TableCell>
-            <TableCell>{bet.amount} USDC</TableCell>
-            <TableCell>
-              {bet.creatorAlias}
-              <span className="text-muted-foreground"> vs </span>
-              {bet.participantAlias}
-            </TableCell>
-            <TableCell className="text-center">
-              {bet.status === "pending" || bet.status === "accepted" ? (
-                <span className="text-green-700">✓</span>
-              ) : (
-                <span className="text-red-700">𐄂</span>
-              )}
+    <ScrollArea className="h-80 w-full pr-2">
+      <Table>
+        <TableHeader className="sticky top-0 bg-card">
+          <TableRow>
+            <TableHead className="text-center">bet</TableHead>
+            <TableHead>amount</TableHead>
+            <TableHead>participants</TableHead>
+            <TableHead className="text-center">status</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data?.pages.map((page, i) => (
+            <>
+              {page.items.map((bet, i) => (
+                <TableRow
+                  key={i}
+                  onClick={() => setBetFn(bet)}
+                  data-current-bet={
+                    typeof currentView === "object" &&
+                    bet.betId === currentView.betId
+                  }
+                  className="cursor-pointer data-[current-bet=true]:bg-muted"
+                >
+                  <TableCell className="text-center">{bet.betId}</TableCell>
+                  <TableCell>{bet.amount} USDC</TableCell>
+                  <TableCell>
+                    {bet.creatorAlias}
+                    <span className="text-muted-foreground"> vs </span>
+                    {bet.participantAlias}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {bet.status === "pending" ? (
+                      <span>⌛️</span>
+                    ) : bet.status === "accepted" ? (
+                      <span className="text-green-700">✓</span>
+                    ) : bet.status === "declined" ||
+                      bet.status === "expired" ? (
+                      <span className="text-lg leading-none text-red-700">
+                        𐄂
+                      </span>
+                    ) : bet.status === "settled" ? (
+                      <span>💰</span>
+                    ) : (
+                      "..."
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </>
+          ))}
+          <TableRow>
+            <TableCell colSpan={4}>
+              <div className="mx-auto w-fit">
+                {isFetching && !isFetchingNextPage ? (
+                  <LoadingSpinner />
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={!hasNextPage || isFetchingNextPage}
+                    onClick={() => fetchNextPage()}
+                  >
+                    {isFetchingNextPage
+                      ? "Loading..."
+                      : hasNextPage
+                        ? "Load More"
+                        : "Nothing more to load"}
+                  </Button>
+                )}
+              </div>
             </TableCell>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableBody>
+      </Table>
+    </ScrollArea>
   );
 }

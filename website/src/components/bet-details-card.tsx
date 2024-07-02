@@ -107,6 +107,17 @@ function BetDetails({ bet }: { bet: FormattedBet }) {
         <TableRow>
           <TableCell>status</TableCell>
           <TableCell>
+            {bet.status === "pending" ? (
+              <span className="mr-1">⌛️</span>
+            ) : bet.status === "accepted" ? (
+              <span className="mr-1 text-green-700">✓</span>
+            ) : bet.status === "declined" || bet.status === "expired" ? (
+              <span className="mr-1 text-lg leading-none text-red-700">𐄂</span>
+            ) : bet.status === "settled" ? (
+              <span className="mr-1">💰</span>
+            ) : (
+              ""
+            )}
             {bet.status}
             {bet.status === "settled" &&
               (() => {
