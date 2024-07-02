@@ -1,62 +1,32 @@
-# Wanna Bet
+# WannaBet
 
-An onchain peer-to-peer betting tool. Whitepaper and development is currently in progress.
+[WannaBet](https://wannabet.cc) is a public, onchain, peer-to-peer betting dapp [deployed on Base](https://basescan.org/address/0x304ac36402d551fbba8e53e04e770337022e8757). Bets are defined and placed upfront, wagers are held in an escrow contract, and a judge is assigned to determine a winner.
+
+## Features
+
+- Trustless, public wagers
+- Bet with any ERC20 on Base (website currently only supports USDC)
 
 ## How it works
 
-There are two contracts:
+There are 3 roles in any given bet: a creator, participant, and a judge. The bet creator and participant put their wagers into an escrow contract with the `createBet` and `acceptBet` functions respectively, and the judge determines the winner with the `settleBet` function. 
 
-- `Bet.sol`, which is initiated with the following parameters:
-  1. `address` \_creator - The bet creator
-  2. `address` \_participant - A participant
-  3. `uint256` \_amount - A token amount
-  4. `address` \_token - The erc20 token contract with which the bet is using
-  5. `string` \_message - An attached message
-  6. `address` \_arbitrator - An arbitrator (one who selects the winner)
-  7. `uint256` \_validFor - Time in seconds that the \_participant has to accept or decline after bet creation
-- `BetFactory.sol`, which creates new Bet contracts and holds the initial state of all bets created from it.
-
-## Worklog
-
-- [x] Contract
-  - [x] Build basic functionality
-  - [x] Add time as a function parameter to `Bet.sol` (e.g. after x days, if no accept or decline, cancel bet and return tokens to bet creator)
-  - [x] Add custom errors
-  - [x] Add getter functions bet arrays
-  - [x] Allow getting/reading bets with a betId, contract address, or user address
-  - [x] Add function to `Bet.sol` that returns all relevant bet info in one call
-  - [x] Add a `status` state that includes a string of the bet status rather than looking to booleans (e.g. could include "pending response", "accepted", "declined", "expired", "settled", etc.)
-  - [x] Add bet id to each deployed bet contract
-  - [ ] ~~Add acceptBet, declineBet, and settleBet functions to factory contract, given a contract address as a param~~
-  - [ ] ~~Add ability for participant to send tokens directly to the contract to accept, making it so they only need to execute one txn~~
-  - [ ] ~~Add ability to cancel a bet (i.e. prior to participant acceptance, giving the option for the bet creator and/or the arbitrator to return the funds without selecting a winner)~~
-- [x] Frame
-  - [x] 'Create new' flow
-    - [x] Add state
-    - [x] Add bet info that builds as state is filled in from user input
-    - [x] Add tx for authorizing usdc transfer
-    - [x] Add step for inputting expiration period
-    - [x] Add tx for creating the bet
-    - [x] Add validation for contract rules (e.g. creator can't be participant, etc.)
-  - [x] Homescreen
-    - [x] Every frame is unique to a specific bet (i.e. https://example.com/[:betId]/home)
-  - [x] Bet actions
-    - [x] Participants can accept or decline a bet
-    - [x] Arbitrators can select a winner or tie
-    - [x] Creators can retrieve their funds if their offer expired
-  - [x] Add ens compatibility
-    - [x] Show primary names when displayed
-    - [x] Allow user to input names where applicable
-  - [ ] Add Farcaster username compatibility
-    - [ ] Show Farcaster username (over ens name and shorthand address) when displayed
-    - [ ] Allow user to input Farcaster usernames where applicable
-  - [x] Deploy
-    - [x] Deploy as a cloudflare worker
-    - [x] Test all flows and transactions
-    - [x] Set a domain (frame.wannabet.cc)
-- [x] Farcaster Bot
-  - [x] Generate signer
-  - [x] Set up webhooks for when a bet is created, accepted, and settled
-  - [x] Cast when a bet is created
-  - [x] Tag users when casting
-  - [x] Deploy
+1. Create a bet with BetFactory.sol `createBet`
+  - Sends your wager to the escrow contract (requires a preliminary authorization txn)
+  - Sends a fee
+  - Creates a new deployed instance of Bet.sol with a "pending" status
+2. Accept, decline, or ignore a bet as the participant in Bet.sol
+  - `acceptBet`
+    - Sends the participant's wager (requires a preliminary authorization txn)
+    - Sends a fee
+    - Changes the bet status to "accepted"
+  - `declineBet`
+    - Returns the bet creator's wager
+    - Changes the bet status to "declined"
+  - Ignore (if not accepted or declined prior to the specified deadline)
+    - Changes the bet status to "expired"
+    - Allows the bet creator to run `retrieveTokens` to get their wager back
+3. If accepted, the judge can settle with `settleBet`
+  - Sends all tokens to the winning party
+  - Attaches a message as the judgement reasoning
+  - To settle as a tie, the judge can pass address(0) as the winner, and the tokens will be evenly returned to both parties
