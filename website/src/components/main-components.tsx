@@ -24,7 +24,7 @@ export function ExplorerComponent({
           <TabsTrigger value="recent">Recent</TabsTrigger>
           <TabsTrigger value="my">Mine</TabsTrigger>
         </TabsList>
-        <Button variant="ghost" onClick={() => setViewFn("create")}>
+        <Button variant="outline" onClick={() => setViewFn("create")}>
           + Create New
         </Button>
       </div>
