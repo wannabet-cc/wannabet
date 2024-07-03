@@ -2,12 +2,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -15,20 +14,16 @@ import {
 } from "./ui/form";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import {
-  useAccount,
-  useWaitForTransactionReceipt,
-  useWriteContract,
-  type BaseError,
-} from "wagmi";
+import { writeContract, waitForTransactionReceipt } from "@wagmi/core";
 import { BASE_BET_FACTORY_ADDRESS, BASE_USDC_ADDRESS } from "@/config";
 import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
 import { Address, parseUnits } from "viem";
-import { fetchEnsAddress, getAddressFromTokenName } from "@/lib/utils";
+import { fetchEnsAddress, getAddressFromTokenName, pause } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { useToast } from "./ui/use-toast";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { useState } from "react";
+import { config } from "@/app/providers";
 
 export function CreateBetCard() {
   return (
@@ -61,16 +56,7 @@ const formSchema = z.object({
 });
 
 function CreateBetForm() {
-  const account = useAccount();
-  const [submitLoading, setSubmitLoading] = useState(false); // temporary
-  const {
-    data: hash,
-    writeContractAsync,
-    isPending,
-    error,
-  } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
-    useWaitForTransactionReceipt({ hash });
+  const [submitLoading, setSubmitLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -84,53 +70,82 @@ function CreateBetForm() {
   });
   const { toast } = useToast();
 
-  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    setSubmitLoading(true); // temporary
-    // token: get contract address from string name
-    const tokenAddress = getAddressFromTokenName(values.token);
-    // amount: add decimals and convert to bigint
-    const bigintAmount = parseUnits(values.amount.toString(), 6);
-    // validFor: change days to seconds and convert to bigint
-    const validFor = BigInt(values.validForDays * 24 * 60 * 60);
-    // ens names
-    const [participantAddress, judgeAddress] = await Promise.all([
-      addressRegex.test(values.participant)
-        ? values.participant
-        : (await fetchEnsAddress(values.participant)).address,
-      addressRegex.test(values.judge)
-        ? values.judge
-        : (await fetchEnsAddress(values.judge)).address,
-    ]);
-    // write contract: approve bet factory
-    await writeContractAsync({
-      address: BASE_USDC_ADDRESS,
-      abi: FiatTokenProxyAbi,
-      functionName: "approve",
-      args: [BASE_BET_FACTORY_ADDRESS, bigintAmount],
-    });
-    // write contract: create bet
-    await writeContractAsync(
-      {
-        address: BASE_BET_FACTORY_ADDRESS,
-        abi: BetFactoryAbi,
-        functionName: "createBet",
-        args: [
-          participantAddress as Address,
-          bigintAmount,
-          tokenAddress as Address,
-          values.message,
-          judgeAddress as Address,
-          validFor,
-        ],
-        value: parseUnits("0.0002", 18),
-      },
-      {
-        onSuccess: () => {
-          toast({ title: "Bet created successfully!", description: hash });
+  const handleSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (
+    values,
+    e,
+  ) => {
+    e?.preventDefault();
+    setSubmitLoading(true);
+    try {
+      // Transform data
+      const tokenAddress = getAddressFromTokenName(values.token);
+      const bigintAmount = parseUnits(values.amount.toString(), 6);
+      const validFor = BigInt(values.validForDays * 24 * 60 * 60);
+      const [participantAddress, judgeAddress] = await Promise.all([
+        addressRegex.test(values.participant)
+          ? values.participant
+          : (await fetchEnsAddress(values.participant)).address,
+        addressRegex.test(values.judge)
+          ? values.judge
+          : (await fetchEnsAddress(values.judge)).address,
+      ]);
+      // Write contract: approve
+      const approveHash = await writeContract(config, {
+        address: BASE_USDC_ADDRESS,
+        abi: FiatTokenProxyAbi,
+        functionName: "approve",
+        args: [BASE_BET_FACTORY_ADDRESS, bigintAmount],
+      });
+      // Wait for confirmation
+      const { status: approveStatus } = await waitForTransactionReceipt(
+        config,
+        {
+          hash: approveHash,
         },
-      },
-    );
-    setSubmitLoading(false); // temporary
+      );
+      // If success...
+      if (approveStatus === "success") {
+        // Write contract: create bet
+        const betHash = await writeContract(config, {
+          address: BASE_BET_FACTORY_ADDRESS,
+          abi: BetFactoryAbi,
+          functionName: "createBet",
+          args: [
+            participantAddress as Address,
+            bigintAmount,
+            tokenAddress as Address,
+            values.message,
+            judgeAddress as Address,
+            validFor,
+          ],
+          value: parseUnits("0.0002", 18),
+        });
+        // Wait for confirmation
+        const { status: betStatus } = await waitForTransactionReceipt(config, {
+          hash: betHash,
+        });
+        if (betStatus === "success")
+          toast({
+            title: "Bet created successfully!",
+            description: "Txn hash: " + betHash,
+          });
+        else
+          toast({
+            title: "Bet creation failed to confirm",
+            description: "Txn hash: " + betHash,
+          });
+      } else {
+        toast({
+          title: "Failed to authorize bet fund transfer",
+          description: "Txn hash: " + approveHash,
+        });
+      }
+      setSubmitLoading(false);
+    } catch (error) {
+      console.error(error);
+      setSubmitLoading(false);
+      toast({ title: "Submit error" });
+    }
   };
 
   return (
@@ -257,14 +272,15 @@ function CreateBetForm() {
           <Button
             className="w-fit"
             type="submit"
-            disabled={account.isDisconnected || isPending || submitLoading} // submitLoading is temporary
+            // disabled={account.isDisconnected || isPending || submitLoading} // submitLoading is temporary
           >
-            {isPending || submitLoading ? "Confirming..." : "Submit"}
+            {submitLoading ? "Confirming..." : "Submit"}
+            {/* {isPending || submitLoading ? "Confirming..." : "Submit"} */}
           </Button>
         </div>
       </form>
       {/* status info */}
-      {hash && (
+      {/* {hash && (
         <pre className="text-wrap text-sm">Transaction hash: {hash}</pre>
       )}
       {isConfirming && (
@@ -277,7 +293,7 @@ function CreateBetForm() {
         <pre className="text-wrap text-sm">
           Error: {(error as BaseError).shortMessage || error.message}
         </pre>
-      )}
+      )} */}
     </Form>
   );
 }

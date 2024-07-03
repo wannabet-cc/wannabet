@@ -5,7 +5,7 @@ import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { WagmiProvider, http } from "wagmi";
 import { base } from "wagmi/chains";
 
-const config = getDefaultConfig({
+export const config = getDefaultConfig({
   appName: "WannaBet",
   projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || "",
   chains: [base],

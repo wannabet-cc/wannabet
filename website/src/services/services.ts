@@ -66,7 +66,7 @@ export const getRawBetsFromIds = async (betIds: number[]): Promise<RawBets> => {
     const result = await queryGqlApi<BetsQueryResponse>(BET_API_URL, query);
     return result.data.bets;
   } catch (error) {
-    const errorMsg = "Failed to get raw bet details from bet id";
+    const errorMsg = "Failed to get raw bets from bet ids";
     console.error(errorMsg + ": " + error);
     throw new Error(errorMsg);
   }
@@ -81,7 +81,7 @@ export const getRecentRawBets = async (
     const result = await queryGqlApi<BetsQueryResponse>(BET_API_URL, query);
     return result.data.bets;
   } catch (error) {
-    const errorMsg = "Failed to get raw bet details from bet id";
+    const errorMsg = "Failed to get recent raw bets";
     console.error(errorMsg + ": " + error);
     throw new Error(errorMsg);
   }
@@ -97,7 +97,7 @@ export const getUserRawBets = async (
     const result = await queryGqlApi<BetsQueryResponse>(BET_API_URL, query);
     return result.data.bets;
   } catch (error) {
-    const errorMsg = "Failed to get raw bet details from bet id";
+    const errorMsg = "Failed to get raw bet details for a user";
     console.error(errorMsg + ": " + error);
     throw new Error(errorMsg);
   }
@@ -223,7 +223,7 @@ export const getFormattedBetsFromIds = async (
     );
     return { items: formattedBets };
   } catch (error) {
-    const errorMsg = "Failed to get formatted bet details from bet ids";
+    const errorMsg = "Failed to get formatted bets from bet ids";
     console.error(errorMsg + ": " + error);
     throw new Error(errorMsg);
   }
@@ -240,7 +240,7 @@ export const getRecentFormattedBets = async (
     );
     return { items: formattedBets, pageInfo: rawBets.pageInfo };
   } catch (error) {
-    const errorMsg = "Failed to get formatted bet details from bet ids";
+    const errorMsg = "Failed to get recent formatted bets";
     console.error(errorMsg + ": " + error);
     throw new Error(errorMsg);
   }
@@ -258,7 +258,7 @@ export const getUserFormattedBets = async (
     );
     return { items: formattedBets, pageInfo: rawBets.pageInfo };
   } catch (error) {
-    const errorMsg = "Failed to get formatted bet details from bet ids";
+    const errorMsg = "Failed to get formatted bet details for a user";
     console.error(errorMsg + ": " + error);
     throw new Error(errorMsg);
   }
