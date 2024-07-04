@@ -268,32 +268,11 @@ function CreateBetForm() {
         />
         {/* submit */}
         <div className="flex flex-col space-y-2 pt-4">
-          {/* <Button className="w-fit" onClick={handleAuthorize}>Authorize</Button> */}
-          <Button
-            className="w-fit"
-            type="submit"
-            // disabled={account.isDisconnected || isPending || submitLoading} // submitLoading is temporary
-          >
+          <Button className="w-fit" type="submit" disabled={submitLoading}>
             {submitLoading ? "Confirming..." : "Submit"}
-            {/* {isPending || submitLoading ? "Confirming..." : "Submit"} */}
           </Button>
         </div>
       </form>
-      {/* status info */}
-      {/* {hash && (
-        <pre className="text-wrap text-sm">Transaction hash: {hash}</pre>
-      )}
-      {isConfirming && (
-        <pre className="text-wrap text-sm">Waiting for confirmation...</pre>
-      )}
-      {isConfirmed && (
-        <pre className="text-wrap text-sm">Transaction confirmed.</pre>
-      )}
-      {error && (
-        <pre className="text-wrap text-sm">
-          Error: {(error as BaseError).shortMessage || error.message}
-        </pre>
-      )} */}
     </Form>
   );
 }

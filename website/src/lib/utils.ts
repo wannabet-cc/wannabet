@@ -10,9 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export async function getPreferredAlias(address: Address) {
   console.log("Running getPreferredAlias...");
-  const ensName = await mainnetClient.getEnsName({
-    address,
-  });
+  const ensName = (await fetchEnsAddress(address)).name;
   console.log(ensName);
   if (ensName) return ensName;
   else return abbreviateHex(address);

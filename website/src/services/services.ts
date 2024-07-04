@@ -3,12 +3,14 @@ import { baseClient } from "./viem";
 import { BET_API_URL } from "@/config";
 import { BetAbi } from "@/abis/BetAbi";
 import { getPreferredAlias } from "@/lib/utils";
+import { readContracts } from "@wagmi/core";
 import {
   generateBetQuery,
   generateBetsQuery,
   generateRecentBetsQuery,
   generateUserBetsQuery,
 } from "./queries";
+import { config } from "@/app/providers";
 
 // General getter function
 async function queryGqlApi<T>(url: string, query: string): Promise<T> {
@@ -120,9 +122,9 @@ export type FormattedBet = {
   judgeAlias: string;
   validUntil: Date;
   createdTime: Date;
-  status: BetStatus;
-  winner: Address;
-  judgementReason: string;
+  status: BetStatus | undefined;
+  winner: Address | undefined;
+  judgementReason: string | undefined;
 };
 export type FormattedBets = {
   items: FormattedBet[];
@@ -148,27 +150,29 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
       creatorAlias,
       participantAlias,
       judgeAlias,
-      status,
-      winner,
-      judgementReason,
+      [status, winner, judgementReason],
     ] = await Promise.all([
       getPreferredAlias(creator),
       getPreferredAlias(participant),
       getPreferredAlias(judge),
-      baseClient.readContract({
-        address: contractAddress,
-        abi: BetAbi,
-        functionName: "getStatus",
-      }),
-      baseClient.readContract({
-        address: contractAddress,
-        abi: BetAbi,
-        functionName: "winner",
-      }),
-      baseClient.readContract({
-        address: contractAddress,
-        abi: BetAbi,
-        functionName: "judgementReason",
+      readContracts(config, {
+        contracts: [
+          {
+            address: contractAddress,
+            abi: BetAbi,
+            functionName: "getStatus",
+          },
+          {
+            address: contractAddress,
+            abi: BetAbi,
+            functionName: "winner",
+          },
+          {
+            address: contractAddress,
+            abi: BetAbi,
+            functionName: "judgementReason",
+          },
+        ],
       }),
     ]);
     // return
@@ -187,9 +191,9 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
       judgeAlias,
       validUntil: new Date(Number(rawBet.validUntil) * 1000),
       createdTime: new Date(Number(rawBet.createdTime) * 1000),
-      status: status as BetStatus,
-      winner,
-      judgementReason,
+      status: status.result as BetStatus,
+      winner: winner.result,
+      judgementReason: judgementReason.result,
     };
   } catch (error) {
     const errorMsg = "Failed to format bets from raw bets";
