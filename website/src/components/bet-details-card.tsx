@@ -120,6 +120,7 @@ function BetDetails({ bet }: { bet: FormattedBet }) {
             )}
             {bet.status}
             {bet.status === "settled" &&
+              bet.winner &&
               (() => {
                 if (bet.winner === "0x0000000000000000000000000000000000000000")
                   return ": tie";
