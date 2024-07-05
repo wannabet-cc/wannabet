@@ -158,7 +158,7 @@ function CreateBetForm() {
           render={({ field }) => {
             return (
               <FormItem>
-                <FormLabel>Participant</FormLabel>
+                <FormLabel>Who are you betting?</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
@@ -221,7 +221,7 @@ function CreateBetForm() {
           render={({ field }) => {
             return (
               <FormItem>
-                <FormLabel>Message</FormLabel>
+                <FormLabel>What is your prediction</FormLabel>
                 <FormControl>
                   <Input {...field} placeholder="" type="text" />
                 </FormControl>
@@ -253,7 +253,7 @@ function CreateBetForm() {
           render={({ field }) => {
             return (
               <FormItem>
-                <FormLabel>Judge</FormLabel>
+                <FormLabel>Who will determine the winner?</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
