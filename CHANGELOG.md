@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) ([github](https://github.com/olivierlacan/keep-a-changelog/tree/main))
 
+## [1.0.0] - 2024-07-05
+
+### Added
+
+- Major feature: Web app for more reliable performance & feature iteration
+  - Form for creating new bets
+  - Explore bets you are a party in
+  - Explore all recent bets
+  - Accept/decline/retrieve funds/settle bets in app
+- Major feature: Ponder indexer
+- Add contract fees and ownership
+
+### Changed
+
+- Rename "arbitrator" to "judge"
+- Use ReentrancyGuard and SafeERC20 libraries to improve contract security and flexibility
+- Improve frame usability
+
 ## [0.6.0] - 2024-06-15
 
 ### Added
