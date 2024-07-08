@@ -195,22 +195,18 @@ function BetList({
           <TableRow>
             <TableCell colSpan={4}>
               <div className="mx-auto w-fit">
-                {isFetching && !isFetchingNextPage ? (
-                  <LoadingSpinner />
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={!hasNextPage || isFetchingNextPage}
-                    onClick={() => fetchNextPage()}
-                  >
-                    {isFetchingNextPage
-                      ? "Loading..."
-                      : hasNextPage
-                        ? "Load More"
-                        : "Nothing more to load"}
-                  </Button>
-                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!hasNextPage || isFetchingNextPage}
+                  onClick={() => fetchNextPage()}
+                >
+                  {isFetchingNextPage
+                    ? "Loading..."
+                    : hasNextPage
+                      ? "Load More"
+                      : "Nothing more to load"}
+                </Button>
               </div>
             </TableCell>
           </TableRow>
