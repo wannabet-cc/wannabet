@@ -3,6 +3,10 @@ import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { writeContract, waitForTransactionReceipt } from "@wagmi/core";
 import { config } from "@/app/providers";
 
+/**
+ * useWriteContract wrapper that includes isConfirming and isConfirmed booleans
+ * for block confirmation
+ */
 export const useWriteContractWithConfirmation = () => {
   const { data: hash, ...writeOptions } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
@@ -17,15 +21,10 @@ export const useWriteContractWithConfirmation = () => {
   };
 };
 
-type sequentialTxnsStatus =
-  | "idle"
-  | "submitting-1"
-  | "confirming-1"
-  | "submitting-2"
-  | "confirming-2"
-  | "completed"
-  | "error";
-
+/**
+ * Hook that executes two sequential write contract calls, the second only
+ * after the first is confirmed on a block
+ */
 export function useSequentialWriteContracts() {
   const [status, setStatus] = useState<sequentialTxnsStatus>("idle");
 
@@ -55,3 +54,12 @@ export function useSequentialWriteContracts() {
 
   return { executeTxns, status, isPending, isSuccess };
 }
+
+type sequentialTxnsStatus =
+  | "idle"
+  | "submitting-1"
+  | "confirming-1"
+  | "submitting-2"
+  | "confirming-2"
+  | "completed"
+  | "error";
