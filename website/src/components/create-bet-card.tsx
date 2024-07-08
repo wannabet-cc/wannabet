@@ -4,7 +4,7 @@ import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { config } from "@/app/providers";
 import { BASE_BET_FACTORY_ADDRESS, BASE_USDC_ADDRESS } from "@/config";
-import { fetchEnsAddress, getAddressFromTokenName } from "@/lib/utils";
+import { fetchEns, getAddressFromTokenName } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   readContract,
@@ -90,10 +90,10 @@ function CreateBetForm() {
       const [participantAddress, judgeAddress] = await Promise.all([
         addressRegex.test(values.participant)
           ? values.participant
-          : (await fetchEnsAddress(values.participant)).address,
+          : (await fetchEns(values.participant as `${string}.eth`)).address,
         addressRegex.test(values.judge)
           ? values.judge
-          : (await fetchEnsAddress(values.judge)).address,
+          : (await fetchEns(values.judge as `${string}.eth`)).address,
       ]);
 
       const balance = await readContract(config, {

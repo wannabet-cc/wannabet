@@ -1,5 +1,4 @@
 import { BASE_USDC_ADDRESS } from "@/config";
-import { mainnetClient } from "@/services/viem";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Address } from "viem";
@@ -10,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export async function getPreferredAlias(address: Address) {
   console.log("Running getPreferredAlias...");
-  const ensName = (await fetchEnsAddress(address)).name;
+  const ensName = (await fetchEns(address)).name;
   console.log(ensName);
   if (ensName) return ensName;
   else return abbreviateHex(address);
@@ -26,11 +25,11 @@ type EnsIdeasResponse = {
   displayName: string;
   avatar: string;
 };
-export async function fetchEnsAddress(ensName: string) {
+export async function fetchEns(
+  nameOrAddress: `${string}.eth` | Address,
+): Promise<EnsIdeasResponse> {
   const ensIdeasUrl = "https://api.ensideas.com/ens/resolve/";
-  return (await fetch(ensIdeasUrl + ensName).then((res) =>
-    res.json(),
-  )) as EnsIdeasResponse;
+  return fetch(ensIdeasUrl + nameOrAddress).then((res) => res.json());
 }
 
 export function getTokenNameFromAddress(address: Address): string {
