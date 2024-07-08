@@ -1,7 +1,7 @@
 import { BASE_USDC_ADDRESS } from "@/config";
+import { type Address } from "viem";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Address } from "viem";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

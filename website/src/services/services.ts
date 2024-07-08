@@ -1,7 +1,7 @@
-import { Address, formatUnits } from "viem";
-import { baseClient } from "./viem";
-import { BET_API_URL } from "@/config";
 import { BetAbi } from "@/abis/BetAbi";
+import { config } from "@/app/providers";
+import { BET_API_URL } from "@/config";
+import { type Address, formatUnits } from "viem";
 import { getPreferredAlias } from "@/lib/utils";
 import { readContracts } from "@wagmi/core";
 import {
@@ -10,7 +10,6 @@ import {
   generateRecentBetsQuery,
   generateUserBetsQuery,
 } from "./queries";
-import { config } from "@/app/providers";
 
 // General getter function
 async function queryGqlApi<T>(url: string, query: string): Promise<T> {

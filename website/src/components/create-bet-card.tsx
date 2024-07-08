@@ -6,6 +6,7 @@ import { config } from "@/app/providers";
 import { BASE_BET_FACTORY_ADDRESS, BASE_USDC_ADDRESS } from "@/config";
 import { fetchEns, getAddressFromTokenName } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   readContract,
   waitForTransactionReceipt,
@@ -15,7 +16,6 @@ import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { Address, parseUnits } from "viem";
 import { useAccount } from "wagmi";
-import { z } from "zod";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import {

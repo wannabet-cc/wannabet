@@ -1,7 +1,7 @@
+import { config } from "@/app/providers";
 import { useState } from "react";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { writeContract, waitForTransactionReceipt } from "@wagmi/core";
-import { config } from "@/app/providers";
 
 /**
  * useWriteContract wrapper that includes isConfirming and isConfirmed booleans
