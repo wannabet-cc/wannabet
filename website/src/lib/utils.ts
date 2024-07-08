@@ -16,8 +16,8 @@ export async function getPreferredAlias(address: Address) {
   else return abbreviateHex(address);
 }
 
-export function abbreviateHex(hex: Address) {
-  return `${hex.slice(0, 5)}...${hex.slice(-3)}`;
+export function abbreviateHex(hex: Address, numChars: number = 3) {
+  return `${hex.slice(0, numChars + 2)}...${hex.slice(numChars * -1)}`;
 }
 
 type EnsIdeasResponse = {
