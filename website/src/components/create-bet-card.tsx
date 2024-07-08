@@ -82,8 +82,9 @@ function CreateBetForm() {
   ) => {
     e?.preventDefault();
     setSubmitLoading(true);
+
     try {
-      // Transform data
+      /** Transform form data */
       const tokenAddress = getAddressFromTokenName(values.token);
       const bigintAmount = parseUnits(values.amount.toString(), 6);
       const validFor = BigInt(values.validForDays * 24 * 60 * 60);
@@ -96,13 +97,13 @@ function CreateBetForm() {
           : (await fetchEns(values.judge as `${string}.eth`)).address,
       ]);
 
+      /** Throw if user doesn't have enough tokens */
       const balance = await readContract(config, {
         address: BASE_USDC_ADDRESS,
         abi: FiatTokenProxyAbi,
         functionName: "balanceOf",
         args: [address!],
       });
-
       if (balance < bigintAmount) {
         toast({
           title: "Insufficient balance",
@@ -112,30 +113,26 @@ function CreateBetForm() {
         return;
       }
 
+      /** Approve token transfer IF tokens aren't already approved */
       const preexistingApprovedAmount = await readContract(config, {
         address: BASE_USDC_ADDRESS,
         abi: FiatTokenProxyAbi,
         functionName: "allowance",
         args: [address!, BASE_BET_FACTORY_ADDRESS],
       });
-
-      let approveStatus = null;
-
-      if (preexistingApprovedAmount >= bigintAmount) {
-        approveStatus = "success";
-      } else {
-        // Write contract: approve
+      if (preexistingApprovedAmount < bigintAmount) {
         const approveHash = await writeContract(config, {
           address: BASE_USDC_ADDRESS,
           abi: FiatTokenProxyAbi,
           functionName: "approve",
           args: [BASE_BET_FACTORY_ADDRESS, bigintAmount],
         });
-        // Wait for confirmation
-        ({ status: approveStatus } = await waitForTransactionReceipt(config, {
-          hash: approveHash,
-        }));
-
+        const { status: approveStatus } = await waitForTransactionReceipt(
+          config,
+          {
+            hash: approveHash,
+          },
+        );
         if (approveStatus !== "success") {
           toast({
             title: "Failed to authorize bet fund transfer",
@@ -146,7 +143,7 @@ function CreateBetForm() {
         }
       }
 
-      // Write contract: create bet
+      /** Create bet */
       const betHash = await writeContract(config, {
         address: BASE_BET_FACTORY_ADDRESS,
         abi: BetFactoryAbi,
@@ -161,7 +158,6 @@ function CreateBetForm() {
         ],
         value: parseUnits("0.0002", 18),
       });
-      // Wait for confirmation
       const { status: betStatus } = await waitForTransactionReceipt(config, {
         hash: betHash,
       });
