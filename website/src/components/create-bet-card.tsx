@@ -1,9 +1,23 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { z } from "zod";
-import { type SubmitHandler, useForm } from "react-hook-form";
+import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
+import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
+import { config } from "@/app/providers";
+import { BASE_BET_FACTORY_ADDRESS, BASE_USDC_ADDRESS } from "@/config";
+import { fetchEnsAddress, getAddressFromTokenName } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  readContract,
+  waitForTransactionReceipt,
+  writeContract,
+} from "@wagmi/core";
+import { useState } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
+import { Address, parseUnits } from "viem";
+import { useAccount } from "wagmi";
+import { z } from "zod";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import {
   Form,
   FormControl,
@@ -13,17 +27,8 @@ import {
   FormMessage,
 } from "./ui/form";
 import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { writeContract, waitForTransactionReceipt } from "@wagmi/core";
-import { BASE_BET_FACTORY_ADDRESS, BASE_USDC_ADDRESS } from "@/config";
-import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
-import { Address, parseUnits } from "viem";
-import { fetchEnsAddress, getAddressFromTokenName, pause } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { useToast } from "./ui/use-toast";
-import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
-import { useState } from "react";
-import { config } from "@/app/providers";
 
 export function CreateBetCard() {
   return (
@@ -56,6 +61,7 @@ const formSchema = z.object({
 });
 
 function CreateBetForm() {
+  const { address } = useAccount();
   const [submitLoading, setSubmitLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -89,57 +95,86 @@ function CreateBetForm() {
           ? values.judge
           : (await fetchEnsAddress(values.judge)).address,
       ]);
-      // Write contract: approve
-      const approveHash = await writeContract(config, {
+
+      const balance = await readContract(config, {
         address: BASE_USDC_ADDRESS,
         abi: FiatTokenProxyAbi,
-        functionName: "approve",
-        args: [BASE_BET_FACTORY_ADDRESS, bigintAmount],
+        functionName: "balanceOf",
+        args: [address!],
       });
-      // Wait for confirmation
-      const { status: approveStatus } = await waitForTransactionReceipt(
-        config,
-        {
-          hash: approveHash,
-        },
-      );
-      // If success...
-      if (approveStatus === "success") {
-        // Write contract: create bet
-        const betHash = await writeContract(config, {
-          address: BASE_BET_FACTORY_ADDRESS,
-          abi: BetFactoryAbi,
-          functionName: "createBet",
-          args: [
-            participantAddress as Address,
-            bigintAmount,
-            tokenAddress as Address,
-            values.message,
-            judgeAddress as Address,
-            validFor,
-          ],
-          value: parseUnits("0.0002", 18),
+
+      if (balance < bigintAmount) {
+        toast({
+          title: "Insufficient balance",
+          description: "You don't have enough USDC to create this bet",
+        });
+        setSubmitLoading(false);
+        return;
+      }
+
+      const preexistingApprovedAmount = await readContract(config, {
+        address: BASE_USDC_ADDRESS,
+        abi: FiatTokenProxyAbi,
+        functionName: "allowance",
+        args: [address!, BASE_BET_FACTORY_ADDRESS],
+      });
+
+      let approveStatus = null;
+
+      if (preexistingApprovedAmount >= bigintAmount) {
+        approveStatus = "success";
+      } else {
+        // Write contract: approve
+        const approveHash = await writeContract(config, {
+          address: BASE_USDC_ADDRESS,
+          abi: FiatTokenProxyAbi,
+          functionName: "approve",
+          args: [BASE_BET_FACTORY_ADDRESS, bigintAmount],
         });
         // Wait for confirmation
-        const { status: betStatus } = await waitForTransactionReceipt(config, {
-          hash: betHash,
-        });
-        if (betStatus === "success")
+        ({ status: approveStatus } = await waitForTransactionReceipt(config, {
+          hash: approveHash,
+        }));
+
+        if (approveStatus !== "success") {
           toast({
-            title: "Bet created successfully!",
-            description: "Txn hash: " + betHash,
+            title: "Failed to authorize bet fund transfer",
+            description: "Txn hash: " + approveHash,
           });
-        else
-          toast({
-            title: "Bet creation failed to confirm",
-            description: "Txn hash: " + betHash,
-          });
-      } else {
-        toast({
-          title: "Failed to authorize bet fund transfer",
-          description: "Txn hash: " + approveHash,
-        });
+          setSubmitLoading(false);
+          return;
+        }
       }
+
+      // Write contract: create bet
+      const betHash = await writeContract(config, {
+        address: BASE_BET_FACTORY_ADDRESS,
+        abi: BetFactoryAbi,
+        functionName: "createBet",
+        args: [
+          participantAddress as Address,
+          bigintAmount,
+          tokenAddress as Address,
+          values.message,
+          judgeAddress as Address,
+          validFor,
+        ],
+        value: parseUnits("0.0002", 18),
+      });
+      // Wait for confirmation
+      const { status: betStatus } = await waitForTransactionReceipt(config, {
+        hash: betHash,
+      });
+      if (betStatus === "success")
+        toast({
+          title: "Bet created successfully!",
+          description: "Txn hash: " + betHash,
+        });
+      else
+        toast({
+          title: "Bet creation failed to confirm",
+          description: "Txn hash: " + betHash,
+        });
       setSubmitLoading(false);
     } catch (error) {
       console.error(error);
