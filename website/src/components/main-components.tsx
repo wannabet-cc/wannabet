@@ -1,11 +1,11 @@
 import { type FormattedBet } from "@/services/services";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Button } from "./ui/button";
-import { BetListCard, MyBetList, RecentBetList } from "./bet-list-card";
 import { CustomConnectButton } from "./rainbow/custom-connect-button";
+import Link from "next/link";
+import { BetListCard, MyBetList, RecentBetList } from "./bet-list-card";
 import { BetDetailsCard } from "./bet-details-card";
 import { CreateBetCard } from "./create-bet-card";
-import Link from "next/link";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Button } from "./ui/button";
 
 export function ExplorerComponent({
   currentView,

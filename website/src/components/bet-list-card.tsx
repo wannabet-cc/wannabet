@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  type FormattedBet,
+  type FormattedBets,
+  getRecentFormattedBets,
+  getUserFormattedBets,
+} from "@/services/services";
+import { type InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
+import { useAccount } from "wagmi";
+import { ReactNode } from "react";
+import { CustomConnectButtonSecondary } from "./rainbow/custom-connect-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -9,17 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { type InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
-import {
-  type FormattedBet,
-  type FormattedBets,
-  getRecentFormattedBets,
-  getUserFormattedBets,
-} from "@/services/services";
 import { LoadingSpinner } from "./ui/spinner";
-import { useAccount } from "wagmi";
-import { CustomConnectButtonSecondary } from "./rainbow/custom-connect-button";
-import React from "react";
 import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
 
@@ -27,7 +27,7 @@ export function BetListCard({
   children,
   title,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   title: string;
 }) {
   return (
@@ -195,22 +195,18 @@ function BetList({
           <TableRow>
             <TableCell colSpan={4}>
               <div className="mx-auto w-fit">
-                {isFetching && !isFetchingNextPage ? (
-                  <LoadingSpinner />
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={!hasNextPage || isFetchingNextPage}
-                    onClick={() => fetchNextPage()}
-                  >
-                    {isFetchingNextPage
-                      ? "Loading..."
-                      : hasNextPage
-                        ? "Load More"
-                        : "Nothing more to load"}
-                  </Button>
-                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!hasNextPage || isFetchingNextPage}
+                  onClick={() => fetchNextPage()}
+                >
+                  {isFetchingNextPage
+                    ? "Loading..."
+                    : hasNextPage
+                      ? "Load More"
+                      : "Nothing more to load"}
+                </Button>
               </div>
             </TableCell>
           </TableRow>

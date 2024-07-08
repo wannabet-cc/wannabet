@@ -1,3 +1,11 @@
+import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
+import { BetAbi } from "@/abis/BetAbi";
+import { BASE_USDC_ADDRESS } from "@/config";
+import { type FormattedBet } from "@/services/services";
+import { type Address, parseUnits } from "viem";
+import { getTokenNameFromAddress } from "@/lib/utils";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { CustomConnectButtonSecondary } from "./rainbow/custom-connect-button";
 import {
   Card,
   CardContent,
@@ -12,15 +20,7 @@ import {
   TableCell,
   TableRow,
 } from "./ui/table";
-import { type FormattedBet } from "@/services/services";
-import { CustomConnectButtonSecondary } from "./rainbow/custom-connect-button";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { Button } from "./ui/button";
-import { getTokenNameFromAddress } from "@/lib/utils";
-import { BetAbi } from "@/abis/BetAbi";
-import { BASE_USDC_ADDRESS } from "@/config";
-import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
-import { Address, parseUnits } from "viem";
 import { useToast } from "./ui/use-toast";
 
 export function BetDetailsCard({
