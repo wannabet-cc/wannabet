@@ -26,9 +26,19 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "./ui/input";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { useToast } from "./ui/use-toast";
+import { LoadingSpinner } from "./ui/spinner";
 
 export function CreateBetCard() {
   return (
@@ -62,7 +72,8 @@ const formSchema = z.object({
 
 function CreateBetForm() {
   const { address } = useAccount();
-  const [submitLoading, setSubmitLoading] = useState(false);
+  const [createStatus, setCreateStatus] = useState<createStatus>("idle");
+  const [error, setError] = useState<Error>();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -81,7 +92,7 @@ function CreateBetForm() {
     e,
   ) => {
     e?.preventDefault();
-    setSubmitLoading(true);
+    setCreateStatus("1-transforming-data");
 
     try {
       /** Transform form data */
@@ -98,6 +109,7 @@ function CreateBetForm() {
       ]);
 
       /** Throw if user doesn't have enough tokens */
+      setCreateStatus("2-checking-balance");
       const balance = await readContract(config, {
         address: BASE_USDC_ADDRESS,
         abi: FiatTokenProxyAbi,
@@ -109,11 +121,12 @@ function CreateBetForm() {
           title: "Insufficient balance",
           description: "You don't have enough USDC to create this bet",
         });
-        setSubmitLoading(false);
+        setCreateStatus("error");
         return;
       }
 
       /** Approve token transfer IF tokens aren't already approved */
+      setCreateStatus("3-checking-approval");
       const preexistingApprovedAmount = await readContract(config, {
         address: BASE_USDC_ADDRESS,
         abi: FiatTokenProxyAbi,
@@ -121,12 +134,14 @@ function CreateBetForm() {
         args: [address!, BASE_BET_FACTORY_ADDRESS],
       });
       if (preexistingApprovedAmount < bigintAmount) {
+        setCreateStatus("4-approving");
         const approveHash = await writeContract(config, {
           address: BASE_USDC_ADDRESS,
           abi: FiatTokenProxyAbi,
           functionName: "approve",
           args: [BASE_BET_FACTORY_ADDRESS, bigintAmount],
         });
+        setCreateStatus("5-confirming-approval");
         const { status: approveStatus } = await waitForTransactionReceipt(
           config,
           {
@@ -138,12 +153,13 @@ function CreateBetForm() {
             title: "Failed to authorize bet fund transfer",
             description: "Txn hash: " + approveHash,
           });
-          setSubmitLoading(false);
+          setCreateStatus("error");
           return;
         }
       }
 
       /** Create bet */
+      setCreateStatus("6-creating-bet");
       const betHash = await writeContract(config, {
         address: BASE_BET_FACTORY_ADDRESS,
         abi: BetFactoryAbi,
@@ -158,26 +174,35 @@ function CreateBetForm() {
         ],
         value: parseUnits("0.0002", 18),
       });
+      setCreateStatus("7-confirming-creation");
       const { status: betStatus } = await waitForTransactionReceipt(config, {
         hash: betHash,
       });
-      if (betStatus === "success")
+      if (betStatus === "success") {
         toast({
           title: "Bet created successfully!",
           description: "Txn hash: " + betHash,
         });
-      else
+        setCreateStatus("success");
+      } else {
         toast({
           title: "Bet creation failed to confirm",
           description: "Txn hash: " + betHash,
         });
-      setSubmitLoading(false);
+        setCreateStatus("error");
+      }
     } catch (error) {
       console.error(error);
-      setSubmitLoading(false);
-      toast({ title: "Submit error" });
+      setCreateStatus("error");
+      setError(error as Error);
     }
   };
+
+  const isLoading = !(
+    createStatus === "idle" ||
+    createStatus === "error" ||
+    createStatus === "success"
+  );
 
   return (
     <Form {...form}>
@@ -299,11 +324,72 @@ function CreateBetForm() {
         />
         {/* submit */}
         <div className="flex flex-col space-y-2 pt-4">
-          <Button className="w-fit" type="submit" disabled={submitLoading}>
-            {submitLoading ? "Confirming..." : "Submit"}
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="w-fit" type="submit" disabled={isLoading}>
+                {isLoading ? "Confirming..." : "Submit"}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Creating new bet</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-2 overflow-hidden">
+                <div className="flex items-center space-x-4">
+                  {isLoading && <LoadingSpinner />}
+                  <span>{getStatusMessage(createStatus)}</span>
+                </div>
+                {error && (
+                  <pre className="overflow-x-auto rounded bg-muted p-2 text-sm text-muted-foreground">
+                    <div>{error.name}</div>
+                    <div>{error.message}</div>
+                  </pre>
+                )}
+              </div>
+              {!isLoading && (
+                <DialogFooter className="sm:justify-start">
+                  <DialogClose asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setError(undefined)}
+                    >
+                      Close
+                    </Button>
+                  </DialogClose>
+                </DialogFooter>
+              )}
+            </DialogContent>
+          </Dialog>
         </div>
       </form>
     </Form>
   );
 }
+
+type createStatus =
+  | "idle"
+  | "1-transforming-data"
+  | "2-checking-balance"
+  | "3-checking-approval"
+  | "4-approving"
+  | "5-confirming-approval"
+  | "6-creating-bet"
+  | "7-confirming-creation"
+  | "success"
+  | "error";
+
+const getStatusMessage = (status: createStatus): string => {
+  if (status === "1-transforming-data") return "Transforming form data";
+  else if (status === "2-checking-balance")
+    return "Checking your token balance";
+  else if (status === "3-checking-approval") return "Checking your approval";
+  else if (status === "4-approving") return "Approving token transfer";
+  else if (status === "5-confirming-approval")
+    return "Confirming token transfer approval";
+  else if (status === "6-creating-bet") return "Signing create bet transaction";
+  else if (status === "7-confirming-creation") return "Confirming bet creation";
+  else if (status === "success") return "Success!";
+  else if (status === "error") return "Error:";
+  else return "";
+};
