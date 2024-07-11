@@ -117,14 +117,17 @@ export type FormattedBet = {
   contractAddress: Address;
   creator: Address;
   creatorAlias: string;
+  creatorPfp?: string;
   participant: Address;
   participantAlias: string;
+  participantPfp?: string;
   amount: number;
   bigintAmount: bigint;
   token: Address;
   message: string;
   judge: Address;
   judgeAlias: string;
+  judgePfp?: string;
   validUntil: Date;
   createdTime: Date;
   status: BetStatus | undefined;
@@ -211,7 +214,6 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
 export const formatBets = async (rawBets: RawBets): Promise<FormattedBet[]> => {
   console.log("Running formatBets...");
   try {
-    let addressList: Address[] = [];
     const preFormattedBets = await Promise.all(
       rawBets.items.map(async (rawBet) => {
         // re-cast variables as the correct types
@@ -219,7 +221,6 @@ export const formatBets = async (rawBets: RawBets): Promise<FormattedBet[]> => {
           creator = rawBet.creator as Address,
           participant = rawBet.participant as Address,
           judge = rawBet.judge as Address;
-        addressList.push(creator, participant, judge);
         // get aliases and bet status
         const [status, winner, judgementReason] = await readContracts(config, {
           contracts: [
@@ -259,14 +260,20 @@ export const formatBets = async (rawBets: RawBets): Promise<FormattedBet[]> => {
         };
       }),
     );
+    const addressList = rawBets.items
+      .map((bet) => [bet.creator, bet.participant, bet.judge])
+      .flat() as Address[];
     const aliases = await getPreferredAliases(addressList);
     return preFormattedBets.map(
       (bet) =>
         ({
           ...bet,
-          creatorAlias: aliases.get(bet.creator),
-          participantAlias: aliases.get(bet.participant),
-          judgeAlias: aliases.get(bet.judge),
+          creatorAlias: aliases.get(bet.creator)?.alias,
+          creatorPfp: aliases.get(bet.creator)?.pfp,
+          participantAlias: aliases.get(bet.participant)?.alias,
+          participantPfp: aliases.get(bet.participant)?.pfp,
+          judgeAlias: aliases.get(bet.judge)?.alias,
+          judgePfp: aliases.get(bet.judge)?.pfp,
         }) as FormattedBet,
     );
   } catch (error) {
@@ -299,7 +306,7 @@ export const getFormattedBetsFromIds = async (
   try {
     const rawBets = await getRawBetsFromIds(betIds);
     const formattedBets = await formatBets(rawBets);
-    return { items: formattedBets };
+    return { items: formattedBets, pageInfo: rawBets.pageInfo };
   } catch (error) {
     const errorMsg = "Failed to get formatted bets from bet ids";
     console.error(errorMsg + ": " + error);

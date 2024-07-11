@@ -22,6 +22,8 @@ import {
 } from "./ui/table";
 import { Button } from "./ui/button";
 import { useToast } from "./ui/use-toast";
+import { Avatar, AvatarImage } from "./ui/avatar";
+import { UserBadge } from "./misc/user-badge";
 
 export function BetDetailsCard({
   currentBet,
@@ -63,9 +65,14 @@ function BetDetails({ bet }: { bet: FormattedBet }) {
       <TableBody>
         <TableRow>
           <TableCell>parties</TableCell>
-          <TableCell className="flex flex-col">
-            <div>
-              {bet.creatorAlias}{" "}
+          <TableCell className="flex flex-col space-y-1">
+            <div className="&>*:w-fit flex items-center space-x-1">
+              {bet.creatorPfp && (
+                <Avatar>
+                  <AvatarImage src={bet.creatorPfp} />
+                </Avatar>
+              )}
+              <UserBadge userAlias={bet.creatorAlias} />{" "}
               <span className="text-xs text-muted-foreground">
                 (bet creator)
               </span>
@@ -73,8 +80,13 @@ function BetDetails({ bet }: { bet: FormattedBet }) {
                 <span className="text-xs"> &lt;- you</span>
               )}
             </div>
-            <div>
-              {bet.participantAlias}{" "}
+            <div className="&>*:w-fit flex items-center space-x-1">
+              {bet.participantPfp && (
+                <Avatar>
+                  <AvatarImage src={bet.participantPfp} />
+                </Avatar>
+              )}
+              <UserBadge userAlias={bet.participantAlias} />{" "}
               <span className="text-xs text-muted-foreground">
                 (participant)
               </span>
@@ -97,8 +109,13 @@ function BetDetails({ bet }: { bet: FormattedBet }) {
         </TableRow>
         <TableRow>
           <TableCell>judge</TableCell>
-          <TableCell>
-            {bet.judgeAlias}
+          <TableCell className="&>*:w-fit flex items-center space-x-1">
+            {bet.judgePfp && (
+              <Avatar>
+                <AvatarImage src={bet.judgePfp} />
+              </Avatar>
+            )}
+            <UserBadge userAlias={bet.judgeAlias} />
             {account.address?.toLowerCase() === bet.judge && (
               <span className="text-xs"> &lt;- you</span>
             )}

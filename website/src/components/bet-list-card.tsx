@@ -22,6 +22,7 @@ import {
 import { LoadingSpinner } from "./ui/spinner";
 import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
+import { UserBadge } from "./misc/user-badge";
 
 export function BetListCard({
   children,
@@ -168,9 +169,9 @@ function BetList({
                   <TableCell className="text-center">{bet.betId}</TableCell>
                   <TableCell>{bet.amount} USDC</TableCell>
                   <TableCell>
-                    {bet.creatorAlias}
+                    <UserBadge userAlias={bet.creatorAlias} />
                     <span className="text-muted-foreground"> vs </span>
-                    {bet.participantAlias}
+                    <UserBadge userAlias={bet.participantAlias} />
                   </TableCell>
                   <TableCell className="text-center">
                     {bet.status === "pending" ? (
