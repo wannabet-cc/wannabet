@@ -9,6 +9,7 @@ import {
   getFarcasterNames,
 } from "./utils";
 import { BetFactoryAbi } from "./contracts/BetFactoryAbi";
+import { baseClient } from "./viem";
 
 const bot: Express = express();
 
@@ -65,6 +66,8 @@ async function handleBetCreated(log: Log) {
     ],
   });
   const newContractAddress = decodedTopics.args.contractAddress;
+  // Wait for contract to be posted
+  await baseClient.waitForTransactionReceipt({ hash: log.transaction.hash });
   // Fetch data
   const { betId, creator, participant, amount, message, judge } =
     await getBetDetails(newContractAddress);

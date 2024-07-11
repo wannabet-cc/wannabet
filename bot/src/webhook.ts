@@ -1,4 +1,4 @@
-import { Address } from "viem";
+import { Address, Hex } from "viem";
 import { ALCHEMY_TOKEN } from "./config";
 
 async function addAddressToWebhook(new_address: Address) {
@@ -68,7 +68,7 @@ type Log = {
     address: Address;
   };
   transaction: {
-    hash: string;
+    hash: Hex;
     nonce: number;
     index: number;
     from: {

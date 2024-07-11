@@ -1,5 +1,5 @@
 import { Address } from "viem";
-import { arbitrumClient } from "./viem";
+import { baseClient } from "./viem";
 import { BetAbi } from "./contracts/BetAbi";
 import {
   BET_ACCEPTED_EVENT_SIGNATURE,
@@ -37,7 +37,7 @@ async function getBetDetails(betContractAddress: Address) {
     message,
     judge,
     validUntil,
-  ] = await arbitrumClient.readContract({
+  ] = await baseClient.readContract({
     address: betContractAddress,
     abi: BetAbi,
     functionName: "betDetails",
@@ -56,7 +56,7 @@ async function getBetDetails(betContractAddress: Address) {
 }
 
 async function getBetWinner(betContractAddress: Address) {
-  const winner = await arbitrumClient.readContract({
+  const winner = await baseClient.readContract({
     address: betContractAddress,
     abi: BetAbi,
     functionName: "winner",
