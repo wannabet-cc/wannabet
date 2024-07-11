@@ -11,7 +11,7 @@ import {
   generateUserBetsQuery,
 } from "./queries";
 
-// General getter function
+/** General function for fetching from a graphql API */
 async function queryGqlApi<T>(url: string, query: string): Promise<T> {
   console.log("Running queryGqlApi...");
   const res = await fetch(url, {
@@ -22,7 +22,7 @@ async function queryGqlApi<T>(url: string, query: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-// Raw data types
+// Raw bet data types
 type RawBet = {
   id: string;
   contractAddress: string;
@@ -45,7 +45,7 @@ type RawBets = {
   };
 };
 
-// Get raw data
+/** Raw data getter fn - single bet from an id */
 type BetQueryResponse = { data: { bet: RawBet } };
 export const getRawBetFromId = async (betId: number): Promise<RawBet> => {
   console.log("Running getRawBetFromId...");
@@ -59,6 +59,8 @@ export const getRawBetFromId = async (betId: number): Promise<RawBet> => {
     throw new Error(errorMsg);
   }
 };
+
+/** Raw data getter fn - multiple bets from ids */
 type BetsQueryResponse = { data: { bets: RawBets } };
 export const getRawBetsFromIds = async (betIds: number[]): Promise<RawBets> => {
   console.log("Running getRawBetsFromIds...");
@@ -72,6 +74,8 @@ export const getRawBetsFromIds = async (betIds: number[]): Promise<RawBets> => {
     throw new Error(errorMsg);
   }
 };
+
+/** Raw data getter fn - multiple bets, most recent */
 export const getRecentRawBets = async (
   numBets: number,
   page?: Partial<{ afterCursor: string; beforeCursor: string }>,
@@ -87,6 +91,8 @@ export const getRecentRawBets = async (
     throw new Error(errorMsg);
   }
 };
+
+/** Raw data getter fn - multiple bets from a user address, most recent  */
 export const getUserRawBets = async (
   user: Address,
   numBets: number,
@@ -104,7 +110,7 @@ export const getUserRawBets = async (
   }
 };
 
-// Formatted data types
+// Formatted bet data types
 type BetStatus = "expired" | "pending" | "accepted" | "declined" | "settled";
 export type FormattedBet = {
   betId: number;
@@ -135,7 +141,7 @@ export type FormattedBets = {
   };
 };
 
-// Utility function for formatting a bet
+/** Utility function for formatting a single bet */
 export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
   console.log("Running formatBet...");
   try {
@@ -201,7 +207,7 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
   }
 };
 
-// Get formatted data
+/** Formatted data getter fn - single bet from an id */
 export const getFormattedBetFromId = async (
   betId: number,
 ): Promise<FormattedBet> => {
@@ -215,6 +221,8 @@ export const getFormattedBetFromId = async (
     throw new Error(errorMsg);
   }
 };
+
+/** Formatted data getter fn - multiple bets from ids */
 export const getFormattedBetsFromIds = async (
   betIds: number[],
 ): Promise<FormattedBets> => {
@@ -231,6 +239,8 @@ export const getFormattedBetsFromIds = async (
     throw new Error(errorMsg);
   }
 };
+
+/** Formatted data getter fn - multiple bets, most recent */
 export const getRecentFormattedBets = async (
   numBets: number,
   page?: Partial<{ afterCursor: string; beforeCursor: string }>,
@@ -248,6 +258,8 @@ export const getRecentFormattedBets = async (
     throw new Error(errorMsg);
   }
 };
+
+/** Formatted data getter fn - multiple bets from a user address, most recent */
 export const getUserFormattedBets = async (
   user: Address,
   numBets: number,
