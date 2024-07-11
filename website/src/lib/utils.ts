@@ -12,20 +12,26 @@ function arrayToMap<T>(arr: string[], value: T): Map<string, T> {
   return new Map(arr.map((key) => [key, value]));
 }
 
-/** Get the readable aliases from public addresses */
+/** Get a map of readable aliases from an array of public addresses */
 export async function getPreferredAliases(addresses: Address[]) {
-  const aliasMap = arrayToMap<string>(addresses, "");
+  const aliasMap = arrayToMap<{ alias: string; pfp?: string }>(addresses, {
+    alias: "",
+    pfp: undefined,
+  });
   const farcasterUsers = await fetchFarcasterUsers(addresses);
   for (const [address, user] of Object.entries(farcasterUsers)) {
-    aliasMap.set(address, `@${user[0].username}`);
+    aliasMap.set(address, {
+      alias: `@${user[0].username}`,
+      pfp: user[0].pfp_url,
+    });
   }
   for (const [address, alias] of aliasMap) {
-    if (alias === "") {
+    if (alias.alias === "") {
       const ensName = (await fetchEns(address as Address)).name;
       if (ensName) {
-        aliasMap.set(address, ensName);
+        aliasMap.set(address, { alias: ensName });
       } else {
-        aliasMap.set(address, abbreviateHex(address as Address));
+        aliasMap.set(address, { alias: abbreviateHex(address as Address) });
       }
     }
   }

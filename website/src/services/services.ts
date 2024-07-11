@@ -117,14 +117,17 @@ export type FormattedBet = {
   contractAddress: Address;
   creator: Address;
   creatorAlias: string;
+  creatorPfp?: string;
   participant: Address;
   participantAlias: string;
+  participantPfp?: string;
   amount: number;
   bigintAmount: bigint;
   token: Address;
   message: string;
   judge: Address;
   judgeAlias: string;
+  judgePfp?: string;
   validUntil: Date;
   createdTime: Date;
   status: BetStatus | undefined;
@@ -265,9 +268,12 @@ export const formatBets = async (rawBets: RawBets): Promise<FormattedBet[]> => {
       (bet) =>
         ({
           ...bet,
-          creatorAlias: aliases.get(bet.creator),
-          participantAlias: aliases.get(bet.participant),
-          judgeAlias: aliases.get(bet.judge),
+          creatorAlias: aliases.get(bet.creator)?.alias,
+          creatorPfp: aliases.get(bet.creator)?.pfp,
+          participantAlias: aliases.get(bet.participant)?.alias,
+          participantPfp: aliases.get(bet.participant)?.pfp,
+          judgeAlias: aliases.get(bet.judge)?.alias,
+          judgePfp: aliases.get(bet.judge)?.pfp,
         }) as FormattedBet,
     );
   } catch (error) {
