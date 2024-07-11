@@ -306,7 +306,7 @@ export const getFormattedBetsFromIds = async (
   try {
     const rawBets = await getRawBetsFromIds(betIds);
     const formattedBets = await formatBets(rawBets);
-    return { items: formattedBets };
+    return { items: formattedBets, pageInfo: rawBets.pageInfo };
   } catch (error) {
     const errorMsg = "Failed to get formatted bets from bet ids";
     console.error(errorMsg + ": " + error);
