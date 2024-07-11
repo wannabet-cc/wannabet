@@ -211,7 +211,6 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
 export const formatBets = async (rawBets: RawBets): Promise<FormattedBet[]> => {
   console.log("Running formatBets...");
   try {
-    let addressList: Address[] = [];
     const preFormattedBets = await Promise.all(
       rawBets.items.map(async (rawBet) => {
         // re-cast variables as the correct types
@@ -219,7 +218,6 @@ export const formatBets = async (rawBets: RawBets): Promise<FormattedBet[]> => {
           creator = rawBet.creator as Address,
           participant = rawBet.participant as Address,
           judge = rawBet.judge as Address;
-        addressList.push(creator, participant, judge);
         // get aliases and bet status
         const [status, winner, judgementReason] = await readContracts(config, {
           contracts: [
@@ -259,6 +257,9 @@ export const formatBets = async (rawBets: RawBets): Promise<FormattedBet[]> => {
         };
       }),
     );
+    const addressList = rawBets.items
+      .map((bet) => [bet.creator, bet.participant, bet.judge])
+      .flat() as Address[];
     const aliases = await getPreferredAliases(addressList);
     return preFormattedBets.map(
       (bet) =>
