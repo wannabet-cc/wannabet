@@ -2,7 +2,7 @@ import { BetAbi } from "@/abis/BetAbi";
 import { config } from "@/app/providers";
 import { BET_API_URL } from "@/config";
 import { type Address, formatUnits } from "viem";
-import { getPreferredAlias } from "@/lib/utils";
+import { getPreferredAlias, getPreferredAliases } from "@/lib/utils";
 import { readContracts } from "@wagmi/core";
 import {
   generateBetQuery,
@@ -11,7 +11,7 @@ import {
   generateUserBetsQuery,
 } from "./queries";
 
-// General getter function
+/** General function for fetching from a graphql API */
 async function queryGqlApi<T>(url: string, query: string): Promise<T> {
   console.log("Running queryGqlApi...");
   const res = await fetch(url, {
@@ -22,7 +22,7 @@ async function queryGqlApi<T>(url: string, query: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-// Raw data types
+// Raw bet data types
 type RawBet = {
   id: string;
   contractAddress: string;
@@ -45,7 +45,7 @@ type RawBets = {
   };
 };
 
-// Get raw data
+/** Raw data getter fn - single bet from an id */
 type BetQueryResponse = { data: { bet: RawBet } };
 export const getRawBetFromId = async (betId: number): Promise<RawBet> => {
   console.log("Running getRawBetFromId...");
@@ -59,6 +59,8 @@ export const getRawBetFromId = async (betId: number): Promise<RawBet> => {
     throw new Error(errorMsg);
   }
 };
+
+/** Raw data getter fn - multiple bets from ids */
 type BetsQueryResponse = { data: { bets: RawBets } };
 export const getRawBetsFromIds = async (betIds: number[]): Promise<RawBets> => {
   console.log("Running getRawBetsFromIds...");
@@ -72,6 +74,8 @@ export const getRawBetsFromIds = async (betIds: number[]): Promise<RawBets> => {
     throw new Error(errorMsg);
   }
 };
+
+/** Raw data getter fn - multiple bets, most recent */
 export const getRecentRawBets = async (
   numBets: number,
   page?: Partial<{ afterCursor: string; beforeCursor: string }>,
@@ -87,6 +91,8 @@ export const getRecentRawBets = async (
     throw new Error(errorMsg);
   }
 };
+
+/** Raw data getter fn - multiple bets from a user address, most recent  */
 export const getUserRawBets = async (
   user: Address,
   numBets: number,
@@ -104,7 +110,7 @@ export const getUserRawBets = async (
   }
 };
 
-// Formatted data types
+// Formatted bet data types
 type BetStatus = "expired" | "pending" | "accepted" | "declined" | "settled";
 export type FormattedBet = {
   betId: number;
@@ -135,7 +141,7 @@ export type FormattedBets = {
   };
 };
 
-// Utility function for formatting a bet
+/** Utility function for formatting a single bet */
 export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
   console.log("Running formatBet...");
   try {
@@ -201,7 +207,76 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
   }
 };
 
-// Get formatted data
+/** Utility function for formatting multiple bets */
+export const formatBets = async (rawBets: RawBets): Promise<FormattedBet[]> => {
+  console.log("Running formatBets...");
+  try {
+    let addressList: Address[] = [];
+    const preFormattedBets = await Promise.all(
+      rawBets.items.map(async (rawBet) => {
+        // re-cast variables as the correct types
+        const contractAddress = rawBet.contractAddress as Address,
+          creator = rawBet.creator as Address,
+          participant = rawBet.participant as Address,
+          judge = rawBet.judge as Address;
+        addressList.push(creator, participant, judge);
+        // get aliases and bet status
+        const [status, winner, judgementReason] = await readContracts(config, {
+          contracts: [
+            {
+              address: contractAddress,
+              abi: BetAbi,
+              functionName: "getStatus",
+            },
+            {
+              address: contractAddress,
+              abi: BetAbi,
+              functionName: "winner",
+            },
+            {
+              address: contractAddress,
+              abi: BetAbi,
+              functionName: "judgementReason",
+            },
+          ],
+        });
+        // return
+        return {
+          betId: Number(rawBet.id),
+          contractAddress,
+          creator,
+          participant,
+          amount: Number(formatUnits(BigInt(rawBet.amount), 6)),
+          bigintAmount: BigInt(rawBet.amount),
+          token: rawBet.token as Address,
+          message: rawBet.message,
+          judge,
+          validUntil: new Date(Number(rawBet.validUntil) * 1000),
+          createdTime: new Date(Number(rawBet.createdTime) * 1000),
+          status: status.result as BetStatus,
+          winner: winner.result,
+          judgementReason: judgementReason.result,
+        };
+      }),
+    );
+    const aliases = await getPreferredAliases(addressList);
+    return preFormattedBets.map(
+      (bet) =>
+        ({
+          ...bet,
+          creatorAlias: aliases.get(bet.creator),
+          participantAlias: aliases.get(bet.participant),
+          judgeAlias: aliases.get(bet.judge),
+        }) as FormattedBet,
+    );
+  } catch (error) {
+    const errorMsg = "Failed to format bets from raw bets";
+    console.error(errorMsg + ": " + error);
+    throw new Error(errorMsg);
+  }
+};
+
+/** Formatted data getter fn - single bet from an id */
 export const getFormattedBetFromId = async (
   betId: number,
 ): Promise<FormattedBet> => {
@@ -215,15 +290,15 @@ export const getFormattedBetFromId = async (
     throw new Error(errorMsg);
   }
 };
+
+/** Formatted data getter fn - multiple bets from ids */
 export const getFormattedBetsFromIds = async (
   betIds: number[],
 ): Promise<FormattedBets> => {
   console.log("Running getFormattedBetsFromIds...");
   try {
     const rawBets = await getRawBetsFromIds(betIds);
-    const formattedBets = await Promise.all(
-      rawBets.items.map((bet) => formatBet(bet)),
-    );
+    const formattedBets = await formatBets(rawBets);
     return { items: formattedBets };
   } catch (error) {
     const errorMsg = "Failed to get formatted bets from bet ids";
@@ -231,6 +306,8 @@ export const getFormattedBetsFromIds = async (
     throw new Error(errorMsg);
   }
 };
+
+/** Formatted data getter fn - multiple bets, most recent */
 export const getRecentFormattedBets = async (
   numBets: number,
   page?: Partial<{ afterCursor: string; beforeCursor: string }>,
@@ -238,9 +315,7 @@ export const getRecentFormattedBets = async (
   console.log("Running getRecentFormattedBets...");
   try {
     const rawBets = await getRecentRawBets(numBets, page);
-    const formattedBets = await Promise.all(
-      rawBets.items.map((bet) => formatBet(bet)),
-    );
+    const formattedBets = await formatBets(rawBets);
     return { items: formattedBets, pageInfo: rawBets.pageInfo };
   } catch (error) {
     const errorMsg = "Failed to get recent formatted bets";
@@ -248,6 +323,8 @@ export const getRecentFormattedBets = async (
     throw new Error(errorMsg);
   }
 };
+
+/** Formatted data getter fn - multiple bets from a user address, most recent */
 export const getUserFormattedBets = async (
   user: Address,
   numBets: number,
@@ -256,9 +333,7 @@ export const getUserFormattedBets = async (
   console.log("Running getUserFormattedBets...");
   try {
     const rawBets = await getUserRawBets(user, numBets, page);
-    const formattedBets = await Promise.all(
-      rawBets.items.map((bet) => formatBet(bet)),
-    );
+    const formattedBets = await formatBets(rawBets);
     return { items: formattedBets, pageInfo: rawBets.pageInfo };
   } catch (error) {
     const errorMsg = "Failed to get formatted bet details for a user";
