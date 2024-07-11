@@ -2,7 +2,7 @@ import { BetAbi } from "@/abis/BetAbi";
 import { config } from "@/app/providers";
 import { BET_API_URL } from "@/config";
 import { type Address, formatUnits } from "viem";
-import { getPreferredAlias } from "@/lib/utils";
+import { getPreferredAlias, getPreferredAliases } from "@/lib/utils";
 import { readContracts } from "@wagmi/core";
 import {
   generateBetQuery,
@@ -207,6 +207,75 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
   }
 };
 
+/** Utility function for formatting multiple bets */
+export const formatBets = async (rawBets: RawBets): Promise<FormattedBet[]> => {
+  console.log("Running formatBets...");
+  try {
+    let addressList: Address[] = [];
+    const preFormattedBets = await Promise.all(
+      rawBets.items.map(async (rawBet) => {
+        // re-cast variables as the correct types
+        const contractAddress = rawBet.contractAddress as Address,
+          creator = rawBet.creator as Address,
+          participant = rawBet.participant as Address,
+          judge = rawBet.judge as Address;
+        addressList.push(creator, participant, judge);
+        // get aliases and bet status
+        const [status, winner, judgementReason] = await readContracts(config, {
+          contracts: [
+            {
+              address: contractAddress,
+              abi: BetAbi,
+              functionName: "getStatus",
+            },
+            {
+              address: contractAddress,
+              abi: BetAbi,
+              functionName: "winner",
+            },
+            {
+              address: contractAddress,
+              abi: BetAbi,
+              functionName: "judgementReason",
+            },
+          ],
+        });
+        // return
+        return {
+          betId: Number(rawBet.id),
+          contractAddress,
+          creator,
+          participant,
+          amount: Number(formatUnits(BigInt(rawBet.amount), 6)),
+          bigintAmount: BigInt(rawBet.amount),
+          token: rawBet.token as Address,
+          message: rawBet.message,
+          judge,
+          validUntil: new Date(Number(rawBet.validUntil) * 1000),
+          createdTime: new Date(Number(rawBet.createdTime) * 1000),
+          status: status.result as BetStatus,
+          winner: winner.result,
+          judgementReason: judgementReason.result,
+        };
+      }),
+    );
+    const aliases = await getPreferredAliases(addressList);
+    return preFormattedBets.map(
+      (bet) =>
+        ({
+          ...bet,
+          creatorAlias: aliases.get(bet.creator),
+          participantAlias: aliases.get(bet.participant),
+          judgeAlias: aliases.get(bet.judge),
+        }) as FormattedBet,
+    );
+  } catch (error) {
+    const errorMsg = "Failed to format bets from raw bets";
+    console.error(errorMsg + ": " + error);
+    throw new Error(errorMsg);
+  }
+};
+
 /** Formatted data getter fn - single bet from an id */
 export const getFormattedBetFromId = async (
   betId: number,
@@ -229,9 +298,7 @@ export const getFormattedBetsFromIds = async (
   console.log("Running getFormattedBetsFromIds...");
   try {
     const rawBets = await getRawBetsFromIds(betIds);
-    const formattedBets = await Promise.all(
-      rawBets.items.map((bet) => formatBet(bet)),
-    );
+    const formattedBets = await formatBets(rawBets);
     return { items: formattedBets };
   } catch (error) {
     const errorMsg = "Failed to get formatted bets from bet ids";
@@ -248,9 +315,7 @@ export const getRecentFormattedBets = async (
   console.log("Running getRecentFormattedBets...");
   try {
     const rawBets = await getRecentRawBets(numBets, page);
-    const formattedBets = await Promise.all(
-      rawBets.items.map((bet) => formatBet(bet)),
-    );
+    const formattedBets = await formatBets(rawBets);
     return { items: formattedBets, pageInfo: rawBets.pageInfo };
   } catch (error) {
     const errorMsg = "Failed to get recent formatted bets";
@@ -268,9 +333,7 @@ export const getUserFormattedBets = async (
   console.log("Running getUserFormattedBets...");
   try {
     const rawBets = await getUserRawBets(user, numBets, page);
-    const formattedBets = await Promise.all(
-      rawBets.items.map((bet) => formatBet(bet)),
-    );
+    const formattedBets = await formatBets(rawBets);
     return { items: formattedBets, pageInfo: rawBets.pageInfo };
   } catch (error) {
     const errorMsg = "Failed to get formatted bet details for a user";
