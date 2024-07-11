@@ -15,7 +15,7 @@ export function ExplorerComponent({
   setViewFn: (view: FormattedBet | "create") => void;
 }) {
   return (
-    <Tabs defaultValue="recent" className="w-full max-w-md space-y-2">
+    <Tabs defaultValue="recent" className="w-full max-w-lg space-y-2">
       <div className="mb-8 hidden text-3xl font-semibold lg:flex">
         <Link href="https://wannabet.cc">WannaBet 🤝</Link>
       </div>
