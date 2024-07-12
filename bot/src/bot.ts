@@ -1,5 +1,5 @@
 import express, { Express, Request, Response } from "express";
-import { Hex, decodeEventLog, formatUnits } from "viem";
+import { Address, Hex, decodeEventLog, formatUnits } from "viem";
 import { publishCast } from "./neynar";
 import { BET_CREATED_EVENT_SIGNATURE } from "./config";
 import { type EventData, type Log } from "./webhook";
@@ -15,11 +15,11 @@ const bot: Express = express();
 
 bot.use(express.json());
 
-bot.get("/", (req: Request, res: Response) => {
+bot.get("/", (_, res: Response) => {
   res.send("WannaBet Bot Express Server");
 });
 
-bot.post("/test", async (req: Request, res: Response) => {
+bot.post("/", async (req: Request, res: Response) => {
   console.log("Request received at", req.url);
   console.log("Data:", JSON.stringify(req.body));
   res.status(200).send("Received");
@@ -45,6 +45,20 @@ bot.post("/webhooks", async (req: Request, res: Response) => {
         }
       })
     );
+    res.status(200).send("Received");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Internal server error" });
+  }
+});
+
+bot.post("/webhooks/debug", async (req: Request, res: Response) => {
+  console.log("Request received at", req.url);
+  try {
+    const data = req.body as { addresses: Address[] };
+    const addresses = data.addresses;
+    const aliases = await getPreferredAliases(addresses);
+    console.log(aliases);
     res.status(200).send("Received");
   } catch (error) {
     console.error(error);
@@ -79,5 +93,5 @@ async function handleBetCreated(log: Log) {
     castMessage = `${creatorAlias} bet ${participantAlias} ${formattedAmount} USDC that \`${message}\`. ${judgeAlias} is the judge\n\n${url}`;
   console.log(castMessage);
   // Cast
-  await publishCast(castMessage); // optionally returns cast hash
+  await publishCast(castMessage, { embedUrl: url }); // optionally returns cast hash
 }
