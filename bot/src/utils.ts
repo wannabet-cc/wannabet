@@ -36,15 +36,21 @@ function arrayToMap<T>(arr: string[], value: T): Map<string, T> {
 }
 
 /** Get a map of readable aliases from an array of public addresses */
-export async function getPreferredAliases(addresses: Address[]) {
+export async function getPreferredAliasMap(
+  addresses: Address[]
+): Promise<Map<string, string>> {
+  // -> Initialize map
   const aliasMap = arrayToMap<string>(addresses, "");
+  // -> Get farcaster names
   const farcasterUsers = await neynarClient.fetchBulkUsersByEthereumAddress(
     addresses,
     { addressTypes: [BulkUserAddressTypes.VERIFIED_ADDRESS] }
   );
+  // -> Map if available
   for (const [address, user] of Object.entries(farcasterUsers)) {
     aliasMap.set(address, `@${user[0].username}`);
   }
+  // -> Set remaining names to ens names (if available) or abbreviated addresses if not
   for (const [address, alias] of aliasMap) {
     if (alias === "") {
       const ensName = (await fetchEns(address as Address)).name;
