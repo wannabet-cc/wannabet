@@ -7,6 +7,7 @@ import {
   getBetDetails,
   getEventNameFromSignature,
   getFarcasterNames,
+  getPreferredAliases,
 } from "./utils";
 import { BetFactoryAbi } from "./contracts/BetFactoryAbi";
 import { baseClient } from "./viem";
@@ -72,7 +73,7 @@ async function handleBetCreated(log: Log) {
   const { betId, creator, participant, amount, message, judge } =
     await getBetDetails(newContractAddress);
   const [creatorUsername, participantUsername, judgeUsername] =
-    await getFarcasterNames([creator, participant, judge]);
+    await getPreferredAliases([creator, participant, judge]);
   // Create strings
   const formattedAmount = formatUnits(amount, 6),
     url = "https://wannabet.cc/",

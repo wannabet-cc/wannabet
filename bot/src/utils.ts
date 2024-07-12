@@ -64,6 +64,13 @@ export async function getPreferredAliasMap(
   return aliasMap;
 }
 
+export async function getPreferredAliases(
+  addresses: Address[]
+): Promise<string[]> {
+  const aliasMap = await getPreferredAliasMap(addresses);
+  return addresses.map((address) => aliasMap.get(address) || "...");
+}
+
 /** Fetch a list of farcaster usernames from a list of addresses */
 async function getFarcasterNames(addresses: Address[]) {
   const res = await neynarClient.fetchBulkUsersByEthereumAddress(addresses, {
