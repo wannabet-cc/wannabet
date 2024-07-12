@@ -71,12 +71,12 @@ async function handleBetCreated(log: Log) {
   // Fetch data
   const { betId, creator, participant, amount, message, judge } =
     await getBetDetails(newContractAddress);
-  const [creatorUsername, participantUsername, judgeUsername] =
+  const [creatorAlias, participantAlias, judgeAlias] =
     await getPreferredAliases([creator, participant, judge]);
   // Create strings
   const formattedAmount = formatUnits(amount, 6),
     url = "https://wannabet.cc/",
-    castMessage = `@${creatorUsername} bet @${participantUsername} ${formattedAmount} USDC that \`${message}\`. @${judgeUsername} is the judge\n\n${url}`;
+    castMessage = `${creatorAlias} bet ${participantAlias} ${formattedAmount} USDC that \`${message}\`. ${judgeAlias} is the judge\n\n${url}`;
   console.log(castMessage);
   // Cast
   await publishCast(castMessage); // optionally returns cast hash
