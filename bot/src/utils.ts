@@ -47,8 +47,11 @@ export async function getPreferredAliasMap(
     { addressTypes: [BulkUserAddressTypes.VERIFIED_ADDRESS] }
   );
   // -> Map if available
-  for (const [address, user] of Object.entries(farcasterUsers)) {
-    aliasMap.set(address, `@${user[0].username}`);
+  for (const [address, users] of Object.entries(farcasterUsers)) {
+    const mostFollowedUser = users.reduce((prev, current) =>
+      prev.follower_count >= current.follower_count ? prev : current
+    );
+    aliasMap.set(address, `@${mostFollowedUser.username}`);
   }
   // -> Set remaining names to ens names (if available) or abbreviated addresses if not
   for (const [address, alias] of aliasMap) {
