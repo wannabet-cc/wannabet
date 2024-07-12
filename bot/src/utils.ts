@@ -15,6 +15,34 @@ function abbreviateHex(hex: Hex, numChars: number = 3) {
   return `${hex.slice(0, numChars + 2)}...${hex.slice(numChars * -1)}`;
 }
 
+/** Make a map from an array where the array values are the keys */
+function arrayToMap<T>(arr: string[], value: T): Map<string, T> {
+  return new Map(arr.map((key) => [key, value]));
+}
+
+/** Get a map of readable aliases from an array of public addresses */
+export async function getPreferredAliases(addresses: Address[]) {
+  const aliasMap = arrayToMap<string>(addresses, "");
+  const farcasterUsers = await neynarClient.fetchBulkUsersByEthereumAddress(
+    addresses,
+    { addressTypes: [BulkUserAddressTypes.VERIFIED_ADDRESS] }
+  );
+  for (const [address, user] of Object.entries(farcasterUsers)) {
+    aliasMap.set(address, `@${user[0].username}`);
+  }
+  for (const [address, alias] of aliasMap) {
+    if (alias === "") {
+      const ensName = (await fetchEns(address as Address)).name;
+      if (ensName) {
+        aliasMap.set(address, ensName);
+      } else {
+        aliasMap.set(address, abbreviateHex(address as Address));
+      }
+    }
+  }
+  return aliasMap;
+}
+
 /** Get ens data (address, name, & avatar url) from an address or ens name */
 export async function fetchEns(
   nameOrAddress: `${string}.eth` | Address
