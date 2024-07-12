@@ -15,6 +15,21 @@ function abbreviateHex(hex: Hex, numChars: number = 3) {
   return `${hex.slice(0, numChars + 2)}...${hex.slice(numChars * -1)}`;
 }
 
+/** Get ens data (address, name, & avatar url) from an address or ens name */
+export async function fetchEns(
+  nameOrAddress: `${string}.eth` | Address
+): Promise<EnsIdeasResponse> {
+  const ensIdeasUrl = "https://api.ensideas.com/ens/resolve/";
+  return fetch(ensIdeasUrl + nameOrAddress).then((res) => res.json());
+}
+
+type EnsIdeasResponse = {
+  address: Address;
+  name: string;
+  displayName: string;
+  avatar: string;
+};
+
 /** Make a map from an array where the array values are the keys */
 function arrayToMap<T>(arr: string[], value: T): Map<string, T> {
   return new Map(arr.map((key) => [key, value]));
@@ -42,21 +57,6 @@ export async function getPreferredAliases(addresses: Address[]) {
   }
   return aliasMap;
 }
-
-/** Get ens data (address, name, & avatar url) from an address or ens name */
-export async function fetchEns(
-  nameOrAddress: `${string}.eth` | Address
-): Promise<EnsIdeasResponse> {
-  const ensIdeasUrl = "https://api.ensideas.com/ens/resolve/";
-  return fetch(ensIdeasUrl + nameOrAddress).then((res) => res.json());
-}
-
-type EnsIdeasResponse = {
-  address: Address;
-  name: string;
-  displayName: string;
-  avatar: string;
-};
 
 /** Fetch a list of farcaster usernames from a list of addresses */
 async function getFarcasterNames(addresses: Address[]) {
