@@ -15,6 +15,21 @@ function abbreviateHex(hex: Hex, numChars: number = 3) {
   return `${hex.slice(0, numChars + 2)}...${hex.slice(numChars * -1)}`;
 }
 
+/** Get ens data (address, name, & avatar url) from an address or ens name */
+export async function fetchEns(
+  nameOrAddress: `${string}.eth` | Address
+): Promise<EnsIdeasResponse> {
+  const ensIdeasUrl = "https://api.ensideas.com/ens/resolve/";
+  return fetch(ensIdeasUrl + nameOrAddress).then((res) => res.json());
+}
+
+type EnsIdeasResponse = {
+  address: Address;
+  name: string;
+  displayName: string;
+  avatar: string;
+};
+
 /** Fetch a list of farcaster usernames from a list of addresses */
 async function getFarcasterNames(addresses: Address[]) {
   const res = await neynarClient.fetchBulkUsersByEthereumAddress(addresses, {
