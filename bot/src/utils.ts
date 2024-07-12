@@ -32,7 +32,7 @@ type EnsIdeasResponse = {
 
 /** Make a map from an array where the array values are the keys */
 function arrayToMap<T>(arr: string[], value: T): Map<string, T> {
-  return new Map(arr.map((key) => [key, value]));
+  return new Map(arr.map((key) => [key.toLowerCase(), value]));
 }
 
 /** Get a map of readable aliases from an array of public addresses */
@@ -43,9 +43,9 @@ export async function getPreferredAliasMap(
   const aliasMap = arrayToMap<string>(addresses, "");
   // -> Get farcaster names
   const farcasterUsers = await neynarClient.fetchBulkUsersByEthereumAddress(
-    addresses,
-    { addressTypes: [BulkUserAddressTypes.VERIFIED_ADDRESS] }
+    addresses
   );
+  console.log(farcasterUsers);
   // -> Map if available
   for (const [address, users] of Object.entries(farcasterUsers)) {
     const mostFollowedUser = users.reduce((prev, current) =>
@@ -70,8 +70,12 @@ export async function getPreferredAliasMap(
 export async function getPreferredAliases(
   addresses: Address[]
 ): Promise<string[]> {
+  console.log(addresses);
   const aliasMap = await getPreferredAliasMap(addresses);
-  return addresses.map((address) => aliasMap.get(address) || "...");
+  console.log(aliasMap);
+  return addresses.map(
+    (address) => aliasMap.get(address.toLowerCase()) || "..."
+  );
 }
 
 /** Fetch a list of farcaster usernames from a list of addresses */
