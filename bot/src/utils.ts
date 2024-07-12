@@ -10,10 +10,12 @@ import {
 import { neynarClient } from "./neynar";
 import { BulkUserAddressTypes } from "@neynar/nodejs-sdk";
 
+/** Abbreviate a hex address by replacing the middle with "..." */
 function abbreviateHex(hex: Hex, numChars: number = 3) {
   return `${hex.slice(0, numChars + 2)}...${hex.slice(numChars * -1)}`;
 }
 
+/** Fetch a list of farcaster usernames from a list of addresses */
 async function getFarcasterNames(addresses: Address[]) {
   const res = await neynarClient.fetchBulkUsersByEthereumAddress(addresses, {
     addressTypes: [BulkUserAddressTypes.VERIFIED_ADDRESS],
@@ -27,6 +29,7 @@ async function getFarcasterNames(addresses: Address[]) {
   return farcasterNames;
 }
 
+/** Fetch WannaBet contract bet details from a contract address */
 async function getBetDetails(betContractAddress: Address) {
   const [
     betId,
@@ -55,6 +58,7 @@ async function getBetDetails(betContractAddress: Address) {
   };
 }
 
+/** Fetch WannaBet contract bet winner from a contract address */
 async function getBetWinner(betContractAddress: Address) {
   const winner = await baseClient.readContract({
     address: betContractAddress,
@@ -64,6 +68,7 @@ async function getBetWinner(betContractAddress: Address) {
   return winner;
 }
 
+/** Get the readable event name from a WannaBet event signature */
 function getEventNameFromSignature(eventSignature: string) {
   if (eventSignature === BET_CREATED_EVENT_SIGNATURE) {
     return "BetCreated";
@@ -78,6 +83,7 @@ function getEventNameFromSignature(eventSignature: string) {
   }
 }
 
+/** Promise that resolves after a set number of seconds */
 async function sleep(seconds: number) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 }
