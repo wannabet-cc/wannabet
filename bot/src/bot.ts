@@ -74,10 +74,9 @@ async function handleBetCreated(log: Log) {
   const [creatorUsername, participantUsername, judgeUsername] =
     await getFarcasterNames([creator, participant, judge]);
   // Create strings
-  const formattedAmount = formatUnits(amount, 6);
-  // const frameUrl = `${FRAME_BASE_URL}/bets/${betId.toString()}`;
-  const url = "https://wannabet.cc";
-  const castMessage = `@${creatorUsername} bet @${participantUsername} ${formattedAmount} USDC that \`${message}\`. @${judgeUsername} is the judge\n\n${url}`;
+  const formattedAmount = formatUnits(amount, 6),
+    url = "https://wannabet.cc/",
+    castMessage = `@${creatorUsername} bet @${participantUsername} ${formattedAmount} USDC that \`${message}\`. @${judgeUsername} is the judge\n\n${url}`;
   console.log(castMessage);
   // Cast
   await publishCast(castMessage); // optionally returns cast hash
