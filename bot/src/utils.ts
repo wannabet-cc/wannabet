@@ -1,4 +1,4 @@
-import { Address } from "viem";
+import { Address, Hex } from "viem";
 import { baseClient } from "./viem";
 import { BetAbi } from "./contracts/BetAbi";
 import {
@@ -10,8 +10,8 @@ import {
 import { neynarClient } from "./neynar";
 import { BulkUserAddressTypes } from "@neynar/nodejs-sdk";
 
-function shortenHexAddress(address: Address) {
-  return `${address.slice(0, 5)}...${address.slice(-3)}`;
+function abbreviateHex(hex: Hex, numChars: number = 3) {
+  return `${hex.slice(0, numChars + 2)}...${hex.slice(numChars * -1)}`;
 }
 
 async function getFarcasterNames(addresses: Address[]) {
@@ -83,7 +83,7 @@ async function sleep(seconds: number) {
 }
 
 export {
-  shortenHexAddress,
+  abbreviateHex,
   getFarcasterNames,
   getBetDetails,
   getBetWinner,
