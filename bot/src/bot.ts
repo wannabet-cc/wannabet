@@ -6,7 +6,6 @@ import { type EventData, type Log } from "./webhook";
 import {
   getBetDetails,
   getEventNameFromSignature,
-  getFarcasterNames,
   getPreferredAliases,
 } from "./utils";
 import { BetFactoryAbi } from "./contracts/BetFactoryAbi";
