@@ -7,7 +7,7 @@ const publishCast = async (
   message: string,
   options?: {
     replyToCastHash?: string;
-    frameUrl?: string;
+    embedUrl?: string;
   }
 ) => {
   try {
@@ -15,7 +15,7 @@ const publishCast = async (
     const neynarOptions = {
       replyTo: options?.replyToCastHash,
       channelId: WANNA_BET_CHANNEL_ID,
-      embeds: options?.frameUrl ? [{ url: options.frameUrl }] : undefined,
+      embeds: options?.embedUrl ? [{ url: options.embedUrl }] : undefined,
     };
     const res = await neynarClient.publishCast(
       SIGNER_UUID,
