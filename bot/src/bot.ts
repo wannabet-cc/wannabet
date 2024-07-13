@@ -90,7 +90,7 @@ async function handleBetCreated(log: Log) {
   // Create strings
   const formattedAmount = formatUnits(amount, 6),
     url = "https://wannabet.cc/",
-    castMessage = `${creatorAlias} bet ${participantAlias} ${formattedAmount} USDC that \`${message}\`. ${judgeAlias} is the judge\n\n${url}`;
+    castMessage = `${creatorAlias} proposed a bet to ${participantAlias} for ${formattedAmount} USDC that \`${message}\`.\n\n${url}`;
   console.log(castMessage);
   // Cast
   await publishCast(castMessage, { embedUrl: url }); // optionally returns cast hash
