@@ -294,14 +294,16 @@ function CreateBetForm() {
             );
           }}
         />
-        <div className="text-sm text-muted-foreground">
-          {"Your balance: "}
-          {tokenBalance ? (
-            <span>{formatUnits(tokenBalance, decimals)}</span>
-          ) : (
-            "..."
-          )}
-        </div>
+        {address && (
+          <div className="text-sm text-muted-foreground">
+            {"Your balance: "}
+            {tokenBalance ? (
+              <span>{formatUnits(tokenBalance, decimals)}</span>
+            ) : (
+              "..."
+            )}
+          </div>
+        )}
         {/* message: string */}
         <FormField
           control={form.control}
