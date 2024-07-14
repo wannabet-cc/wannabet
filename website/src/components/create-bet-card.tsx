@@ -3,8 +3,12 @@
 import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { config } from "@/app/providers";
-import { BASE_BET_FACTORY_ADDRESS, BASE_USDC_ADDRESS } from "@/config";
-import { fetchEns, getAddressFromTokenName } from "@/lib/utils";
+import { BASE_BET_FACTORY_ADDRESS } from "@/config";
+import {
+  fetchEns,
+  getAddressFromTokenName,
+  getDecimalsFromTokenName,
+} from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -14,8 +18,8 @@ import {
 } from "@wagmi/core";
 import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import { Address, parseUnits } from "viem";
-import { useAccount } from "wagmi";
+import { Address, formatUnits, parseUnits } from "viem";
+import { useAccount, useReadContract } from "wagmi";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import {
@@ -64,7 +68,7 @@ const ensOrAddressSchema = z
 const formSchema = z.object({
   participant: ensOrAddressSchema,
   amount: z.coerce.number().positive(),
-  token: z.literal("USDC"),
+  tokenName: z.string().refine((name) => name === "USDC" || name === "WETH"),
   message: z.string(),
   validForDays: z.coerce.number().positive().lte(14),
   judge: ensOrAddressSchema,
@@ -79,13 +83,24 @@ function CreateBetForm() {
     defaultValues: {
       participant: "",
       amount: 1,
-      token: "USDC",
+      tokenName: "USDC",
       message: "",
       validForDays: 7,
       judge: "",
     },
   });
   const { toast } = useToast();
+  const { data: tokenBalance } = useReadContract({
+    address: getAddressFromTokenName(form.getValues("tokenName")),
+    abi: FiatTokenProxyAbi,
+    functionName: "balanceOf",
+    args: [address ? address : "0x"],
+    query: {
+      enabled: !!address,
+    },
+  });
+
+  const decimals = getDecimalsFromTokenName(form.getValues("tokenName"));
 
   const handleSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (
     values,
@@ -96,8 +111,11 @@ function CreateBetForm() {
 
     try {
       /** Transform form data */
-      const tokenAddress = getAddressFromTokenName(values.token);
-      const bigintAmount = parseUnits(values.amount.toString(), 6);
+      const tokenAddress = getAddressFromTokenName(values.tokenName);
+      const bigintAmount = parseUnits(
+        values.amount.toString(),
+        values.tokenName === "USDC" ? 6 : 18,
+      );
       const validFor = BigInt(values.validForDays * 24 * 60 * 60);
       const [participantAddress, judgeAddress] = await Promise.all([
         addressRegex.test(values.participant)
@@ -111,7 +129,7 @@ function CreateBetForm() {
       /** Throw if user doesn't have enough tokens */
       setCreateStatus("2-checking-balance");
       const balance = await readContract(config, {
-        address: BASE_USDC_ADDRESS,
+        address: tokenAddress,
         abi: FiatTokenProxyAbi,
         functionName: "balanceOf",
         args: [address!],
@@ -119,7 +137,7 @@ function CreateBetForm() {
       if (balance < bigintAmount) {
         toast({
           title: "Insufficient balance",
-          description: "You don't have enough USDC to create this bet",
+          description: "You don't have enough tokens to create this bet",
         });
         setCreateStatus("error");
         return;
@@ -128,7 +146,7 @@ function CreateBetForm() {
       /** Approve token transfer IF tokens aren't already approved */
       setCreateStatus("3-checking-approval");
       const preexistingApprovedAmount = await readContract(config, {
-        address: BASE_USDC_ADDRESS,
+        address: tokenAddress,
         abi: FiatTokenProxyAbi,
         functionName: "allowance",
         args: [address!, BASE_BET_FACTORY_ADDRESS],
@@ -136,7 +154,7 @@ function CreateBetForm() {
       if (preexistingApprovedAmount < bigintAmount) {
         setCreateStatus("4-approving");
         const approveHash = await writeContract(config, {
-          address: BASE_USDC_ADDRESS,
+          address: tokenAddress,
           abi: FiatTokenProxyAbi,
           functionName: "approve",
           args: [BASE_BET_FACTORY_ADDRESS, bigintAmount],
@@ -246,7 +264,7 @@ function CreateBetForm() {
         {/* bet token: select an address */}
         <FormField
           control={form.control}
-          name="token"
+          name="tokenName"
           render={({ field }) => {
             return (
               <FormItem>
@@ -263,6 +281,12 @@ function CreateBetForm() {
                       </FormControl>
                       <FormLabel className="font-normal">USDC</FormLabel>
                     </FormItem>
+                    <FormItem className="flex items-center space-x-2 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="WETH" />
+                      </FormControl>
+                      <FormLabel className="font-normal">WETH</FormLabel>
+                    </FormItem>
                   </RadioGroup>
                 </FormControl>
                 <FormMessage />
@@ -270,6 +294,14 @@ function CreateBetForm() {
             );
           }}
         />
+        <div className="text-sm text-muted-foreground">
+          {"Your balance: "}
+          {tokenBalance ? (
+            <span>{formatUnits(tokenBalance, decimals)}</span>
+          ) : (
+            "..."
+          )}
+        </div>
         {/* message: string */}
         <FormField
           control={form.control}

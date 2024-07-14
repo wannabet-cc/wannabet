@@ -23,6 +23,7 @@ import { LoadingSpinner } from "./ui/spinner";
 import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
 import { UserBadge } from "./misc/user-badge";
+import { getTokenNameFromAddress } from "@/lib/utils";
 
 export function BetListCard({
   children,
@@ -167,7 +168,9 @@ function BetList({
                   className="cursor-pointer data-[current-bet=true]:bg-muted"
                 >
                   <TableCell className="text-center">{bet.betId}</TableCell>
-                  <TableCell>{bet.amount} USDC</TableCell>
+                  <TableCell>
+                    {bet.amount} {getTokenNameFromAddress(bet.token)}
+                  </TableCell>
                   <TableCell>
                     <UserBadge userAlias={bet.creatorAlias} />
                     <span className="text-muted-foreground"> vs </span>

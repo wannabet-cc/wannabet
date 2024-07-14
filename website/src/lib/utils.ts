@@ -1,4 +1,4 @@
-import { BASE_USDC_ADDRESS } from "@/config";
+import { BASE_USDC_ADDRESS, BASE_WETH_ADDRESS } from "@/config";
 import { type Address } from "viem";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -111,15 +111,26 @@ export function abbreviateHex(hex: Address, numChars: number = 3) {
 }
 
 /** Get a readable string name from the token contract address */
-export function getTokenNameFromAddress(address: Address): string {
+export function getTokenNameFromAddress(address: Address): TokenNames {
   if (address.toLowerCase() === BASE_USDC_ADDRESS.toLowerCase()) return "USDC";
+  if (address.toLowerCase() === BASE_WETH_ADDRESS.toLowerCase()) return "WETH";
   else return "error";
 }
 
 /** Get a token contract address from a readable name */
-export function getAddressFromTokenName(tokenName: "USDC"): Address | string {
+export function getAddressFromTokenName(tokenName: TokenNames): Address {
   if (tokenName === "USDC") return BASE_USDC_ADDRESS;
-  else return "error";
+  if (tokenName === "WETH") return BASE_WETH_ADDRESS;
+  else return "0x";
+}
+
+type TokenNames = "USDC" | "WETH" | "error";
+
+/** Get a token contract address from a readable name */
+export function getDecimalsFromTokenName(tokenName: TokenNames): number {
+  if (tokenName === "USDC") return 6;
+  if (tokenName === "WETH") return 18;
+  else return 0;
 }
 
 /** Promise that resolves after a set number of seconds */
