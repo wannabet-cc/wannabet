@@ -12,8 +12,8 @@
 - Contract (deployed on [base](https://basescan.org/address/0x304ac36402d551fbba8e53e04e770337022e8757))
 - Web app (deployed at [wannabet.cc](https://wannabet.cc))
 - Indexer & API (deployed)
+- Bot (deployed on [farcaster](https://warpcast.com/wannabet))
 - Frame (not production ready)
-- Bot (not production ready)
 
 ## How it works
 
