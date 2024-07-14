@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) ([github](https://github.com/olivierlacan/keep-a-changelog/tree/main))
 
+## [1.1.0] - 2024-07-14
+
+### Added
+
+- Farcaster names and pfps in the app
+- A status dialog for the bet creation flow
+- USDC balance and allowance check in bet creation to make the flow significantly more seamless
+
+### Changed
+
+- Small UI tweaks to improve mobile experience and signing transactions
+
+### Fixed
+
+- Several breaking bot bugs; Repaired and re-deployed
+
 ## [1.0.0] - 2024-07-05
 
 ### Added
