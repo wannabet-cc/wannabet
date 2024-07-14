@@ -4,7 +4,11 @@ import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { config } from "@/app/providers";
 import { BASE_BET_FACTORY_ADDRESS } from "@/config";
-import { fetchEns, getAddressFromTokenName } from "@/lib/utils";
+import {
+  fetchEns,
+  getAddressFromTokenName,
+  getDecimalsFromTokenName,
+} from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -14,8 +18,8 @@ import {
 } from "@wagmi/core";
 import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import { Address, parseUnits } from "viem";
-import { useAccount } from "wagmi";
+import { Address, formatUnits, parseUnits } from "viem";
+import { useAccount, useReadContract } from "wagmi";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import {
@@ -86,6 +90,17 @@ function CreateBetForm() {
     },
   });
   const { toast } = useToast();
+  const { data: tokenBalance } = useReadContract({
+    address: getAddressFromTokenName(form.getValues("tokenName")),
+    abi: FiatTokenProxyAbi,
+    functionName: "balanceOf",
+    args: [address ? address : "0x"],
+    query: {
+      enabled: !!address,
+    },
+  });
+
+  const decimals = getDecimalsFromTokenName(form.getValues("tokenName"));
 
   const handleSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (
     values,
@@ -279,6 +294,14 @@ function CreateBetForm() {
             );
           }}
         />
+        <div className="text-sm text-muted-foreground">
+          {"Your balance: "}
+          {tokenBalance ? (
+            <span>{formatUnits(tokenBalance, decimals)}</span>
+          ) : (
+            "..."
+          )}
+        </div>
         {/* message: string */}
         <FormField
           control={form.control}

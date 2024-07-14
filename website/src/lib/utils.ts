@@ -126,6 +126,13 @@ export function getAddressFromTokenName(tokenName: TokenNames): Address {
 
 type TokenNames = "USDC" | "WETH" | "error";
 
+/** Get a token contract address from a readable name */
+export function getDecimalsFromTokenName(tokenName: TokenNames): number {
+  if (tokenName === "USDC") return 6;
+  if (tokenName === "WETH") return 18;
+  else return 0;
+}
+
 /** Promise that resolves after a set number of seconds */
 export function pause(seconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
