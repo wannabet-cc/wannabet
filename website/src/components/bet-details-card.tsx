@@ -161,7 +161,7 @@ function BetDetails({ bet }: { bet: FormattedBet }) {
           <TableCell>actions</TableCell>
           <TableCell>
             {account.address ? (
-              <TransactionButtons userAddress={account.address} bet={bet} />
+              <TransactionButtons bet={bet} />
             ) : (
               <CustomConnectButtonSecondary />
             )}

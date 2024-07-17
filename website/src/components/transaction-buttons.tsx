@@ -2,18 +2,12 @@ import { type FormattedBet } from "@/services/services";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { BetAbi } from "@/abis/BetAbi";
 import { BASE_USDC_ADDRESS } from "@/config";
-import { type Address, parseUnits } from "viem";
+import { parseUnits } from "viem";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { Button } from "./ui/button";
 import { useToast } from "./ui/use-toast";
 
-export function TransactionButtons({
-  userAddress,
-  bet,
-}: {
-  userAddress: Address;
-  bet: FormattedBet;
-}) {
+export function TransactionButtons({ bet }: { bet: FormattedBet }) {
   const account = useAccount();
   const { toast } = useToast();
   const { data: contractBalance } = useReadContract({
@@ -24,9 +18,9 @@ export function TransactionButtons({
   });
   const { writeContractAsync, isPending } = useWriteContract();
 
-  const isCreator = userAddress.toLowerCase() === bet.creator,
-    isParticipant = userAddress.toLowerCase() === bet.participant,
-    isJudge = userAddress.toLowerCase() === bet.judge;
+  const isCreator = account.address?.toLowerCase() === bet.creator,
+    isParticipant = account.address?.toLowerCase() === bet.participant,
+    isJudge = account.address?.toLowerCase() === bet.judge;
 
   const creatorActions =
     Number(contractBalance) > 0 ? (
