@@ -11,6 +11,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Round a float to a specified decimal place */
+export function roundFloat(value: number, decimals: number) {
+  return Math.round(value * 10 ** decimals) / 10 ** decimals;
+}
+
 /** Make a map from an array where the array values are the keys */
 function arrayToMap<T>(arr: string[], value: T): Map<string, T> {
   return new Map(arr.map((key) => [key, value]));
