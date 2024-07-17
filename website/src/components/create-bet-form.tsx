@@ -8,6 +8,7 @@ import {
   fetchEns,
   getAddressFromTokenName,
   getDecimalsFromTokenName,
+  roundFloat,
 } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -54,7 +55,9 @@ const ensOrAddressSchema = z
 const formSchema = z.object({
   participant: ensOrAddressSchema,
   amount: z.coerce.number().positive(),
-  tokenName: z.string().refine((name) => name === "USDC" || name === "WETH"),
+  tokenName: z
+    .string()
+    .refine((name) => name === "USDC" || name === "WETH" || name === "rETH"),
   message: z.string(),
   validForDays: z.coerce.number().positive().lte(14),
   judge: ensOrAddressSchema,
@@ -86,6 +89,8 @@ export function CreateBetForm() {
     },
   });
 
+  form.watch("tokenName");
+
   const decimals = getDecimalsFromTokenName(form.getValues("tokenName"));
 
   const handleSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (
@@ -94,13 +99,12 @@ export function CreateBetForm() {
   ) => {
     e?.preventDefault();
     setCreateStatus("1-transforming-data");
-
     try {
       /** Transform form data */
       const tokenAddress = getAddressFromTokenName(values.tokenName);
       const bigintAmount = parseUnits(
         values.amount.toString(),
-        values.tokenName === "USDC" ? 6 : 18,
+        getDecimalsFromTokenName(values.tokenName),
       );
       const validFor = BigInt(values.validForDays * 24 * 60 * 60);
       const [participantAddress, judgeAddress] = await Promise.all([
@@ -273,6 +277,12 @@ export function CreateBetForm() {
                       </FormControl>
                       <FormLabel className="font-normal">WETH</FormLabel>
                     </FormItem>
+                    <FormItem className="flex items-center space-x-2 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="rETH" />
+                      </FormControl>
+                      <FormLabel className="font-normal">rETH</FormLabel>
+                    </FormItem>
                   </RadioGroup>
                 </FormControl>
                 <FormMessage />
@@ -284,7 +294,9 @@ export function CreateBetForm() {
           <div className="text-sm text-muted-foreground">
             {"Your balance: "}
             {tokenBalance ? (
-              <span>{formatUnits(tokenBalance, decimals)}</span>
+              <span>
+                {roundFloat(Number(formatUnits(tokenBalance, decimals)), 5)}
+              </span>
             ) : (
               "..."
             )}

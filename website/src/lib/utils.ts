@@ -1,10 +1,19 @@
-import { BASE_USDC_ADDRESS, BASE_WETH_ADDRESS } from "@/config";
+import {
+  BASE_RETH_ADDRESS,
+  BASE_USDC_ADDRESS,
+  BASE_WETH_ADDRESS,
+} from "@/config";
 import { type Address } from "viem";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+/** Round a float to a specified decimal place */
+export function roundFloat(value: number, decimals: number) {
+  return Math.round(value * 10 ** decimals) / 10 ** decimals;
 }
 
 /** Make a map from an array where the array values are the keys */
@@ -114,6 +123,7 @@ export function abbreviateHex(hex: Address, numChars: number = 3) {
 export function getTokenNameFromAddress(address: Address): TokenNames {
   if (address.toLowerCase() === BASE_USDC_ADDRESS.toLowerCase()) return "USDC";
   if (address.toLowerCase() === BASE_WETH_ADDRESS.toLowerCase()) return "WETH";
+  if (address.toLowerCase() === BASE_RETH_ADDRESS.toLowerCase()) return "rETH";
   else return "error";
 }
 
@@ -121,15 +131,16 @@ export function getTokenNameFromAddress(address: Address): TokenNames {
 export function getAddressFromTokenName(tokenName: TokenNames): Address {
   if (tokenName === "USDC") return BASE_USDC_ADDRESS;
   if (tokenName === "WETH") return BASE_WETH_ADDRESS;
+  if (tokenName === "rETH") return BASE_RETH_ADDRESS;
   else return "0x";
 }
 
-type TokenNames = "USDC" | "WETH" | "error";
+type TokenNames = "USDC" | "WETH" | "rETH" | "error";
 
 /** Get a token contract address from a readable name */
 export function getDecimalsFromTokenName(tokenName: TokenNames): number {
   if (tokenName === "USDC") return 6;
-  if (tokenName === "WETH") return 18;
+  if (tokenName === "WETH" || tokenName === "rETH") return 18;
   else return 0;
 }
 
