@@ -1,7 +1,6 @@
 import { type FormattedBet } from "@/services/services";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { BetAbi } from "@/abis/BetAbi";
-import { BASE_USDC_ADDRESS } from "@/config";
 import { parseUnits } from "viem";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { Button } from "./ui/button";
@@ -11,7 +10,7 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
   const account = useAccount();
   const { toast } = useToast();
   const { data: contractBalance } = useReadContract({
-    address: BASE_USDC_ADDRESS,
+    address: bet.token,
     abi: FiatTokenProxyAbi,
     functionName: "balanceOf",
     args: [bet.contractAddress],
@@ -54,7 +53,7 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
         disabled={isPending}
         onClick={async () => {
           await writeContractAsync({
-            address: BASE_USDC_ADDRESS,
+            address: bet.token,
             abi: FiatTokenProxyAbi,
             functionName: "approve",
             args: [bet.contractAddress, bet.bigintAmount],
@@ -64,7 +63,7 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
               address: bet.contractAddress,
               abi: BetAbi,
               functionName: "acceptBet",
-              value: parseUnits("0.0002", 18),
+              value: parseUnits("0.0002", 18), // 18 decimals for Ether
             },
             { onSuccess: () => toast({ title: "Bet accepted successfully" }) },
           );
