@@ -100,7 +100,7 @@ export function CreateBetForm() {
       const tokenAddress = getAddressFromTokenName(values.tokenName);
       const bigintAmount = parseUnits(
         values.amount.toString(),
-        values.tokenName === "USDC" ? 6 : 18,
+        getDecimalsFromTokenName(values.tokenName),
       );
       const validFor = BigInt(values.validForDays * 24 * 60 * 60);
       const [participantAddress, judgeAddress] = await Promise.all([
