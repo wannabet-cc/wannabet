@@ -11,6 +11,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Function that manually scrolls screen to an element id */
+export function scrolltoHash(element_id: string) {
+  const element = document.getElementById(element_id);
+  element?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+    inline: "nearest",
+  });
+}
+
 /** Round a float to a specified decimal place */
 export function roundFloat(value: number, decimals: number) {
   return Math.round(value * 10 ** decimals) / 10 ** decimals;
