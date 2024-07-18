@@ -5,7 +5,7 @@ import { CreateBetForm } from "./create-bet-form";
 
 export function CreateBetCard() {
   return (
-    <Card className="w-full max-w-md" id="create">
+    <Card className="w-full" id="create">
       <CardHeader>
         <CardTitle className="text-lg">Start a new bet</CardTitle>
       </CardHeader>

@@ -26,7 +26,7 @@ export function BetDetailsCard({
   currentBet: FormattedBet | undefined;
 }) {
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-lg">
           {currentBet ? `Bet #${currentBet.betId}` : "Select a bet"}
