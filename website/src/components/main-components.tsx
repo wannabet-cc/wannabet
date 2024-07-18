@@ -1,6 +1,4 @@
 import { type FormattedBet } from "@/services/services";
-import { CustomConnectButton } from "./rainbow/custom-connect-button";
-import Link from "next/link";
 import { BetListCard, MyBetList, RecentBetList } from "./bet-list-card";
 import { BetDetailsCard } from "./bet-details-card";
 import { CreateBetCard } from "./create-bet-card";
@@ -19,9 +17,6 @@ export function ExplorerComponent({
   const isDesktop = useMediaQuery("(min-width: 768px)");
   return (
     <Tabs defaultValue="recent" className="w-full max-w-lg space-y-2">
-      <div className="mb-8 hidden text-3xl font-semibold lg:flex">
-        <Link href="https://wannabet.cc">WannaBet 🤝</Link>
-      </div>
       <div className="flex justify-between">
         <TabsList>
           <TabsTrigger value="recent">Recent</TabsTrigger>
@@ -57,10 +52,7 @@ export function ViewComponent({
   currentView: FormattedBet | "create" | undefined;
 }) {
   return (
-    <div className="w-full max-w-md space-y-2 lg:mt-[68px]" id="view">
-      <div className="hidden lg:flex lg:justify-end">
-        <CustomConnectButton />
-      </div>
+    <div className="mt-4 w-full max-w-md space-y-2" id="view">
       {currentView === "create" ? (
         <CreateBetCard />
       ) : (
