@@ -215,11 +215,13 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
 };
 
 /** Utility function for formatting multiple bets */
-export const formatBets = async (rawBets: RawBets): Promise<FormattedBet[]> => {
+export const formatBets = async (
+  rawBets: RawBet[],
+): Promise<FormattedBet[]> => {
   console.log("Running formatBets...");
   try {
     const preFormattedBets = await Promise.all(
-      rawBets.items.map(async (rawBet) => {
+      rawBets.map(async (rawBet) => {
         // re-cast variables as the correct types
         const contractAddress = rawBet.contractAddress as Address,
           creator = rawBet.creator as Address,
@@ -269,7 +271,7 @@ export const formatBets = async (rawBets: RawBets): Promise<FormattedBet[]> => {
         };
       }),
     );
-    const addressList = rawBets.items
+    const addressList = rawBets
       .map((bet) => [bet.creator, bet.participant, bet.judge])
       .flat() as Address[];
     const aliases = await getPreferredAliases(addressList);
@@ -314,7 +316,7 @@ export const getFormattedBetsFromIds = async (
   console.log("Running getFormattedBetsFromIds...");
   try {
     const rawBets = await getRawBetsFromIds(betIds);
-    const formattedBets = await formatBets(rawBets);
+    const formattedBets = await formatBets(rawBets.items);
     return { items: formattedBets, pageInfo: rawBets.pageInfo };
   } catch (error) {
     const errorMsg = "Failed to get formatted bets from bet ids";
@@ -331,7 +333,7 @@ export const getRecentFormattedBets = async (
   console.log("Running getRecentFormattedBets...");
   try {
     const rawBets = await getRecentRawBets(numBets, page);
-    const formattedBets = await formatBets(rawBets);
+    const formattedBets = await formatBets(rawBets.items);
     return { items: formattedBets, pageInfo: rawBets.pageInfo };
   } catch (error) {
     const errorMsg = "Failed to get recent formatted bets";
@@ -349,7 +351,7 @@ export const getUserFormattedBets = async (
   console.log("Running getUserFormattedBets...");
   try {
     const rawBets = await getUserRawBets(user, numBets, page);
-    const formattedBets = await formatBets(rawBets);
+    const formattedBets = await formatBets(rawBets.items);
     return { items: formattedBets, pageInfo: rawBets.pageInfo };
   } catch (error) {
     const errorMsg = "Failed to get formatted bet details for a user";
