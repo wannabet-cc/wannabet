@@ -2,7 +2,11 @@ import { BetAbi } from "@/abis/BetAbi";
 import { config } from "@/app/providers";
 import { BET_API_URL } from "@/config";
 import { type Address, formatUnits } from "viem";
-import { getPreferredAlias, getPreferredAliases } from "@/lib/utils";
+import {
+  getDecimalsFromTokenAddress,
+  getPreferredAlias,
+  getPreferredAliases,
+} from "@/lib/utils";
 import { readContracts } from "@wagmi/core";
 import {
   generateBetQuery,
@@ -247,7 +251,12 @@ export const formatBets = async (rawBets: RawBets): Promise<FormattedBet[]> => {
           contractAddress,
           creator,
           participant,
-          amount: Number(formatUnits(BigInt(rawBet.amount), 6)),
+          amount: Number(
+            formatUnits(
+              BigInt(rawBet.amount),
+              getDecimalsFromTokenAddress(rawBet.token as Address),
+            ),
+          ),
           bigintAmount: BigInt(rawBet.amount),
           token: rawBet.token as Address,
           message: rawBet.message,

@@ -144,6 +144,13 @@ export function getDecimalsFromTokenName(tokenName: TokenNames): number {
   else return 0;
 }
 
+/** Get a token contract address from a readable name */
+export function getDecimalsFromTokenAddress(address: Address): number {
+  if (address === BASE_USDC_ADDRESS) return 6;
+  if (address === BASE_WETH_ADDRESS || address === BASE_RETH_ADDRESS) return 18;
+  else return 0;
+}
+
 /** Promise that resolves after a set number of seconds */
 export function pause(seconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
