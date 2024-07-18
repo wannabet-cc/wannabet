@@ -195,7 +195,12 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
       creatorAlias,
       participant,
       participantAlias,
-      amount: Number(formatUnits(BigInt(rawBet.amount), 6)),
+      amount: Number(
+        formatUnits(
+          BigInt(rawBet.amount),
+          getDecimalsFromTokenAddress(rawBet.token as Address),
+        ),
+      ),
       bigintAmount: BigInt(rawBet.amount),
       token: rawBet.token as Address,
       message: rawBet.message,
