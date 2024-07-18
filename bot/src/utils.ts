@@ -151,8 +151,12 @@ function getEventNameFromSignature(eventSignature: string) {
 
 /** Get a token contract address from a readable name */
 export function getDecimalsFromTokenAddress(address: Address): number {
-  if (address === BASE_USDC_ADDRESS) return 6;
-  if (address === BASE_WETH_ADDRESS || address === BASE_RETH_ADDRESS) return 18;
+  if (address.toLowerCase() === BASE_USDC_ADDRESS.toLowerCase()) return 6;
+  if (
+    address.toLowerCase() === BASE_WETH_ADDRESS.toLowerCase() ||
+    address.toLowerCase() === BASE_RETH_ADDRESS.toLowerCase()
+  )
+    return 18;
   else return 0;
 }
 
