@@ -5,7 +5,7 @@
 ## Features
 
 - Trustless, public wagers
-- Bet with any ERC20 on Base (website currently only supports USDC)
+- Bet with any ERC20 on Base (website currently only supports USDC, WETH, and rETH)
 
 ## Current Deployments
 
