@@ -358,7 +358,7 @@ export function CreateBetForm() {
         <div className="flex flex-col space-y-2 pt-4">
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="w-fit" type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading}>
                 {isLoading ? "Confirming..." : "Submit"}
               </Button>
             </DialogTrigger>
@@ -393,6 +393,9 @@ export function CreateBetForm() {
               )}
             </DialogContent>
           </Dialog>
+          <div className="text-center text-xs text-muted-foreground">
+            * Creating a bet includes a 0.0002 ether fee
+          </div>
         </div>
       </form>
     </Form>
