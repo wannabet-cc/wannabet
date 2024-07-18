@@ -150,17 +150,24 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
   );
 
   return (
-    <div className="flex gap-1">
-      {account.chainId === 8453 ? (
-        <>
-          {isCreator && bet.status === "expired" && creatorActions}
-          {isParticipant && bet.status === "pending" && participantActions}
-          {isJudge && bet.status === "accepted" && judgeActions}
-        </>
-      ) : (
-        "Wrong chain"
+    <div className="flex flex-col space-y-2">
+      <div className="flex gap-1 *:flex-1">
+        {account.chainId === 8453 ? (
+          <>
+            {isCreator && bet.status === "expired" && creatorActions}
+            {isParticipant && bet.status === "pending" && participantActions}
+            {isJudge && bet.status === "accepted" && judgeActions}
+          </>
+        ) : (
+          "Wrong chain"
+        )}
+        <span className="hidden only:inline-block">...</span>
+      </div>
+      {isParticipant && bet.status === "pending" && (
+        <div className="text-center text-xs text-muted-foreground">
+          * Accepting a bet includes a 0.0002 ether fee
+        </div>
       )}
-      <span className="hidden only:inline-block">...</span>
     </div>
   );
 }
