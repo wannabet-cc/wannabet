@@ -149,6 +149,16 @@ function getEventNameFromSignature(eventSignature: string) {
   }
 }
 
+/** Get a readable string name from the token contract address */
+export function getTokenNameFromAddress(address: Address): TokenNames {
+  if (address.toLowerCase() === BASE_USDC_ADDRESS.toLowerCase()) return "USDC";
+  if (address.toLowerCase() === BASE_WETH_ADDRESS.toLowerCase()) return "WETH";
+  if (address.toLowerCase() === BASE_RETH_ADDRESS.toLowerCase()) return "rETH";
+  else return "error";
+}
+
+type TokenNames = "USDC" | "WETH" | "rETH" | "error";
+
 /** Get a token contract address from a readable name */
 export function getDecimalsFromTokenAddress(address: Address): number {
   if (address.toLowerCase() === BASE_USDC_ADDRESS.toLowerCase()) return 6;

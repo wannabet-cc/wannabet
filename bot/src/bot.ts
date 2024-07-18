@@ -8,6 +8,7 @@ import {
   getDecimalsFromTokenAddress,
   getEventNameFromSignature,
   getPreferredAliases,
+  getTokenNameFromAddress,
 } from "./utils";
 import { BetFactoryAbi } from "./contracts/BetFactoryAbi";
 import { baseClient } from "./viem";
@@ -83,18 +84,27 @@ async function handleBetCreated(log: Log) {
   const newContractAddress = decodedTopics.args.contractAddress;
   // Wait for contract to be posted
   await baseClient.waitForTransactionReceipt({ hash: log.transaction.hash });
-  // Fetch data
-  const { betId, creator, participant, amount, token, message, judge } =
-    await getBetDetails(newContractAddress);
+  // Get contract data
+  const {
+    betId,
+    creator,
+    participant,
+    amount: bigintAmount,
+    token: tokenAddress,
+    message,
+    judge,
+  } = await getBetDetails(newContractAddress);
+  // Get aliases and transform
   const [creatorAlias, participantAlias, judgeAlias] =
     await getPreferredAliases([creator, participant, judge]);
-  // Create strings
-  const formattedAmount = formatUnits(
-      amount,
-      getDecimalsFromTokenAddress(token)
-    ),
-    url = "https://wannabet.cc/",
-    castMessage = `${creatorAlias} proposed a bet to ${participantAlias} for ${formattedAmount} USDC that \`${message}\`.\n\n${url}`;
+  const amount = formatUnits(
+    bigintAmount,
+    getDecimalsFromTokenAddress(tokenAddress)
+  );
+  const tokenName = getTokenNameFromAddress(tokenAddress);
+  const url = "https://wannabet.cc/";
+  // Write message
+  const castMessage = `${creatorAlias} proposed a bet to ${participantAlias} for ${amount} ${tokenName} that \`${message}\`.\n\n${url}`;
   console.log(castMessage);
   // Cast
   await publishCast(castMessage, { embedUrl: url }); // optionally returns cast hash
