@@ -6,6 +6,8 @@ import { BetDetailsCard } from "./bet-details-card";
 import { CreateBetCard } from "./create-bet-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
+import { useMediaQuery } from "@/lib/hooks";
+import { scrolltoHash } from "@/lib/utils";
 
 export function ExplorerComponent({
   currentView,
@@ -14,6 +16,7 @@ export function ExplorerComponent({
   currentView: FormattedBet | "create" | undefined;
   setViewFn: (view: FormattedBet | "create") => void;
 }) {
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   return (
     <Tabs defaultValue="recent" className="w-full max-w-lg space-y-2">
       <div className="mb-8 hidden text-3xl font-semibold lg:flex">
@@ -24,7 +27,13 @@ export function ExplorerComponent({
           <TabsTrigger value="recent">Recent</TabsTrigger>
           <TabsTrigger value="my">Mine</TabsTrigger>
         </TabsList>
-        <Button variant="outline" onClick={() => setViewFn("create")}>
+        <Button
+          variant="outline"
+          onClick={() => {
+            setViewFn("create");
+            if (!isDesktop) scrolltoHash("view");
+          }}
+        >
           + Create New
         </Button>
       </div>
@@ -48,7 +57,7 @@ export function ViewComponent({
   currentView: FormattedBet | "create" | undefined;
 }) {
   return (
-    <div className="w-full max-w-md space-y-2 lg:mt-[68px]">
+    <div className="w-full max-w-md space-y-2 lg:mt-[68px]" id="view">
       <div className="hidden lg:flex lg:justify-end">
         <CustomConnectButton />
       </div>

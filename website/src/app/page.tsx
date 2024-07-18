@@ -10,7 +10,7 @@ export default function Home() {
     FormattedBet | "create" | undefined
   >(undefined);
   return (
-    <main className="mx-auto mt-8 flex min-h-screen flex-col items-end gap-4 p-2 lg:mt-0 lg:flex-row lg:items-start lg:justify-center lg:p-12">
+    <main className="mx-auto mb-52 mt-8 flex min-h-screen flex-col items-end gap-4 p-2 lg:mt-0 lg:flex-row lg:items-start lg:justify-center lg:p-12">
       <div className="mb-4 flex w-full items-end justify-between px-2 lg:hidden lg:px-0">
         <div className="flex text-2xl font-semibold lg:hidden lg:text-3xl">
           WannaBet 🤝
