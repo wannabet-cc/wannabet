@@ -24,6 +24,7 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
 import { UserBadge } from "./misc/user-badge";
 import { getTokenNameFromAddress } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export function BetListCard({
   children,
@@ -143,6 +144,7 @@ function BetList({
   currentView: FormattedBet | "create" | undefined;
   setBetFn: (bet: FormattedBet) => void;
 }) {
+  const router = useRouter();
   return (
     <ScrollArea className="h-80 w-full pr-2">
       <Table>
@@ -160,12 +162,8 @@ function BetList({
               {page.items.map((bet, i) => (
                 <TableRow
                   key={i}
-                  onClick={() => setBetFn(bet)}
-                  data-current-bet={
-                    typeof currentView === "object" &&
-                    bet.betId === currentView.betId
-                  }
-                  className="cursor-pointer data-[current-bet=true]:bg-muted"
+                  onClick={() => router.push(`/bet/${bet.betId}`)}
+                  className="cursor-pointer"
                 >
                   <TableCell className="text-center">{bet.betId}</TableCell>
                   <TableCell>
