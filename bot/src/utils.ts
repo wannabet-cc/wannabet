@@ -2,6 +2,9 @@ import { Address, Hex } from "viem";
 import { baseClient } from "./viem";
 import { BetAbi } from "./contracts/BetAbi";
 import {
+  BASE_RETH_ADDRESS,
+  BASE_USDC_ADDRESS,
+  BASE_WETH_ADDRESS,
   BET_ACCEPTED_EVENT_SIGNATURE,
   BET_CREATED_EVENT_SIGNATURE,
   BET_DECLINED_EVENT_SIGNATURE,
@@ -144,6 +147,13 @@ function getEventNameFromSignature(eventSignature: string) {
   } else {
     return null;
   }
+}
+
+/** Get a token contract address from a readable name */
+export function getDecimalsFromTokenAddress(address: Address): number {
+  if (address === BASE_USDC_ADDRESS) return 6;
+  if (address === BASE_WETH_ADDRESS || address === BASE_RETH_ADDRESS) return 18;
+  else return 0;
 }
 
 /** Promise that resolves after a set number of seconds */

@@ -5,6 +5,7 @@ import { BET_CREATED_EVENT_SIGNATURE } from "./config";
 import { type EventData, type Log } from "./webhook";
 import {
   getBetDetails,
+  getDecimalsFromTokenAddress,
   getEventNameFromSignature,
   getPreferredAliases,
 } from "./utils";
@@ -83,12 +84,15 @@ async function handleBetCreated(log: Log) {
   // Wait for contract to be posted
   await baseClient.waitForTransactionReceipt({ hash: log.transaction.hash });
   // Fetch data
-  const { betId, creator, participant, amount, message, judge } =
+  const { betId, creator, participant, amount, token, message, judge } =
     await getBetDetails(newContractAddress);
   const [creatorAlias, participantAlias, judgeAlias] =
     await getPreferredAliases([creator, participant, judge]);
   // Create strings
-  const formattedAmount = formatUnits(amount, 6),
+  const formattedAmount = formatUnits(
+      amount,
+      getDecimalsFromTokenAddress(token)
+    ),
     url = "https://wannabet.cc/",
     castMessage = `${creatorAlias} proposed a bet to ${participantAlias} for ${formattedAmount} USDC that \`${message}\`.\n\n${url}`;
   console.log(castMessage);
