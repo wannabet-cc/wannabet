@@ -1,7 +1,26 @@
 import { config } from "@/app/providers";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { writeContract, waitForTransactionReceipt } from "@wagmi/core";
+
+/** Listens to page resizing and manages a page width state variable */
+export const useMediaQuery = (query: string) => {
+  const [value, setValue] = useState(false);
+
+  useEffect(() => {
+    function onChange(event: MediaQueryListEvent) {
+      setValue(event.matches);
+    }
+
+    const result = matchMedia(query);
+    result.addEventListener("change", onChange);
+    setValue(result.matches);
+
+    return () => result.removeEventListener("change", onChange);
+  }, [query]);
+
+  return value;
+};
 
 /**
  * useWriteContract wrapper that includes isConfirming and isConfirmed booleans
