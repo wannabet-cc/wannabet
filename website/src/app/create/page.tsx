@@ -1,9 +1,5 @@
-"use client";
-
 import { CreateBetCard } from "@/components/create-bet-card";
-import { Button } from "@/components/ui/button";
-import { ArrowLeftIcon } from "@radix-ui/react-icons";
-import Link from "next/link";
+import { BackButton } from "@/components/back-button";
 
 export default function CreatePage() {
   return (
@@ -13,15 +9,5 @@ export default function CreatePage() {
         <CreateBetCard />
       </div>
     </main>
-  );
-}
-
-function BackButton() {
-  return (
-    <Button variant="outline" size="icon" asChild>
-      <Link href="/">
-        <ArrowLeftIcon />
-      </Link>
-    </Button>
   );
 }
