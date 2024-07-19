@@ -1,6 +1,7 @@
 "use client";
 
 import { BetDetailsCard } from "@/components/bet-details-card";
+import { BackButton } from "@/components/back-button";
 import { getFormattedBetFromId } from "@/services/services";
 import { useQuery } from "@tanstack/react-query";
 
@@ -19,8 +20,11 @@ export default function BetPage({ params }: { params: { id: number } }) {
   if (error) return "Error" + error.message;
 
   return (
-    <main className="w-full px-8">
-      <BetDetailsCard currentBet={data} />
+    <main className="flex w-full flex-col items-center">
+      <div className="w-full space-y-2 px-8">
+        <BackButton />
+        <BetDetailsCard currentBet={data} />
+      </div>
     </main>
   );
 }
