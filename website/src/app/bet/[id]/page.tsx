@@ -21,7 +21,7 @@ export default function BetPage({ params }: { params: { id: number } }) {
 
   return (
     <main className="flex w-full flex-col items-center">
-      <div className="w-full space-y-2 px-8">
+      <div className="w-full space-y-2 md:px-8">
         <BackButton />
         <BetDetailsCard currentBet={data} />
       </div>

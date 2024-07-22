@@ -9,7 +9,7 @@ export default function Home() {
     FormattedBet | "create" | undefined
   >(undefined);
   return (
-    <main className="w-full px-8">
+    <main className="w-full md:px-8">
       <ExplorerComponent currentView={currentView} setViewFn={setCurrentView} />
     </main>
   );
