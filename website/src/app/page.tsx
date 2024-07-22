@@ -13,7 +13,7 @@ export default function Home() {
   );
 }
 
-export function ExplorerComponent() {
+function ExplorerComponent() {
   return (
     <Tabs defaultValue="recent" className="space-y-2">
       <div className="flex justify-between">
@@ -39,7 +39,7 @@ export function ExplorerComponent() {
   );
 }
 
-export function BetListCard({
+function BetListCard({
   children,
   title,
 }: {

@@ -13,7 +13,7 @@ export default function CreatePage() {
   );
 }
 
-export function CreateBetCard() {
+function CreateBetCard() {
   return (
     <Card className="w-full" id="create">
       <CardHeader>
