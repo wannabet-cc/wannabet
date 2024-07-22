@@ -6,13 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
 import Link from "next/link";
 
-export function ExplorerComponent({
-  currentView,
-  setViewFn,
-}: {
-  currentView: FormattedBet | "create" | undefined;
-  setViewFn: (view: FormattedBet | "create") => void;
-}) {
+export function ExplorerComponent() {
   return (
     <Tabs defaultValue="recent" className="space-y-2">
       <div className="flex justify-between">
@@ -26,12 +20,13 @@ export function ExplorerComponent({
       </div>
       <TabsContent value="recent">
         <BetListCard title="Recent bets">
-          <RecentBetList currentView={currentView} setBetFn={setViewFn} />
+          <RecentBetList />
+          {/* <RecentBetList currentView={currentView} setBetFn={setViewFn} /> */}
         </BetListCard>
       </TabsContent>
       <TabsContent value="my">
         <BetListCard title="My bets">
-          <MyBetList currentView={currentView} setBetFn={setViewFn} />
+          <MyBetList />
         </BetListCard>
       </TabsContent>
     </Tabs>

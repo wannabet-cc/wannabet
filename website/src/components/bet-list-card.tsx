@@ -43,13 +43,7 @@ export function BetListCard({
   );
 }
 
-export function RecentBetList({
-  currentView,
-  setBetFn,
-}: {
-  currentView: FormattedBet | "create" | undefined;
-  setBetFn: (bet: FormattedBet) => void;
-}) {
+export function RecentBetList() {
   const {
     data,
     error,
@@ -77,19 +71,11 @@ export function RecentBetList({
       isFetchingNextPage={isFetchingNextPage}
       isFetching={isFetching}
       fetchNextPage={fetchNextPage}
-      currentView={currentView}
-      setBetFn={setBetFn}
     />
   );
 }
 
-export function MyBetList({
-  currentView,
-  setBetFn,
-}: {
-  currentView: FormattedBet | "create" | undefined;
-  setBetFn: (bet: FormattedBet) => void;
-}) {
+export function MyBetList() {
   const account = useAccount();
   const {
     data,
@@ -121,8 +107,6 @@ export function MyBetList({
       isFetchingNextPage={isFetchingNextPage}
       isFetching={isFetching}
       fetchNextPage={fetchNextPage}
-      currentView={currentView}
-      setBetFn={setBetFn}
     />
   );
 }
@@ -133,16 +117,12 @@ function BetList({
   isFetchingNextPage,
   isFetching,
   fetchNextPage,
-  currentView,
-  setBetFn,
 }: {
   data: InfiniteData<FormattedBets, unknown> | undefined;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   isFetching: boolean;
   fetchNextPage: any;
-  currentView: FormattedBet | "create" | undefined;
-  setBetFn: (bet: FormattedBet) => void;
 }) {
   const router = useRouter();
   return (
