@@ -56,7 +56,7 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
             address: bet.token,
             abi: FiatTokenProxyAbi,
             functionName: "approve",
-            args: [bet.contractAddress, bet.bigintAmount],
+            args: [bet.contractAddress, BigInt(bet.bigintAmount)],
           });
           writeContractAsync(
             {
