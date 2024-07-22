@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { BackButton } from "@/components/back-button";
-import { BetDetails } from "@/components/bet-details-card";
+import { BetDetails } from "@/components/bet-details";
 
 export default async function BetPage({ params }: { params: { id: number } }) {
   const data = await getFormattedBetFromId(params.id);
