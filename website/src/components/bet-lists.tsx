@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  type FormattedBet,
   type FormattedBets,
   getRecentFormattedBets,
   getUserFormattedBets,
@@ -28,13 +27,11 @@ function BetList({
   data,
   hasNextPage,
   isFetchingNextPage,
-  isFetching,
   fetchNextPage,
 }: {
   data: InfiniteData<FormattedBets, unknown> | undefined;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
-  isFetching: boolean;
   fetchNextPage: any;
 }) {
   const router = useRouter();
@@ -137,7 +134,6 @@ export function RecentBetList() {
       data={data}
       hasNextPage={hasNextPage}
       isFetchingNextPage={isFetchingNextPage}
-      isFetching={isFetching}
       fetchNextPage={fetchNextPage}
     />
   );
@@ -173,7 +169,6 @@ export function MyBetList() {
       data={data}
       hasNextPage={hasNextPage}
       isFetchingNextPage={isFetchingNextPage}
-      isFetching={isFetching}
       fetchNextPage={fetchNextPage}
     />
   );
