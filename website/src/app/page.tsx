@@ -1,15 +1,8 @@
-import {
-  BetListCard,
-  MyBetList,
-  RecentBetList,
-} from "../components/bet-list-card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../components/ui/tabs";
-import { Button } from "../components/ui/button";
+import { ReactNode } from "react";
+import { MyBetList, RecentBetList } from "@/components/bet-lists";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function Home() {
@@ -43,5 +36,22 @@ export function ExplorerComponent() {
         </BetListCard>
       </TabsContent>
     </Tabs>
+  );
+}
+
+export function BetListCard({
+  children,
+  title,
+}: {
+  children: ReactNode;
+  title: string;
+}) {
+  return (
+    <Card className="h-fit w-full">
+      <CardHeader>
+        <CardTitle className="text-lg">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex justify-center pt-4">{children}</CardContent>
+    </Card>
   );
 }

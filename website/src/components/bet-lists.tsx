@@ -8,9 +8,8 @@ import {
 } from "@/services/services";
 import { type InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
-import { ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { CustomConnectButtonSecondary } from "./rainbow/custom-connect-button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -24,92 +23,6 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
 import { UserBadge } from "./misc/user-badge";
 import { getTokenNameFromAddress } from "@/lib/utils";
-import { useRouter } from "next/navigation";
-
-export function BetListCard({
-  children,
-  title,
-}: {
-  children: ReactNode;
-  title: string;
-}) {
-  return (
-    <Card className="h-fit w-full">
-      <CardHeader>
-        <CardTitle className="text-lg">{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="flex justify-center pt-4">{children}</CardContent>
-    </Card>
-  );
-}
-
-export function RecentBetList() {
-  const {
-    data,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetching,
-    isFetchingNextPage,
-    status,
-  } = useInfiniteQuery({
-    queryKey: ["recentBetData"],
-    queryFn: ({ pageParam = "" }) =>
-      getRecentFormattedBets(6, { afterCursor: pageParam }),
-    initialPageParam: "",
-    getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
-    maxPages: 7,
-  });
-  return status === "pending" ? (
-    <LoadingSpinner />
-  ) : status === "error" ? (
-    "An error has occurred: " + { error }
-  ) : (
-    <BetList
-      data={data}
-      hasNextPage={hasNextPage}
-      isFetchingNextPage={isFetchingNextPage}
-      isFetching={isFetching}
-      fetchNextPage={fetchNextPage}
-    />
-  );
-}
-
-export function MyBetList() {
-  const account = useAccount();
-  const {
-    data,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetching,
-    isFetchingNextPage,
-    status,
-  } = useInfiniteQuery({
-    queryKey: ["myBetData"],
-    queryFn: ({ pageParam = "" }) =>
-      getUserFormattedBets(account.address!, 6, { afterCursor: pageParam }),
-    initialPageParam: "",
-    getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
-    maxPages: 7,
-    enabled: account.isConnected,
-  });
-  return account.isDisconnected ? (
-    <CustomConnectButtonSecondary />
-  ) : status === "pending" ? (
-    <LoadingSpinner />
-  ) : status === "error" ? (
-    "An error has occurred: " + { error }
-  ) : (
-    <BetList
-      data={data}
-      hasNextPage={hasNextPage}
-      isFetchingNextPage={isFetchingNextPage}
-      isFetching={isFetching}
-      fetchNextPage={fetchNextPage}
-    />
-  );
-}
 
 function BetList({
   data,
@@ -195,5 +108,73 @@ function BetList({
         </TableBody>
       </Table>
     </ScrollArea>
+  );
+}
+
+export function RecentBetList() {
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery({
+    queryKey: ["recentBetData"],
+    queryFn: ({ pageParam = "" }) =>
+      getRecentFormattedBets(6, { afterCursor: pageParam }),
+    initialPageParam: "",
+    getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
+    maxPages: 7,
+  });
+  return status === "pending" ? (
+    <LoadingSpinner />
+  ) : status === "error" ? (
+    "An error has occurred: " + { error }
+  ) : (
+    <BetList
+      data={data}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+      isFetching={isFetching}
+      fetchNextPage={fetchNextPage}
+    />
+  );
+}
+
+export function MyBetList() {
+  const account = useAccount();
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery({
+    queryKey: ["myBetData"],
+    queryFn: ({ pageParam = "" }) =>
+      getUserFormattedBets(account.address!, 6, { afterCursor: pageParam }),
+    initialPageParam: "",
+    getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
+    maxPages: 7,
+    enabled: account.isConnected,
+  });
+  return account.isDisconnected ? (
+    <CustomConnectButtonSecondary />
+  ) : status === "pending" ? (
+    <LoadingSpinner />
+  ) : status === "error" ? (
+    "An error has occurred: " + { error }
+  ) : (
+    <BetList
+      data={data}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+      isFetching={isFetching}
+      fetchNextPage={fetchNextPage}
+    />
   );
 }
