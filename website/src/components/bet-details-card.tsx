@@ -1,3 +1,5 @@
+"use client";
+
 import { type FormattedBet } from "@/services/services";
 import { getTokenNameFromAddress } from "@/lib/utils";
 import { useAccount } from "wagmi";
