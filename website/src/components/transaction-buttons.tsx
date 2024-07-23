@@ -26,7 +26,7 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
       <Button
         variant="default"
         size="sm"
-        disabled={isPending}
+        disabled={isPending || !isCreator}
         onClick={() =>
           writeContractAsync(
             {
@@ -50,7 +50,7 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
       <Button
         variant="default"
         size="sm"
-        disabled={isPending}
+        disabled={isPending || !isParticipant}
         onClick={async () => {
           await writeContractAsync({
             address: bet.token,
@@ -74,7 +74,7 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
       <Button
         variant="secondary"
         size="sm"
-        disabled={isPending}
+        disabled={isPending || !isParticipant}
         onClick={() =>
           writeContractAsync(
             {
@@ -95,7 +95,7 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
       <Button
         variant="default"
         size="sm"
-        disabled={isPending}
+        disabled={isPending || !isJudge}
         onClick={() =>
           writeContractAsync(
             {
@@ -113,7 +113,7 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
       <Button
         variant="default"
         size="sm"
-        disabled={isPending}
+        disabled={isPending || !isJudge}
         onClick={() =>
           writeContractAsync(
             {
@@ -131,7 +131,7 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
       <Button
         variant="secondary"
         size="sm"
-        disabled={isPending}
+        disabled={isPending || !isJudge}
         onClick={() =>
           writeContractAsync(
             {
@@ -154,16 +154,15 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
       <div className="flex gap-1 *:flex-1">
         {account.chainId === 8453 ? (
           <>
-            {isCreator && bet.status === "expired" && creatorActions}
-            {isParticipant && bet.status === "pending" && participantActions}
-            {isJudge && bet.status === "accepted" && judgeActions}
+            {bet.status === "expired" && creatorActions}
+            {bet.status === "pending" && participantActions}
+            {bet.status === "accepted" && judgeActions}
           </>
         ) : (
           "Wrong chain"
         )}
-        <span className="hidden only:inline-block">...</span>
       </div>
-      {isParticipant && bet.status === "pending" && (
+      {bet.status === "pending" && (
         <div className="text-center text-xs text-muted-foreground">
           * Accepting a bet includes a 0.0002 ether fee
         </div>
