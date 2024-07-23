@@ -47,43 +47,38 @@ function BetList({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data?.pages.map((page, i) => (
-            <>
-              {page.items.map((bet, i) => (
-                <TableRow
-                  key={i}
-                  onClick={() => router.push(`/bet/${bet.betId}`)}
-                  className="cursor-pointer"
-                >
-                  <TableCell className="text-center">{bet.betId}</TableCell>
-                  <TableCell>
-                    {bet.amount} {getTokenNameFromAddress(bet.token)}
-                  </TableCell>
-                  <TableCell>
-                    <UserBadge userAlias={bet.creatorAlias} />
-                    <span className="text-muted-foreground"> vs </span>
-                    <UserBadge userAlias={bet.participantAlias} />
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {bet.status === "pending" ? (
-                      <span>⌛️</span>
-                    ) : bet.status === "accepted" ? (
-                      <span className="text-green-700">✓</span>
-                    ) : bet.status === "declined" ||
-                      bet.status === "expired" ? (
-                      <span className="text-lg leading-none text-red-700">
-                        𐄂
-                      </span>
-                    ) : bet.status === "settled" ? (
-                      <span>💰</span>
-                    ) : (
-                      "..."
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </>
-          ))}
+          {data?.pages.map((page) =>
+            page.items.map((bet, i) => (
+              <TableRow
+                key={i}
+                onClick={() => router.push(`/bet/${bet.betId}`)}
+                className="cursor-pointer"
+              >
+                <TableCell className="text-center">{bet.betId}</TableCell>
+                <TableCell>
+                  {bet.amount} {getTokenNameFromAddress(bet.token)}
+                </TableCell>
+                <TableCell>
+                  <UserBadge userAlias={bet.creatorAlias} />
+                  <span className="text-muted-foreground"> vs </span>
+                  <UserBadge userAlias={bet.participantAlias} />
+                </TableCell>
+                <TableCell className="text-center">
+                  {bet.status === "pending" ? (
+                    <span>⌛️</span>
+                  ) : bet.status === "accepted" ? (
+                    <span className="text-green-700">✓</span>
+                  ) : bet.status === "declined" || bet.status === "expired" ? (
+                    <span className="text-lg leading-none text-red-700">𐄂</span>
+                  ) : bet.status === "settled" ? (
+                    <span>💰</span>
+                  ) : (
+                    "..."
+                  )}
+                </TableCell>
+              </TableRow>
+            )),
+          )}
           <TableRow>
             <TableCell colSpan={4}>
               <div className="mx-auto w-fit">
@@ -132,7 +127,6 @@ export function RecentBetList() {
     getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
     maxPages: 7,
   });
-  console.log(data);
   return status === "pending" ? (
     <LoadingSpinner />
   ) : status === "error" ? (
