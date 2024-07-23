@@ -10,6 +10,7 @@ import {
 import {
   generateBetQuery,
   generateBetsQuery,
+  generateMostRecentBetIdQuery,
   generateRecentBetsQuery,
   generateUserBetsQuery,
 } from "./queries";
@@ -371,6 +372,24 @@ export const getUserFormattedBets = async (
     return { items: formattedBets, pageInfo: rawBets.pageInfo };
   } catch (error) {
     const errorMsg = "Failed to get formatted bet details for a user";
+    console.error(errorMsg + ": " + error);
+    throw new Error(errorMsg);
+  }
+};
+
+/**
+ * Helper functions for static rendering
+ */
+
+/** Getter function that retrieves the most recent indexed bet id */
+export const getMostRecentBetId = async (): Promise<number> => {
+  console.log("Running getMostRecentBetId...");
+  try {
+    const query = generateMostRecentBetIdQuery();
+    const result = await queryGqlApi<BetsQueryResponse>(BET_API_URL, query);
+    return Number(result.data.bets.items[0].id);
+  } catch (error) {
+    const errorMsg = "Failed to get raw bet details from bet id";
     console.error(errorMsg + ": " + error);
     throw new Error(errorMsg);
   }

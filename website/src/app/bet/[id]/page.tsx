@@ -1,4 +1,4 @@
-import { getFormattedBetFromId } from "@/services/services";
+import { getFormattedBetFromId, getMostRecentBetId } from "@/services/services";
 import { type FormattedBet } from "@/services/services";
 import {
   Card,
@@ -9,6 +9,13 @@ import {
 } from "@/components/ui/card";
 import { BackButton } from "@/components/back-button";
 import { BetDetails } from "@/components/bet-details";
+
+export async function generateStaticParams() {
+  const mostRecentBetId = await getMostRecentBetId();
+  return Array.from({ length: mostRecentBetId }, (_, index) => ({
+    id: (index + 1).toString(),
+  }));
+}
 
 export default async function BetPage({ params }: { params: { id: number } }) {
   const data = await getFormattedBetFromId(params.id);
