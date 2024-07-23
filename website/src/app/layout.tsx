@@ -4,6 +4,7 @@ import "./globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import Providers from "./providers";
 import { Toaster } from "@/components/ui/toaster";
+import { Header } from "@/components/header";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,7 +28,10 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <Providers>
-          {children}
+          <div className="mx-auto mb-52 mt-8 flex min-h-screen w-full max-w-screen-md flex-col items-center gap-4 p-2">
+            <Header />
+            {children}
+          </div>
           <Toaster />
         </Providers>
       </body>

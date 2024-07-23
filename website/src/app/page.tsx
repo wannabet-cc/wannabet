@@ -1,24 +1,57 @@
-"use client";
-
-import { useState } from "react";
-import { type FormattedBet } from "@/services/services";
-import { ExplorerComponent, ViewComponent } from "@/components/main-components";
-import { CustomConnectButton } from "@/components/rainbow/custom-connect-button";
+import { ReactNode } from "react";
+import { MyBetList, RecentBetList } from "@/components/bet-lists";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function Home() {
-  const [currentView, setCurrentView] = useState<
-    FormattedBet | "create" | undefined
-  >(undefined);
   return (
-    <main className="mx-auto mb-52 mt-8 flex min-h-screen flex-col items-end gap-4 p-2 lg:mt-0 lg:flex-row lg:items-start lg:justify-center lg:p-12">
-      <div className="mb-4 flex w-full items-end justify-between px-2 lg:hidden lg:px-0">
-        <div className="flex text-2xl font-semibold lg:hidden lg:text-3xl">
-          WannaBet 🤝
-        </div>
-        <CustomConnectButton />
-      </div>
-      <ExplorerComponent currentView={currentView} setViewFn={setCurrentView} />
-      <ViewComponent currentView={currentView} />
+    <main className="w-full md:px-8">
+      <ExplorerComponent />
     </main>
+  );
+}
+
+function ExplorerComponent() {
+  return (
+    <Tabs defaultValue="recent" className="space-y-2">
+      <div className="flex justify-between">
+        <TabsList>
+          <TabsTrigger value="recent">Recent</TabsTrigger>
+          <TabsTrigger value="my">Mine</TabsTrigger>
+        </TabsList>
+        <Button variant="outline" asChild>
+          <Link href="/create">+ Create New</Link>
+        </Button>
+      </div>
+      <TabsContent value="recent">
+        <BetListCard title="Recent bets">
+          <RecentBetList />
+        </BetListCard>
+      </TabsContent>
+      <TabsContent value="my">
+        <BetListCard title="My bets">
+          <MyBetList />
+        </BetListCard>
+      </TabsContent>
+    </Tabs>
+  );
+}
+
+function BetListCard({
+  children,
+  title,
+}: {
+  children: ReactNode;
+  title: string;
+}) {
+  return (
+    <Card className="h-fit w-full">
+      <CardHeader>
+        <CardTitle className="text-lg">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex justify-center pt-4">{children}</CardContent>
+    </Card>
   );
 }

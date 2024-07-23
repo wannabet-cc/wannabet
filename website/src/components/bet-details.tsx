@@ -1,14 +1,9 @@
+"use client";
+
 import { type FormattedBet } from "@/services/services";
 import { getTokenNameFromAddress } from "@/lib/utils";
 import { useAccount } from "wagmi";
 import { CustomConnectButtonSecondary } from "./rainbow/custom-connect-button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -20,40 +15,8 @@ import { Avatar, AvatarImage } from "./ui/avatar";
 import { UserBadge } from "./misc/user-badge";
 import { TransactionButtons } from "./transaction-buttons";
 
-export function BetDetailsCard({
-  currentBet,
-}: {
-  currentBet: FormattedBet | undefined;
-}) {
-  return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle className="text-lg">
-          {currentBet ? `Bet #${currentBet.betId}` : "Select a bet"}
-        </CardTitle>
-        <CardDescription>
-          {currentBet ? (
-            <a
-              href={`https://basescan.org/address/${currentBet.contractAddress}`}
-              target="_blank"
-            >
-              See on Basescan
-            </a>
-          ) : (
-            ""
-          )}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-4">
-        {currentBet && <BetDetails bet={currentBet} />}
-      </CardContent>
-    </Card>
-  );
-}
-
-function BetDetails({ bet }: { bet: FormattedBet }) {
+export function BetDetails({ bet }: { bet: FormattedBet }) {
   const account = useAccount();
-
   return (
     <Table>
       <TableCaption>Details of WannaBet #{bet.betId}</TableCaption>

@@ -16,6 +16,7 @@ query MyQuery {
 	}
 }
 `;
+
 export const generateBetsQuery = (betIds: number[]) => `
 query MyQuery {
   bets(where: {id_in: [${betIds.map((id) => `"${id}"`).join(",")}]}) {
@@ -34,6 +35,7 @@ query MyQuery {
   }
 }
 `;
+
 export const generateRecentBetsQuery = (
   numBets: number,
   page?: Partial<{ afterCursor: string; beforeCursor: string }>,
@@ -67,6 +69,7 @@ query MyQuery {
   }
 }
 `;
+
 export const generateUserBetsQuery = (
   user: Address,
   numBets: number,
@@ -102,6 +105,20 @@ query MyQuery {
       startCursor
       hasNextPage
       endCursor
+    }
+  }
+}
+`;
+
+export const generateMostRecentBetIdQuery = () => `
+query MyQuery {
+  bets(
+		orderBy: "id", 
+		limit: 1, 
+		orderDirection: "desc",
+	) {
+    items {
+      id
     }
   }
 }
