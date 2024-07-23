@@ -1,3 +1,5 @@
+"use client";
+
 import { type FormattedBet } from "@/services/services";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { BetAbi } from "@/abis/BetAbi";
@@ -5,62 +7,116 @@ import { parseUnits } from "viem";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { Button } from "./ui/button";
 import { useToast } from "./ui/use-toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export function TransactionButtons({ bet }: { bet: FormattedBet }) {
   const account = useAccount();
-  const { toast } = useToast();
-  const { data: contractBalance } = useReadContract({
-    address: bet.token,
-    abi: FiatTokenProxyAbi,
-    functionName: "balanceOf",
-    args: [bet.contractAddress],
-  });
-  const { writeContractAsync, isPending } = useWriteContract();
 
   const isCreator = account.address?.toLowerCase() === bet.creator,
     isParticipant = account.address?.toLowerCase() === bet.participant,
     isJudge = account.address?.toLowerCase() === bet.judge;
 
-  const creatorActions =
-    Number(contractBalance) > 0 ? (
-      <Button
-        variant="default"
-        size="sm"
-        disabled={isPending || !isCreator}
-        onClick={() =>
-          writeContractAsync(
-            {
-              address: bet.contractAddress,
-              abi: BetAbi,
-              functionName: "retrieveTokens",
-            },
-            { onSuccess: () => toast({ title: "Bet retrieved successfully" }) },
-          )
-        }
-      >
-        Retrieve funds
-      </Button>
-    ) : (
-      <Button variant="secondary" size="sm" disabled>
-        Funds retrieved
-      </Button>
-    );
-  const participantActions = (
+  return (
+    <div className="flex flex-col space-y-2">
+      <div className="flex gap-1 *:flex-1">
+        {account.chainId === 8453 ? (
+          <Tooltip>
+            <TooltipTrigger className="flex gap-1 *:flex-1">
+              <div className="flex gap-1 *:flex-1">
+                {bet.status === "expired" && (
+                  <CreatorActions isCreator={isCreator} bet={bet} />
+                )}
+                {bet.status === "pending" && (
+                  <ParticipantActions isParticipant={isParticipant} bet={bet} />
+                )}
+                {bet.status === "accepted" && (
+                  <JudgeActions isJudge={isJudge} bet={bet} />
+                )}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              {bet.status === "expired" &&
+                !isCreator &&
+                "Only creator can retrieve funds"}
+              {bet.status === "pending" &&
+                !isParticipant &&
+                "Waiting on participant to accept the bet"}
+              {bet.status === "accepted" && !isJudge && (
+                <p>Waiting on judge to settle the bet</p>
+              )}
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          "Wrong chain"
+        )}
+      </div>
+      {account.chainId === 8453 && bet.status === "pending" && (
+        <div className="text-center text-xs text-muted-foreground">
+          * Accepting a bet includes a 0.0002 ether fee
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CreatorActions(props: { isCreator: boolean; bet: FormattedBet }) {
+  const { writeContractAsync, isPending } = useWriteContract();
+  const { data: contractBalance } = useReadContract({
+    address: props.bet.token,
+    abi: FiatTokenProxyAbi,
+    functionName: "balanceOf",
+    args: [props.bet.contractAddress],
+  });
+  const { toast } = useToast();
+
+  return Number(contractBalance) > 0 ? (
+    <Button
+      variant="default"
+      size="sm"
+      disabled={isPending || !props.isCreator}
+      onClick={() =>
+        writeContractAsync(
+          {
+            address: props.bet.contractAddress,
+            abi: BetAbi,
+            functionName: "retrieveTokens",
+          },
+          { onSuccess: () => toast({ title: "Bet retrieved successfully" }) },
+        )
+      }
+    >
+      Retrieve funds
+    </Button>
+  ) : (
+    <Button variant="secondary" size="sm" disabled>
+      Funds retrieved
+    </Button>
+  );
+}
+
+function ParticipantActions(props: {
+  isParticipant: boolean;
+  bet: FormattedBet;
+}) {
+  const { writeContractAsync, isPending } = useWriteContract();
+  const { toast } = useToast();
+
+  return (
     <>
       <Button
         variant="default"
         size="sm"
-        disabled={isPending || !isParticipant}
+        disabled={isPending || !props.isParticipant}
         onClick={async () => {
           await writeContractAsync({
-            address: bet.token,
+            address: props.bet.token,
             abi: FiatTokenProxyAbi,
             functionName: "approve",
-            args: [bet.contractAddress, BigInt(bet.bigintAmount)],
+            args: [props.bet.contractAddress, BigInt(props.bet.bigintAmount)],
           });
           writeContractAsync(
             {
-              address: bet.contractAddress,
+              address: props.bet.contractAddress,
               abi: BetAbi,
               functionName: "acceptBet",
               value: parseUnits("0.0002", 18), // 18 decimals for Ether
@@ -74,11 +130,11 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
       <Button
         variant="secondary"
         size="sm"
-        disabled={isPending || !isParticipant}
+        disabled={isPending || !props.isParticipant}
         onClick={() =>
           writeContractAsync(
             {
-              address: bet.contractAddress,
+              address: props.bet.contractAddress,
               abi: BetAbi,
               functionName: "declineBet",
             },
@@ -90,52 +146,58 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
       </Button>
     </>
   );
-  const judgeActions = (
+}
+
+function JudgeActions(props: { isJudge: boolean; bet: FormattedBet }) {
+  const { writeContractAsync, isPending } = useWriteContract();
+  const { toast } = useToast();
+
+  return (
     <>
       <Button
         variant="default"
         size="sm"
-        disabled={isPending || !isJudge}
+        disabled={isPending || !props.isJudge}
         onClick={() =>
           writeContractAsync(
             {
-              address: bet.contractAddress,
+              address: props.bet.contractAddress,
               abi: BetAbi,
               functionName: "settleBet",
-              args: [bet.creator, ""],
+              args: [props.bet.creator, ""],
             },
             { onSuccess: () => toast({ title: "Bet settled successfully" }) },
           )
         }
       >
-        {bet.creatorAlias}
+        {props.bet.creatorAlias}
       </Button>
       <Button
         variant="default"
         size="sm"
-        disabled={isPending || !isJudge}
+        disabled={isPending || !props.isJudge}
         onClick={() =>
           writeContractAsync(
             {
-              address: bet.contractAddress,
+              address: props.bet.contractAddress,
               abi: BetAbi,
               functionName: "settleBet",
-              args: [bet.participant, ""],
+              args: [props.bet.participant, ""],
             },
             { onSuccess: () => toast({ title: "Bet settled successfully" }) },
           )
         }
       >
-        {bet.participantAlias}
+        {props.bet.participantAlias}
       </Button>
       <Button
         variant="secondary"
         size="sm"
-        disabled={isPending || !isJudge}
+        disabled={isPending || !props.isJudge}
         onClick={() =>
           writeContractAsync(
             {
-              address: bet.contractAddress,
+              address: props.bet.contractAddress,
               abi: BetAbi,
               functionName: "settleBet",
               args: ["0x0000000000000000000000000000000000000000", ""],
@@ -147,26 +209,5 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
         Tie
       </Button>
     </>
-  );
-
-  return (
-    <div className="flex flex-col space-y-2">
-      <div className="flex gap-1 *:flex-1">
-        {account.chainId === 8453 ? (
-          <>
-            {bet.status === "expired" && creatorActions}
-            {bet.status === "pending" && participantActions}
-            {bet.status === "accepted" && judgeActions}
-          </>
-        ) : (
-          "Wrong chain"
-        )}
-      </div>
-      {bet.status === "pending" && (
-        <div className="text-center text-xs text-muted-foreground">
-          * Accepting a bet includes a 0.0002 ether fee
-        </div>
-      )}
-    </div>
   );
 }
