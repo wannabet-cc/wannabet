@@ -120,7 +120,7 @@ export function RecentBetList() {
   } = useInfiniteQuery({
     queryKey: ["recentBetData"],
     queryFn: ({ pageParam = "" }) =>
-      fetch(`/api/bets?num=${6}&cursor=${pageParam}`, {
+      fetch(`/api/bets?num=${10}&cursor=${pageParam}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -161,7 +161,7 @@ export function MyBetList() {
     queryKey: ["myBetData"],
     queryFn: ({ pageParam = "" }) =>
       fetch(
-        `/api/bets?address=${account.address!}&num=${6}&cursor=${pageParam}`,
+        `/api/bets?address=${account.address!}&num=${10}&cursor=${pageParam}`,
         {
           method: "GET",
           headers: {
