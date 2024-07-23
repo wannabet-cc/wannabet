@@ -1,20 +1,18 @@
 import { BetAbi } from "@/abis/BetAbi";
-import { config } from "@/app/providers";
 import { BET_API_URL } from "@/config";
+import { baseClient } from "./viem";
 import { type Address, formatUnits } from "viem";
 import {
   getDecimalsFromTokenAddress,
   getPreferredAlias,
   getPreferredAliases,
 } from "@/lib/utils";
-import { readContracts } from "@wagmi/core";
 import {
   generateBetQuery,
   generateBetsQuery,
   generateRecentBetsQuery,
   generateUserBetsQuery,
 } from "./queries";
-import { baseClient } from "./viem";
 
 /**
  * General graph ql data fetching function
@@ -345,7 +343,7 @@ export const getFormattedBetsFromIds = async (
 
 /** Formatted data getter fn - multiple bets, most recent */
 export const getRecentFormattedBets = async (
-  numBets: number,
+  numBets: number = 5,
   page?: Partial<{ afterCursor: string; beforeCursor: string }>,
 ): Promise<FormattedBets> => {
   console.log("Running getRecentFormattedBets...");
@@ -363,7 +361,7 @@ export const getRecentFormattedBets = async (
 /** Formatted data getter fn - multiple bets from a user address, most recent */
 export const getUserFormattedBets = async (
   user: Address,
-  numBets: number,
+  numBets: number = 5,
   page?: Partial<{ afterCursor: string; beforeCursor: string }>,
 ): Promise<FormattedBets> => {
   console.log("Running getUserFormattedBets...");

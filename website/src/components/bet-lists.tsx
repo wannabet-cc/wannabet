@@ -120,11 +120,19 @@ export function RecentBetList() {
   } = useInfiniteQuery({
     queryKey: ["recentBetData"],
     queryFn: ({ pageParam = "" }) =>
-      getRecentFormattedBets(6, { afterCursor: pageParam }),
+      fetch(`/api/bets?num=${6}&cursor=${pageParam}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => data as FormattedBets),
     initialPageParam: "",
     getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
     maxPages: 7,
   });
+  console.log(data);
   return status === "pending" ? (
     <LoadingSpinner />
   ) : status === "error" ? (
@@ -152,7 +160,17 @@ export function MyBetList() {
   } = useInfiniteQuery({
     queryKey: ["myBetData"],
     queryFn: ({ pageParam = "" }) =>
-      getUserFormattedBets(account.address!, 6, { afterCursor: pageParam }),
+      fetch(
+        `/api/bets?address=${account.address!}&num=${6}&cursor=${pageParam}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      )
+        .then((res) => res.json())
+        .then((data) => data as FormattedBets),
     initialPageParam: "",
     getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
     maxPages: 7,
