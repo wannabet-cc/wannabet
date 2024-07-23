@@ -318,7 +318,7 @@ export const getFormattedBetFromId = async (
   console.log("Running getFormattedBetFromId...");
   try {
     const rawBet = await getRawBetFromId(betId);
-    return formatBet(rawBet);
+    return (await formatBets([rawBet]))[0];
   } catch (error) {
     const errorMsg = "Failed to get formatted bet details from bet id";
     console.error(errorMsg + ": " + error);
