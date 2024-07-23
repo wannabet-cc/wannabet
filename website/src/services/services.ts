@@ -26,6 +26,7 @@ async function queryGqlApi<T>(url: string, query: string): Promise<T> {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query }),
+    next: { revalidate: 15 },
   });
   return res.json() as Promise<T>;
 }
