@@ -20,6 +20,7 @@ import {
 import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { Address, formatUnits, parseUnits } from "viem";
+import { normalize } from "viem/ens";
 import { useAccount, useReadContract } from "wagmi";
 import { Button } from "./ui/button";
 import {
@@ -110,10 +111,15 @@ export function CreateBetForm() {
       const [participantAddress, judgeAddress] = await Promise.all([
         addressRegex.test(values.participant)
           ? values.participant
-          : (await fetchEns(values.participant as `${string}.eth`)).address,
+          : (
+              await fetchEns(
+                normalize(values.participant.trim()) as `${string}.eth`,
+              )
+            ).address,
         addressRegex.test(values.judge)
           ? values.judge
-          : (await fetchEns(values.judge as `${string}.eth`)).address,
+          : (await fetchEns(normalize(values.judge.trim()) as `${string}.eth`))
+              .address,
       ]);
 
       /** Throw if user doesn't have enough tokens */
