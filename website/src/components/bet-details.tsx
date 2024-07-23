@@ -57,8 +57,7 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
         <TableRow>
           <TableCell>amount</TableCell>
           <TableCell>
-            {bet.amount} {account.chain?.name.split(" ")[0]}{" "}
-            {getTokenNameFromAddress(bet.token)}
+            {bet.amount} {getTokenNameFromAddress(bet.token)}
           </TableCell>
         </TableRow>
         <TableRow>
