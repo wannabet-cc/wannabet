@@ -8,7 +8,7 @@ import {
 import { type InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
-import { CustomConnectButtonSecondary } from "./rainbow/custom-connect-button";
+import { LoginButton } from "./auth/login-button";
 import {
   Table,
   TableBody,
@@ -171,7 +171,7 @@ export function MyBetList() {
     enabled: account.isConnected,
   });
   return account.isDisconnected ? (
-    <CustomConnectButtonSecondary />
+    <LoginButton />
   ) : status === "pending" ? (
     <LoadingSpinner />
   ) : status === "error" ? (
