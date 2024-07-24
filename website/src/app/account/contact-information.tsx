@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { usePrivy } from "@privy-io/react-auth";
 
 export function ContactInformation() {
-  const { user, linkEmail, linkPhone } = usePrivy();
+  const { ready, authenticated, user, linkEmail, linkPhone } = usePrivy();
 
   return (
     <section className="space-y-2 text-sm">
@@ -16,7 +16,12 @@ export function ContactInformation() {
             {user.email ? (
               user.email.address
             ) : (
-              <Button variant="outline" size="sm" onClick={linkEmail}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={linkEmail}
+                disabled={!ready || !authenticated}
+              >
                 Add email
               </Button>
             )}
@@ -30,7 +35,12 @@ export function ContactInformation() {
             {user.phone ? (
               user.phone.number
             ) : (
-              <Button variant="outline" size="sm" onClick={linkPhone}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={linkPhone}
+                disabled={!ready || !authenticated}
+              >
                 Add phone number
               </Button>
             )}
