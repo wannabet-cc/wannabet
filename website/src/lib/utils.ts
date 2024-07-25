@@ -38,10 +38,15 @@ export async function getPreferredAliases(addresses: Address[]) {
     pfp: undefined,
   });
   const farcasterUsers = await fetchFarcasterUsers(addresses);
-  for (const [address, user] of Object.entries(farcasterUsers)) {
+  for (const [address, users] of Object.entries(farcasterUsers)) {
+    const mostFollowedUser = users.reduce((mostFollowedUser, currentUser) =>
+      mostFollowedUser.follower_count > currentUser.follower_count
+        ? mostFollowedUser
+        : currentUser,
+    );
     aliasMap.set(address, {
-      alias: `@${user[0].username}`,
-      pfp: user[0].pfp_url,
+      alias: `@${mostFollowedUser.username}`,
+      pfp: mostFollowedUser.pfp_url,
     });
   }
   for (const [address, alias] of aliasMap) {
