@@ -32,6 +32,8 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
                 {bet.status === "accepted" && (
                   <JudgeActions isJudge={isJudge} bet={bet} />
                 )}
+                {bet.status === "declined" && <>...</>}
+                {bet.status === "settled" && <>...</>}
               </div>
             </TooltipTrigger>
             <TooltipContent>

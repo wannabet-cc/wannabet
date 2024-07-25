@@ -122,11 +122,7 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
         <TableRow>
           <TableCell>actions</TableCell>
           <TableCell>
-            {account.address ? (
-              <TransactionButtons bet={bet} />
-            ) : (
-              <CustomConnectButtonSecondary />
-            )}
+            <TransactionButtons bet={bet} />
           </TableCell>
         </TableRow>
       </TableBody>
