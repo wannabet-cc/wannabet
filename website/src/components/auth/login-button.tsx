@@ -4,6 +4,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { useAccount, useEnsName } from "wagmi";
+import { abbreviateHex } from "@/lib/utils";
 
 export function LoginButton() {
   const { ready, authenticated, login } = usePrivy();
@@ -17,7 +18,9 @@ export function LoginButton() {
   if (ready && authenticated) {
     return (
       <Button asChild variant="outline">
-        <Link href={"/account"}>{ensName}</Link>
+        <Link href={"/account"}>
+          {ensName ? ensName : abbreviateHex(address!, 3)}
+        </Link>
       </Button>
     );
   }
