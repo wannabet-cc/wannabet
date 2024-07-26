@@ -15,13 +15,6 @@ export const defaultConfig = createConfig({
   },
 });
 
-export const mainnetConfig = createConfig({
-  chains: [mainnet],
-  transports: {
-    [mainnet.id]: http(process.env.NEXT_PUBLIC_MAINNET_ALCHEMY_URL),
-  },
-});
-
 const queryClient = new QueryClient();
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -34,7 +27,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           accentColor: "#676FFF",
           // logo: "https://your-logo-url",
         },
-        loginMethods: ["wallet", "email", "sms"],
+        loginMethods: ["wallet", "email"],
         embeddedWallets: {
           createOnLogin: "users-without-wallets",
         },
