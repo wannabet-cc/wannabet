@@ -3,12 +3,18 @@ import {
   BASE_USDC_ADDRESS,
   BASE_WETH_ADDRESS,
 } from "@/config";
-import { type Address } from "viem";
+import { formatUnits, type Address } from "viem";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+/** Function that formats bigints to a string, rounding to a specified number of decimals */
+export function formatUSDC(value: bigint, decimals: number): string {
+  const numberValue = formatUnits(value, 6);
+  return `${numberValue.split(".")[0]}.${numberValue.split(".")[1].slice(0, decimals)}`;
 }
 
 /** Function that manually scrolls screen to an element id */
