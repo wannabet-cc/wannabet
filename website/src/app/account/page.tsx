@@ -11,8 +11,6 @@ import { ContactInformation } from "./contact-information";
 import { WalletList } from "./wallet-list";
 import { usePrivy } from "@privy-io/react-auth";
 import { useRouter } from "next/navigation";
-import ActionsSection from "./actions-section";
-import { Separator } from "@/components/ui/separator";
 import { BackButton } from "@/components/back-button";
 import { LogoutButton } from "@/components/auth/logout-button";
 
