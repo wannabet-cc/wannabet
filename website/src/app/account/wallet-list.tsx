@@ -16,6 +16,7 @@ import {
 import { useReadContract } from "wagmi";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { BASE_USDC_ADDRESS } from "@/config";
+import { Button } from "@/components/ui/button";
 
 export function WalletList() {
   const { ready, wallets } = useWallets();
@@ -69,14 +70,15 @@ function WalletRow({ wallet }: { wallet: ConnectedWallet }) {
         {active ? (
           <Badge>Active</Badge>
         ) : (
-          <Badge
+          <Button
             variant="secondary"
+            size="xs"
             onClick={async () => {
               await setActiveWallet(wallet);
             }}
           >
             Inactive
-          </Badge>
+          </Button>
         )}
       </TableCell>
     </TableRow>
