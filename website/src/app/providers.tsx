@@ -6,7 +6,7 @@ import { WagmiProvider, createConfig, http } from "wagmi";
 import { base, mainnet } from "wagmi/chains";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-export const defaultConfig = createConfig({
+export const config = createConfig({
   chains: [base, mainnet],
   ssr: true,
   transports: {
@@ -34,7 +34,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       }}
     >
       <QueryClientProvider client={queryClient}>
-        <WagmiProvider config={defaultConfig}>
+        <WagmiProvider config={config}>
           <TooltipProvider>{children}</TooltipProvider>
         </WagmiProvider>
       </QueryClientProvider>
