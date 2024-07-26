@@ -3,13 +3,22 @@
 import { PrivyProvider } from "@privy-io/react-auth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { base } from "wagmi/chains";
+import { base, mainnet } from "wagmi/chains";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-export const config = createConfig({
-  chains: [base],
+export const defaultConfig = createConfig({
+  chains: [base, mainnet],
+  ssr: true,
   transports: {
     [base.id]: http(process.env.NEXT_PUBLIC_BASE_ALCHEMY_URL),
+    [mainnet.id]: http(process.env.NEXT_PUBLIC_MAINNET_ALCHEMY_URL),
+  },
+});
+
+export const mainnetConfig = createConfig({
+  chains: [mainnet],
+  transports: {
+    [mainnet.id]: http(process.env.NEXT_PUBLIC_MAINNET_ALCHEMY_URL),
   },
 });
 
@@ -32,7 +41,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       }}
     >
       <QueryClientProvider client={queryClient}>
-        <WagmiProvider config={config}>
+        <WagmiProvider config={defaultConfig}>
           <TooltipProvider>{children}</TooltipProvider>
         </WagmiProvider>
       </QueryClientProvider>
