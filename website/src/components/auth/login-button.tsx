@@ -5,6 +5,12 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import { useAccount, useEnsName } from "wagmi";
 import { abbreviateHex } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 export function LoginButton() {
   const { ready, authenticated, login } = usePrivy();
@@ -17,11 +23,21 @@ export function LoginButton() {
 
   if (ready && authenticated) {
     return (
-      <Button asChild variant="outline">
-        <Link href={"/account"}>
-          {ensName ? ensName : abbreviateHex(address!, 3)}
-        </Link>
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline">
+            {ensName ? ensName : abbreviateHex(address!, 3)}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem asChild>
+            <Link href={`/user/${ensName}`}>My Profile</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href={`/account`}>Account Settings</Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   }
 
