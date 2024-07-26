@@ -1,14 +1,23 @@
+"use client";
+
 import { usePrivy } from "@privy-io/react-auth";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { useAccount, useEnsName } from "wagmi";
 
 export function LoginButton() {
-  const { ready, authenticated, user, login } = usePrivy();
+  const { ready, authenticated, login } = usePrivy();
+  const { isConnected, address } = useAccount();
+  const { data: ensName } = useEnsName({
+    address: address,
+    chainId: 1,
+    query: { enabled: isConnected },
+  });
 
   if (ready && authenticated) {
     return (
       <Button asChild variant="outline">
-        <Link href={"/account"}>{user?.id}</Link>
+        <Link href={"/account"}>{ensName}</Link>
       </Button>
     );
   }
