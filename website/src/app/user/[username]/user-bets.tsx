@@ -1,12 +1,16 @@
 "use client";
 
+// Types
+import { type Address } from "viem";
+import { type FormattedBets } from "@/services/services";
+
+// Hooks
+import { useInfiniteQuery } from "@tanstack/react-query";
+
+// Components
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  getUserFormattedBets,
-  getUserFormattedBetsAsParty,
-} from "@/services/services";
-import { useQuery } from "@tanstack/react-query";
-import { Address } from "viem";
+import { LoadingSpinner } from "@/components/ui/spinner";
+import { BetTable } from "@/components/bet-table";
 
 export function UserBets({ address }: { address: Address }) {
   return (
@@ -15,10 +19,10 @@ export function UserBets({ address }: { address: Address }) {
         <TabsTrigger value="participating">Participating</TabsTrigger>
         <TabsTrigger value="judging">Judging</TabsTrigger>
       </TabsList>
-      <TabsContent value="participating">
+      <TabsContent value="participating" className="flex justify-center">
         <ParticipatingBetsList address={address} />
       </TabsContent>
-      <TabsContent value="judging">
+      <TabsContent value="judging" className="flex justify-center">
         <JudgingBetsList address={address} />
       </TabsContent>
     </Tabs>
@@ -27,52 +31,86 @@ export function UserBets({ address }: { address: Address }) {
 
 function ParticipatingBetsList({ address }: { address: Address }) {
   const {
-    data: bets,
-    isLoading,
+    data,
     error,
-    isSuccess,
-  } = useQuery({
-    queryKey: ["userParticipatingBets"],
-    queryFn: () => getUserFormattedBetsAsParty(address, 6),
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery({
+    queryKey: ["userBetsAsParty"],
+    queryFn: ({ pageParam = "" }) =>
+      fetch(
+        `/api/bets?address=${address}&as=party&num=${10}&cursor=${pageParam}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      )
+        .then((res) => res.json())
+        .then((data) => data as FormattedBets),
+    initialPageParam: "",
+    getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
+    maxPages: 7,
   });
-  if (isLoading) return "Loading...";
-  if (error) return "Error:" + error.message;
-  if (isSuccess)
-    return (
-      <div>
-        {bets.items.map((bet, i) => (
-          <div className="flex" key={i}>
-            <div>{bet.creatorAlias}</div>
-            <div>{bet.participantAlias}</div>
-            <div>{bet.judgeAlias}</div>
-          </div>
-        ))}
-      </div>
-    );
 
-  return <>Edge case</>;
+  return status === "pending" ? (
+    <div className="w-fit pt-4">
+      <LoadingSpinner />
+    </div>
+  ) : status === "error" ? (
+    "An error has occurred: " + { error }
+  ) : (
+    <BetTable
+      data={data}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+      fetchNextPage={fetchNextPage}
+    />
+  );
 }
 
 function JudgingBetsList({ address }: { address: Address }) {
   const {
-    data: bets,
-    isLoading,
+    data,
     error,
-    isSuccess,
-  } = useQuery({
-    queryKey: ["userParticipatingBets"],
-    queryFn: () => getUserFormattedBets(address, 6),
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery({
+    queryKey: ["userBetsAsJudge"],
+    queryFn: ({ pageParam = "" }) =>
+      fetch(
+        `/api/bets?address=${address}&as=judge&num=${10}&cursor=${pageParam}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      )
+        .then((res) => res.json())
+        .then((data) => data as FormattedBets),
+    initialPageParam: "",
+    getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
+    maxPages: 7,
   });
-  if (isLoading) return "Loading...";
-  if (error) return "Error:" + error.message;
-  if (isSuccess)
-    return (
-      <div>
-        {bets.items.map((bet) => (
-          <div className="bg-red-300">{1}</div>
-        ))}
-      </div>
-    );
 
-  return <>Edge case</>;
+  return status === "pending" ? (
+    <div className="w-fit pt-4">
+      <LoadingSpinner />
+    </div>
+  ) : status === "error" ? (
+    "An error has occurred: " + { error }
+  ) : (
+    <BetTable
+      data={data}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+      fetchNextPage={fetchNextPage}
+    />
+  );
 }

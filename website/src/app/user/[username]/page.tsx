@@ -41,8 +41,8 @@ export default async function UserPage({
                   <p>{account.name}</p>
                 </div>
               </CardTitle>
-              {/* <CardDescription>Joined ...</CardDescription> */}
             </CardHeader>
+
             <CardContent>
               <UserBets address={account.address} />
             </CardContent>
