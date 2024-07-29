@@ -33,7 +33,7 @@ export default function AccountPage() {
             <ContactInformation />
             <WalletList />
           </CardContent>
-          <CardFooter>
+          <CardFooter className="pt-12">
             <LogoutButton />
           </CardFooter>
         </Card>
