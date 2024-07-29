@@ -149,6 +149,44 @@ query MyQuery {
 }
 `;
 
+export const generateUserBetsAsJudgeQuery = (
+  user: Address,
+  numBets: number,
+  page?: Partial<{ afterCursor: string; beforeCursor: string }>,
+) => `
+query MyQuery {
+  bets(
+		limit: ${numBets}, 
+		orderBy: "id", 
+		orderDirection: "desc",
+		where: {OR: [
+			{judge: "${user.toLowerCase()}"}, 
+		]},
+		${page?.afterCursor ? `after: "${page.afterCursor}",` : ""}
+		${page?.beforeCursor ? `before: "${page.beforeCursor}",` : ""}
+	) {
+    items {
+      id
+			contractAddress
+			creator
+			participant
+			amount
+			token
+			message
+			judge
+			createdTime
+			validUntil
+    }
+		pageInfo {
+      hasPreviousPage
+      startCursor
+      hasNextPage
+      endCursor
+    }
+  }
+}
+`;
+
 export const generateMostRecentBetIdQuery = () => `
 query MyQuery {
   bets(
