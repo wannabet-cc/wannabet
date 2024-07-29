@@ -40,11 +40,6 @@ export default async function UserPage({
                   <UserAvatar avatar={account.avatar} name={account.name} />
                   <p>{account.name}</p>
                 </div>
-                <Button asChild variant="outline" size="icon">
-                  <Link href="/account">
-                    <GearIcon />
-                  </Link>
-                </Button>
               </CardTitle>
               {/* <CardDescription>Joined ...</CardDescription> */}
             </CardHeader>
