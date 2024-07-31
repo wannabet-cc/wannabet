@@ -15,7 +15,7 @@ import { BetTable } from "@/components/bet-table";
 export function UserBets({ address }: { address: Address }) {
   return (
     <Tabs defaultValue="participating" className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
+      <TabsList className="mb-2 grid w-full grid-cols-2">
         <TabsTrigger value="participating">Participating</TabsTrigger>
         <TabsTrigger value="judging">Judging</TabsTrigger>
       </TabsList>
@@ -57,7 +57,7 @@ function ParticipatingBetsList({ address }: { address: Address }) {
   });
 
   return status === "pending" ? (
-    <div className="w-fit pt-4">
+    <div className="w-fit">
       <LoadingSpinner />
     </div>
   ) : status === "error" ? (
@@ -100,7 +100,7 @@ function JudgingBetsList({ address }: { address: Address }) {
   });
 
   return status === "pending" ? (
-    <div className="w-fit pt-4">
+    <div className="w-fit">
       <LoadingSpinner />
     </div>
   ) : status === "error" ? (
