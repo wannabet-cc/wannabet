@@ -3,7 +3,7 @@ import {
   BASE_USDC_ADDRESS,
   BASE_WETH_ADDRESS,
 } from "@/config";
-import { formatUnits, type Address } from "viem";
+import { formatUnits, type Hex, type Address } from "viem";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -131,7 +131,7 @@ type EnsIdeasResponse = {
 };
 
 /** Abbreviate a hex address by replacing the middle with "..." */
-export function abbreviateHex(hex: Address, numChars: number = 3) {
+export function abbreviateHex(hex: Hex, numChars: number = 3) {
   return `${hex.slice(0, numChars + 2)}...${hex.slice(numChars * -1)}`;
 }
 

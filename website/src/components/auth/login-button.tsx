@@ -21,12 +21,12 @@ export function LoginButton() {
     query: { enabled: isConnected },
   });
 
-  if (ready && authenticated) {
+  if (ready && authenticated && address) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline">
-            {ensName ? ensName : abbreviateHex(address!, 3)}
+            {ensName ? ensName : abbreviateHex(address, 3)}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
