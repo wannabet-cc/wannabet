@@ -1,8 +1,9 @@
 "use client";
 
 import { PrivyProvider } from "@privy-io/react-auth";
+import { createConfig, WagmiProvider } from "@privy-io/wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WagmiProvider, createConfig, http } from "wagmi";
+import { http } from "wagmi";
 import { base, mainnet } from "wagmi/chains";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
