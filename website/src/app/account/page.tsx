@@ -1,5 +1,11 @@
 "use client";
 
+// Hooks
+import { usePrivy } from "@privy-io/react-auth";
+import { useRouter } from "next/navigation";
+
+// Components
+import { BackButton } from "@/components/back-button";
 import {
   Card,
   CardContent,
@@ -9,9 +15,7 @@ import {
 } from "@/components/ui/card";
 import { ContactInformation } from "./contact-information";
 import { WalletList } from "./wallet-list";
-import { usePrivy } from "@privy-io/react-auth";
-import { useRouter } from "next/navigation";
-import { BackButton } from "@/components/back-button";
+import { ActiveWallet } from "./active-wallet";
 import { LogoutButton } from "@/components/auth/logout-button";
 
 export default function AccountPage() {
@@ -32,6 +36,7 @@ export default function AccountPage() {
           <CardContent className="space-y-6">
             <ContactInformation />
             <WalletList />
+            <ActiveWallet />
           </CardContent>
           <CardFooter className="pt-12">
             <LogoutButton />

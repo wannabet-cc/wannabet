@@ -12,8 +12,6 @@ import React from "react";
 import { normalize } from "viem/ens";
 import { UserBets } from "./user-bets";
 import { UserAvatar } from "./user-avatar";
-import { GearIcon } from "@radix-ui/react-icons";
-import { Button } from "@/components/ui/button";
 
 const ensRegex = /^.{3,}\.eth$/; // /^[a-z0-9]+\.eth$/;
 

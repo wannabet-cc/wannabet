@@ -1,10 +1,14 @@
 "use client";
 
+// Types
+import { type Hex } from "viem";
+
+// Hooks
 import { useSetActiveWallet } from "@privy-io/wagmi";
-import { ConnectedWallet, useWallets } from "@privy-io/react-auth";
-import { Badge } from "@/components/ui/badge";
-import { abbreviateHex, formatUSDC } from "@/lib/utils";
-import { Address, Hex } from "viem";
+import { type ConnectedWallet, useWallets } from "@privy-io/react-auth";
+import { useAccount } from "wagmi";
+
+// Components
 import {
   Table,
   TableBody,
@@ -13,10 +17,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useReadContract } from "wagmi";
-import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
-import { BASE_USDC_ADDRESS } from "@/config";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
+// Utility Functions
+import { abbreviateHex } from "@/lib/utils";
 
 export function WalletList() {
   const { ready, wallets } = useWallets();
@@ -30,7 +35,6 @@ export function WalletList() {
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
-            <TableHead>USD</TableHead>
             <TableHead>Address</TableHead>
             <TableHead>Type</TableHead>
             <TableHead></TableHead>
@@ -49,21 +53,16 @@ export function WalletList() {
 function WalletRow({ wallet }: { wallet: ConnectedWallet }) {
   // get wallet name
   // get wallet usdc balance
-  const { data: balance, isSuccess } = useReadContract({
-    abi: FiatTokenProxyAbi,
-    address: BASE_USDC_ADDRESS,
-    functionName: "balanceOf",
-    args: [wallet.address as Address],
-  });
+
   // get active status
   const { setActiveWallet } = useSetActiveWallet();
-  const active = wallet.linked;
+  const { address } = useAccount();
+
+  const active = wallet.address === address;
+
   return (
     <TableRow>
       <TableCell>{}</TableCell>
-      <TableCell>
-        {isSuccess && balance && `$${formatUSDC(balance, 2)}`}
-      </TableCell>
       <TableCell>{abbreviateHex(wallet.address as Hex, 4)}</TableCell>
       <TableCell>{wallet.walletClientType}</TableCell>
       <TableCell className="text-center">
@@ -73,11 +72,11 @@ function WalletRow({ wallet }: { wallet: ConnectedWallet }) {
           <Button
             variant="secondary"
             size="xs"
-            onClick={async () => {
-              await setActiveWallet(wallet);
+            onClick={() => {
+              setActiveWallet(wallet);
             }}
           >
-            Inactive
+            Set as active
           </Button>
         )}
       </TableCell>
