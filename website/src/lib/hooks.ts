@@ -2,6 +2,17 @@ import { config } from "@/app/providers";
 import { useEffect, useState } from "react";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { writeContract, waitForTransactionReceipt } from "@wagmi/core";
+import { useQuery } from "@tanstack/react-query";
+import { type EnsIdeasResponse, fetchEns } from "./utils";
+import { Address } from "viem";
+
+/** Custom React Hook to fetch ENS data */
+export function useFetchEns(nameOrAddress: `${string}.eth` | Address) {
+  return useQuery({
+    queryKey: ["ensData", { nameOrAddress }],
+    queryFn: () => fetchEns(nameOrAddress),
+  });
+}
 
 /** Listens to page resizing and manages a page width state variable */
 export const useMediaQuery = (query: string) => {

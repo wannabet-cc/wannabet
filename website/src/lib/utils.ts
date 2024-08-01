@@ -123,7 +123,7 @@ export async function fetchEns(
   return fetch(ensIdeasUrl + nameOrAddress).then((res) => res.json());
 }
 
-type EnsIdeasResponse = {
+export type EnsIdeasResponse = {
   address: Address;
   name: string;
   displayName: string;

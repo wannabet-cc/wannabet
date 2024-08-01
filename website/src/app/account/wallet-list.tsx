@@ -1,12 +1,12 @@
 "use client";
 
 // Types
-import { type Hex } from "viem";
+import { Address, type Hex } from "viem";
 
 // Hooks
 import { useSetActiveWallet } from "@privy-io/wagmi";
 import { type ConnectedWallet, useWallets } from "@privy-io/react-auth";
-import { useAccount } from "wagmi";
+import { useAccount, useEnsName } from "wagmi";
 
 // Components
 import {
@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 
 // Utility Functions
 import { abbreviateHex } from "@/lib/utils";
+import { useFetchEns } from "@/lib/hooks";
 
 export function WalletList() {
   const { ready, wallets } = useWallets();
@@ -51,18 +52,20 @@ export function WalletList() {
 }
 
 function WalletRow({ wallet }: { wallet: ConnectedWallet }) {
-  // get wallet name
-  // get wallet usdc balance
-
-  // get active status
   const { setActiveWallet } = useSetActiveWallet();
   const { address } = useAccount();
+
+  const {
+    data: ensRes,
+    isSuccess,
+    isLoading,
+  } = useFetchEns(wallet.address as Address);
 
   const active = wallet.address === address;
 
   return (
     <TableRow>
-      <TableCell>{}</TableCell>
+      <TableCell>{isSuccess && ensRes && ensRes.name}</TableCell>
       <TableCell>{abbreviateHex(wallet.address as Hex, 4)}</TableCell>
       <TableCell>{wallet.walletClientType}</TableCell>
       <TableCell className="text-center">
