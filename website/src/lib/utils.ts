@@ -3,7 +3,7 @@ import {
   BASE_USDC_ADDRESS,
   BASE_WETH_ADDRESS,
 } from "@/config";
-import { formatUnits, type Hex, type Address } from "viem";
+import { isAddress, formatUnits, type Hex, type Address } from "viem";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -44,11 +44,20 @@ export async function getPreferredAliases(addresses: Address[]) {
     pfp: undefined,
   });
   const farcasterUsers = await fetchFarcasterUsers(addresses);
-  for (const [address, user] of Object.entries(farcasterUsers)) {
-    aliasMap.set(address, {
-      alias: `@${user[0].username}`,
-      pfp: user[0].pfp_url,
-    });
+  for (const [address, users] of Object.entries(farcasterUsers)) {
+    // console.log("Address:", address);
+    // console.log("Users:", users);
+    if (isAddress(address)) {
+      const mostFollowedUser = users.reduce((mostFollowedUser, currentUser) =>
+        mostFollowedUser.follower_count > currentUser.follower_count
+          ? mostFollowedUser
+          : currentUser,
+      );
+      aliasMap.set(address, {
+        alias: `@${mostFollowedUser.username}`,
+        pfp: mostFollowedUser.pfp_url,
+      });
+    }
   }
   for (const [address, alias] of aliasMap) {
     if (alias.alias === "") {
