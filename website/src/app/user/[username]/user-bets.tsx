@@ -1,56 +1,35 @@
 "use client";
 
 // Types
+import { type Address } from "viem";
 import { type FormattedBets } from "@/services/services";
 
 // Hooks
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useAccount } from "wagmi";
 
 // Components
-import { LoginButton } from "./auth/login-button";
-import { LoadingSpinner } from "./ui/spinner";
-import { BetTable } from "./bet-table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LoadingSpinner } from "@/components/ui/spinner";
+import { BetTable } from "@/components/bet-table";
 
-export function RecentBetList() {
-  const {
-    data,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status,
-  } = useInfiniteQuery({
-    queryKey: ["recentBetData"],
-    queryFn: ({ pageParam = "" }) =>
-      fetch(`/api/bets?num=${10}&cursor=${pageParam}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => data as FormattedBets),
-    initialPageParam: "",
-    getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
-    maxPages: 7,
-  });
-  return status === "pending" ? (
-    <LoadingSpinner />
-  ) : status === "error" ? (
-    "An error has occurred: " + { error }
-  ) : (
-    <BetTable
-      data={data}
-      hasNextPage={hasNextPage}
-      isFetchingNextPage={isFetchingNextPage}
-      fetchNextPage={fetchNextPage}
-    />
+export function UserBets({ address }: { address: Address }) {
+  return (
+    <Tabs defaultValue="participating" className="w-full">
+      <TabsList className="mb-2 grid w-full grid-cols-2">
+        <TabsTrigger value="participating">Participating</TabsTrigger>
+        <TabsTrigger value="judging">Judging</TabsTrigger>
+      </TabsList>
+      <TabsContent value="participating" className="flex justify-center">
+        <ParticipatingBetsList address={address} />
+      </TabsContent>
+      <TabsContent value="judging" className="flex justify-center">
+        <JudgingBetsList address={address} />
+      </TabsContent>
+    </Tabs>
   );
 }
 
-export function MyBetList() {
-  const account = useAccount();
+function ParticipatingBetsList({ address }: { address: Address }) {
   const {
     data,
     error,
@@ -59,10 +38,10 @@ export function MyBetList() {
     isFetchingNextPage,
     status,
   } = useInfiniteQuery({
-    queryKey: ["myBetData"],
+    queryKey: ["userBetsAsParty"],
     queryFn: ({ pageParam = "" }) =>
       fetch(
-        `/api/bets?address=${account.address!}&num=${10}&cursor=${pageParam}`,
+        `/api/bets?address=${address}&as=party&num=${10}&cursor=${pageParam}`,
         {
           method: "GET",
           headers: {
@@ -75,12 +54,55 @@ export function MyBetList() {
     initialPageParam: "",
     getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
     maxPages: 7,
-    enabled: account.isConnected,
   });
-  return account.isDisconnected ? (
-    <LoginButton />
-  ) : status === "pending" ? (
-    <LoadingSpinner />
+
+  return status === "pending" ? (
+    <div className="w-fit">
+      <LoadingSpinner />
+    </div>
+  ) : status === "error" ? (
+    "An error has occurred: " + { error }
+  ) : (
+    <BetTable
+      data={data}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+      fetchNextPage={fetchNextPage}
+    />
+  );
+}
+
+function JudgingBetsList({ address }: { address: Address }) {
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery({
+    queryKey: ["userBetsAsJudge"],
+    queryFn: ({ pageParam = "" }) =>
+      fetch(
+        `/api/bets?address=${address}&as=judge&num=${10}&cursor=${pageParam}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      )
+        .then((res) => res.json())
+        .then((data) => data as FormattedBets),
+    initialPageParam: "",
+    getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
+    maxPages: 7,
+  });
+
+  return status === "pending" ? (
+    <div className="w-fit">
+      <LoadingSpinner />
+    </div>
   ) : status === "error" ? (
     "An error has occurred: " + { error }
   ) : (

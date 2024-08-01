@@ -3,12 +3,18 @@ import {
   BASE_USDC_ADDRESS,
   BASE_WETH_ADDRESS,
 } from "@/config";
-import { isAddress, type Address } from "viem";
+import { isAddress, formatUnits, type Hex, type Address } from "viem";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+/** Function that formats bigints to a string, rounding to a specified number of decimals */
+export function formatUSDC(value: bigint, decimals: number): string {
+  const numberValue = formatUnits(value, 6);
+  return `${numberValue.split(".")[0]}.${numberValue.split(".")[1].slice(0, decimals)}`;
 }
 
 /** Function that manually scrolls screen to an element id */
@@ -126,7 +132,7 @@ export async function fetchEns(
   return fetch(ensIdeasUrl + nameOrAddress).then((res) => res.json());
 }
 
-type EnsIdeasResponse = {
+export type EnsIdeasResponse = {
   address: Address;
   name: string;
   displayName: string;
@@ -134,7 +140,7 @@ type EnsIdeasResponse = {
 };
 
 /** Abbreviate a hex address by replacing the middle with "..." */
-export function abbreviateHex(hex: Address, numChars: number = 3) {
+export function abbreviateHex(hex: Hex, numChars: number = 3) {
   return `${hex.slice(0, numChars + 2)}...${hex.slice(numChars * -1)}`;
 }
 

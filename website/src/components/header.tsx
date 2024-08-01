@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CustomConnectButton } from "./rainbow/custom-connect-button";
+import { LoginButton } from "./auth/login-button";
 
 export function Header() {
   return (
@@ -10,7 +10,7 @@ export function Header() {
         WannaBet 🤝
       </Link>
 
-      <CustomConnectButton />
+      <LoginButton />
     </header>
   );
 }

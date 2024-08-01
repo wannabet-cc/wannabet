@@ -1,17 +1,18 @@
 "use client";
 
+import { PrivyProvider } from "@privy-io/react-auth";
+import { createConfig, WagmiProvider } from "@privy-io/wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { WagmiProvider, http } from "wagmi";
-import { base } from "wagmi/chains";
+import { http } from "wagmi";
+import { base, mainnet } from "wagmi/chains";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-export const config = getDefaultConfig({
-  appName: "WannaBet",
-  projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || "",
-  chains: [base],
+export const config = createConfig({
+  chains: [base, mainnet],
+  ssr: true,
   transports: {
     [base.id]: http(process.env.NEXT_PUBLIC_BASE_ALCHEMY_URL),
+    [mainnet.id]: http(process.env.NEXT_PUBLIC_MAINNET_ALCHEMY_URL),
   },
 });
 
@@ -19,12 +20,25 @@ const queryClient = new QueryClient();
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <WagmiProvider config={config}>
+    <PrivyProvider
+      appId="clyyp3crh0ar0yht8gj1gzj8t"
+      config={{
+        appearance: {
+          theme: "light",
+          accentColor: "#676FFF",
+          // logo: "https://your-logo-url",
+        },
+        loginMethods: ["wallet", "email"],
+        embeddedWallets: {
+          createOnLogin: "users-without-wallets",
+        },
+      }}
+    >
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider initialChain={base}>
+        <WagmiProvider config={config}>
           <TooltipProvider>{children}</TooltipProvider>
-        </RainbowKitProvider>
+        </WagmiProvider>
       </QueryClientProvider>
-    </WagmiProvider>
+    </PrivyProvider>
   );
 }

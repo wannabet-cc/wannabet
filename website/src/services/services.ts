@@ -12,6 +12,8 @@ import {
   generateBetsQuery,
   generateMostRecentBetIdQuery,
   generateRecentBetsQuery,
+  generateUserBetsAsJudgeQuery,
+  generateUserBetsAsPartyQuery,
   generateUserBetsQuery,
 } from "./queries";
 
@@ -114,6 +116,56 @@ export const getUserRawBets = async (
   console.log("Running getRecentRawBets...");
   try {
     const query = generateUserBetsQuery(user, numBets, page);
+    const result = await queryGqlApi<BetsQueryResponse>(BET_API_URL, query);
+    return result.data.bets;
+  } catch (error) {
+    const errorMsg = "Failed to get raw bet details for a user";
+    console.error(errorMsg + ": " + error);
+    throw new Error(errorMsg);
+  }
+};
+
+/**
+ *  Raw data getter fn -
+ *
+ *  Multiple bets from a user address where they are
+ *  a betting party
+ *
+ *  Shows most recent bets
+ */
+export const getUserRawBetsAsParty = async (
+  user: Address,
+  numBets: number,
+  page?: Partial<{ afterCursor: string; beforeCursor: string }>,
+): Promise<RawBets> => {
+  console.log("Running getRecentRawBets...");
+  try {
+    const query = generateUserBetsAsPartyQuery(user, numBets, page);
+    const result = await queryGqlApi<BetsQueryResponse>(BET_API_URL, query);
+    return result.data.bets;
+  } catch (error) {
+    const errorMsg = "Failed to get raw bet details for a user";
+    console.error(errorMsg + ": " + error);
+    throw new Error(errorMsg);
+  }
+};
+
+/**
+ *  Raw data getter fn -
+ *
+ *  Multiple bets from a user address where they are
+ *  a judge
+ *
+ *  Shows most recent bets
+ */
+export const getUserRawBetsAsJudge = async (
+  user: Address,
+  numBets: number,
+  page?: Partial<{ afterCursor: string; beforeCursor: string }>,
+): Promise<RawBets> => {
+  console.log("Running getRecentRawBets...");
+  try {
+    const query = generateUserBetsAsJudgeQuery(user, numBets, page);
     const result = await queryGqlApi<BetsQueryResponse>(BET_API_URL, query);
     return result.data.bets;
   } catch (error) {
@@ -369,6 +421,56 @@ export const getUserFormattedBets = async (
   console.log("Running getUserFormattedBets...");
   try {
     const rawBets = await getUserRawBets(user, numBets, page);
+    const formattedBets = await formatBets(rawBets.items);
+    return { items: formattedBets, pageInfo: rawBets.pageInfo };
+  } catch (error) {
+    const errorMsg = "Failed to get formatted bet details for a user";
+    console.error(errorMsg + ": " + error);
+    throw new Error(errorMsg);
+  }
+};
+
+/**
+ *  Formatted data getter fn -
+ *
+ *  Multiple bets from a user address where they are
+ *  a betting party
+ *
+ *  Shows most recent bets
+ */
+export const getUserFormattedBetsAsParty = async (
+  user: Address,
+  numBets: number = 5,
+  page?: Partial<{ afterCursor: string; beforeCursor: string }>,
+): Promise<FormattedBets> => {
+  console.log("Running getUserFormattedBets...");
+  try {
+    const rawBets = await getUserRawBetsAsParty(user, numBets, page);
+    const formattedBets = await formatBets(rawBets.items);
+    return { items: formattedBets, pageInfo: rawBets.pageInfo };
+  } catch (error) {
+    const errorMsg = "Failed to get formatted bet details for a user";
+    console.error(errorMsg + ": " + error);
+    throw new Error(errorMsg);
+  }
+};
+
+/**
+ *  Formatted data getter fn -
+ *
+ *  Multiple bets from a user address where they are
+ *  a judge
+ *
+ *  Shows most recent bets
+ */
+export const getUserFormattedBetsAsJudge = async (
+  user: Address,
+  numBets: number = 5,
+  page?: Partial<{ afterCursor: string; beforeCursor: string }>,
+): Promise<FormattedBets> => {
+  console.log("Running getUserFormattedBets...");
+  try {
+    const rawBets = await getUserRawBetsAsJudge(user, numBets, page);
     const formattedBets = await formatBets(rawBets.items);
     return { items: formattedBets, pageInfo: rawBets.pageInfo };
   } catch (error) {

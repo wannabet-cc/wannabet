@@ -3,7 +3,7 @@
 import { type FormattedBet } from "@/services/services";
 import { getTokenNameFromAddress } from "@/lib/utils";
 import { useAccount } from "wagmi";
-import { CustomConnectButtonSecondary } from "./rainbow/custom-connect-button";
+import { LoginButton } from "./auth/login-button";
 import {
   Table,
   TableBody,
