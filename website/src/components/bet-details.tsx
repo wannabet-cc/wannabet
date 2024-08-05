@@ -1,7 +1,7 @@
 "use client";
 
 import { type FormattedBet } from "@/services/services";
-import { getTokenNameFromAddress } from "@/utils";
+import { getTokenNameFromAddress } from "@/lib";
 import { useAccount } from "wagmi";
 import { LoginButton } from "./auth/login-button";
 import { Table, TableBody, TableCaption, TableCell, TableRow } from "./ui/table";

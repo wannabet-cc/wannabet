@@ -1,6 +1,6 @@
 import { BackButton } from "@/components/back-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { fetchEns } from "@/utils";
+import { fetchEns } from "@/lib";
 import Link from "next/link";
 import React from "react";
 import { normalize } from "viem/ens";

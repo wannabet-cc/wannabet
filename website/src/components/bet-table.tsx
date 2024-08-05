@@ -14,7 +14,7 @@ import { Button } from "./ui/button";
 import { UserBadge } from "./misc/user-badge";
 
 // Utility Functions
-import { getTokenNameFromAddress } from "@/utils";
+import { getTokenNameFromAddress } from "@/lib";
 
 export function BetTable({
   data,
