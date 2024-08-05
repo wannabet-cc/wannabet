@@ -2,7 +2,7 @@ import { BetAbi } from "@/abis/BetAbi";
 import { BET_API_URL } from "@/config";
 import { baseClient } from "./viem";
 import { type Address, formatUnits } from "viem";
-import { getDecimalsFromTokenAddress, getPreferredAlias, getPreferredAliases } from "@/lib/utils";
+import { getDecimalsFromTokenAddress, getPreferredAlias, getPreferredAliases } from "@/utils";
 import {
   generateBetQuery,
   generateBetsQuery,

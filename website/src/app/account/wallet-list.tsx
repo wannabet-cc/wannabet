@@ -21,8 +21,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 // Utility Functions
-import { abbreviateHex } from "@/lib/utils";
-import { useFetchEns } from "@/lib/hooks";
+import { abbreviateHex } from "@/utils";
+import { useFetchEns } from "@/hooks";
 
 export function WalletList() {
   const { ready, wallets } = useWallets();

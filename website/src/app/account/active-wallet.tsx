@@ -11,7 +11,7 @@ import { type ConnectedWallet, useWallets } from "@privy-io/react-auth";
 import { Button } from "@/components/ui/button";
 
 // Utility Functions
-import { formatUSDC } from "@/lib/utils";
+import { formatUSDC } from "@/utils";
 
 // Contract
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
