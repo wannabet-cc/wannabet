@@ -1,11 +1,5 @@
 import { BackButton } from "@/components/back-button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchEns } from "@/lib/utils";
 import Link from "next/link";
 import React from "react";
@@ -15,18 +9,12 @@ import { UserAvatar } from "./user-avatar";
 
 const ensRegex = /^.{3,}\.eth$/; // /^[a-z0-9]+\.eth$/;
 
-export default async function UserPage({
-  params,
-}: {
-  params: { username: string };
-}) {
+export default async function UserPage({ params }: { params: { username: string } }) {
   // Namestone
 
   // ENS
   if (ensRegex.test(params.username)) {
-    const account = await fetchEns(
-      normalize(params.username) as `${string}.eth`,
-    );
+    const account = await fetchEns(normalize(params.username) as `${string}.eth`);
     return (
       <main className="flex w-full flex-col items-center">
         <div className="w-full space-y-2 md:px-8">

@@ -12,25 +12,14 @@ import {
 } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import {
-  readContract,
-  waitForTransactionReceipt,
-  writeContract,
-} from "@wagmi/core";
+import { readContract, waitForTransactionReceipt, writeContract } from "@wagmi/core";
 import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { Address, formatUnits, parseUnits } from "viem";
 import { normalize } from "viem/ens";
 import { useAccount, useReadContract } from "wagmi";
 import { Button } from "./ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "./ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import {
   Dialog,
   DialogClose,
@@ -56,9 +45,7 @@ const ensOrAddressSchema = z
 const formSchema = z.object({
   participant: ensOrAddressSchema,
   amount: z.coerce.number().positive(),
-  tokenName: z
-    .string()
-    .refine((name) => name === "USDC" || name === "WETH" || name === "rETH"),
+  tokenName: z.string().refine((name) => name === "USDC" || name === "WETH" || name === "rETH"),
   message: z.string(),
   validForDays: z.coerce.number().positive().lte(14),
   judge: ensOrAddressSchema,
@@ -94,10 +81,7 @@ export function CreateBetForm() {
 
   const decimals = getDecimalsFromTokenName(form.getValues("tokenName"));
 
-  const handleSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (
-    values,
-    e,
-  ) => {
+  const handleSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (values, e) => {
     e?.preventDefault();
     setCreateStatus("1-transforming-data");
     try {
@@ -111,15 +95,10 @@ export function CreateBetForm() {
       const [participantAddress, judgeAddress] = await Promise.all([
         addressRegex.test(values.participant)
           ? values.participant
-          : (
-              await fetchEns(
-                normalize(values.participant.trim()) as `${string}.eth`,
-              )
-            ).address,
+          : (await fetchEns(normalize(values.participant.trim()) as `${string}.eth`)).address,
         addressRegex.test(values.judge)
           ? values.judge
-          : (await fetchEns(normalize(values.judge.trim()) as `${string}.eth`))
-              .address,
+          : (await fetchEns(normalize(values.judge.trim()) as `${string}.eth`)).address,
       ]);
 
       /** Throw if user doesn't have enough tokens */
@@ -156,12 +135,9 @@ export function CreateBetForm() {
           args: [BASE_BET_FACTORY_ADDRESS, bigintAmount],
         });
         setCreateStatus("5-confirming-approval");
-        const { status: approveStatus } = await waitForTransactionReceipt(
-          config,
-          {
-            hash: approveHash,
-          },
-        );
+        const { status: approveStatus } = await waitForTransactionReceipt(config, {
+          hash: approveHash,
+        });
         if (approveStatus !== "success") {
           toast({
             title: "Failed to authorize bet fund transfer",
@@ -230,11 +206,7 @@ export function CreateBetForm() {
               <FormItem>
                 <FormLabel>Participant</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="abc.eth or 0xabc..."
-                    type="text"
-                  />
+                  <Input {...field} placeholder="abc.eth or 0xabc..." type="text" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -300,9 +272,7 @@ export function CreateBetForm() {
           <div className="text-sm text-muted-foreground">
             {"Your balance: "}
             {tokenBalance ? (
-              <span>
-                {roundFloat(Number(formatUnits(tokenBalance, decimals)), 5)}
-              </span>
+              <span>{roundFloat(Number(formatUnits(tokenBalance, decimals)), 5)}</span>
             ) : (
               "..."
             )}
@@ -349,11 +319,7 @@ export function CreateBetForm() {
               <FormItem>
                 <FormLabel>Judge</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="abc.eth or 0xabc..."
-                    type="text"
-                  />
+                  <Input {...field} placeholder="abc.eth or 0xabc..." type="text" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -387,11 +353,7 @@ export function CreateBetForm() {
               {!isLoading && (
                 <DialogFooter className="sm:justify-start">
                   <DialogClose asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setError(undefined)}
-                    >
+                    <Button type="button" variant="outline" onClick={() => setError(undefined)}>
                       Close
                     </Button>
                   </DialogClose>
@@ -422,12 +384,10 @@ type createStatus =
 
 const getStatusMessage = (status: createStatus): string => {
   if (status === "1-transforming-data") return "Transforming form data";
-  else if (status === "2-checking-balance")
-    return "Checking your token balance";
+  else if (status === "2-checking-balance") return "Checking your token balance";
   else if (status === "3-checking-approval") return "Checking your approval";
   else if (status === "4-approving") return "Approving token transfer";
-  else if (status === "5-confirming-approval")
-    return "Confirming token transfer approval";
+  else if (status === "5-confirming-approval") return "Confirming token transfer approval";
   else if (status === "6-creating-bet") return "Signing create bet transaction";
   else if (status === "7-confirming-creation") return "Confirming bet creation";
   else if (status === "success") return "Success!";

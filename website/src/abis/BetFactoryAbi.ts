@@ -108,9 +108,7 @@ export const BetFactoryAbi = [
   {
     inputs: [{ internalType: "uint256", name: "_betId", type: "uint256" }],
     name: "betAddresses",
-    outputs: [
-      { internalType: "address", name: "contractAddress", type: "address" },
-    ],
+    outputs: [{ internalType: "address", name: "contractAddress", type: "address" }],
     stateMutability: "view",
     type: "function",
   },
@@ -122,9 +120,7 @@ export const BetFactoryAbi = [
     type: "function",
   },
   {
-    inputs: [
-      { internalType: "address", name: "_contractAddress", type: "address" },
-    ],
+    inputs: [{ internalType: "address", name: "_contractAddress", type: "address" }],
     name: "betIds",
     outputs: [{ internalType: "uint256", name: "betId", type: "uint256" }],
     stateMutability: "view",
@@ -180,9 +176,7 @@ export const BetFactoryAbi = [
     type: "function",
   },
   {
-    inputs: [
-      { internalType: "address", name: "_userAddress", type: "address" },
-    ],
+    inputs: [{ internalType: "address", name: "_userAddress", type: "address" }],
     name: "userBetCount",
     outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",

@@ -1,8 +1,4 @@
-import {
-  BASE_RETH_ADDRESS,
-  BASE_USDC_ADDRESS,
-  BASE_WETH_ADDRESS,
-} from "@/config";
+import { BASE_RETH_ADDRESS, BASE_USDC_ADDRESS, BASE_WETH_ADDRESS } from "@/config";
 import { isAddress, formatUnits, type Hex, type Address } from "viem";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -92,10 +88,9 @@ export async function fetchFarcasterUsers(addresses: Address[]) {
       api_key: process.env.NEXT_PUBLIC_NEYNAR_API_KEY || "",
     },
   };
-  const data = (await fetch(
-    `${urlBase}?addresses=${addresses.join("%2C")}`,
-    options,
-  ).then((res) => res.json())) as NeynarUserRes;
+  const data = (await fetch(`${urlBase}?addresses=${addresses.join("%2C")}`, options).then((res) =>
+    res.json(),
+  )) as NeynarUserRes;
   return data;
 }
 

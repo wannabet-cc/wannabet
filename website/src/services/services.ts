@@ -2,11 +2,7 @@ import { BetAbi } from "@/abis/BetAbi";
 import { BET_API_URL } from "@/config";
 import { baseClient } from "./viem";
 import { type Address, formatUnits } from "viem";
-import {
-  getDecimalsFromTokenAddress,
-  getPreferredAlias,
-  getPreferredAliases,
-} from "@/lib/utils";
+import { getDecimalsFromTokenAddress, getPreferredAlias, getPreferredAliases } from "@/lib/utils";
 import {
   generateBetQuery,
   generateBetsQuery,
@@ -223,33 +219,27 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
       participant = rawBet.participant as Address,
       judge = rawBet.judge as Address;
     // get aliases and bet status
-    const [
-      creatorAlias,
-      participantAlias,
-      judgeAlias,
-      status,
-      winner,
-      judgementReason,
-    ] = await Promise.all([
-      getPreferredAlias(creator),
-      getPreferredAlias(participant),
-      getPreferredAlias(judge),
-      baseClient.readContract({
-        address: contractAddress,
-        abi: BetAbi,
-        functionName: "getStatus",
-      }),
-      baseClient.readContract({
-        address: contractAddress,
-        abi: BetAbi,
-        functionName: "winner",
-      }),
-      baseClient.readContract({
-        address: contractAddress,
-        abi: BetAbi,
-        functionName: "judgementReason",
-      }),
-    ]);
+    const [creatorAlias, participantAlias, judgeAlias, status, winner, judgementReason] =
+      await Promise.all([
+        getPreferredAlias(creator),
+        getPreferredAlias(participant),
+        getPreferredAlias(judge),
+        baseClient.readContract({
+          address: contractAddress,
+          abi: BetAbi,
+          functionName: "getStatus",
+        }),
+        baseClient.readContract({
+          address: contractAddress,
+          abi: BetAbi,
+          functionName: "winner",
+        }),
+        baseClient.readContract({
+          address: contractAddress,
+          abi: BetAbi,
+          functionName: "judgementReason",
+        }),
+      ]);
     // return
     return {
       betId: Number(rawBet.id),
@@ -259,10 +249,7 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
       participant,
       participantAlias,
       amount: Number(
-        formatUnits(
-          BigInt(rawBet.amount),
-          getDecimalsFromTokenAddress(rawBet.token as Address),
-        ),
+        formatUnits(BigInt(rawBet.amount), getDecimalsFromTokenAddress(rawBet.token as Address)),
       ),
       bigintAmount: rawBet.amount,
       token: rawBet.token as Address,
@@ -283,9 +270,7 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
 };
 
 /** Utility function for formatting multiple bets */
-export const formatBets = async (
-  rawBets: RawBet[],
-): Promise<FormattedBet[]> => {
+export const formatBets = async (rawBets: RawBet[]): Promise<FormattedBet[]> => {
   console.log("Running formatBets...");
   try {
     const preFormattedBets = await Promise.all(
@@ -365,9 +350,7 @@ export const formatBets = async (
  */
 
 /** Formatted data getter fn - single bet from an id */
-export const getFormattedBetFromId = async (
-  betId: number,
-): Promise<FormattedBet> => {
+export const getFormattedBetFromId = async (betId: number): Promise<FormattedBet> => {
   console.log("Running getFormattedBetFromId...");
   try {
     const rawBet = await getRawBetFromId(betId);
@@ -380,9 +363,7 @@ export const getFormattedBetFromId = async (
 };
 
 /** Formatted data getter fn - multiple bets from ids */
-export const getFormattedBetsFromIds = async (
-  betIds: number[],
-): Promise<FormattedBets> => {
+export const getFormattedBetsFromIds = async (betIds: number[]): Promise<FormattedBets> => {
   console.log("Running getFormattedBetsFromIds...");
   try {
     const rawBets = await getRawBetsFromIds(betIds);

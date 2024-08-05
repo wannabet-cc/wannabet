@@ -39,10 +39,9 @@ export const useMediaQuery = (query: string) => {
  */
 export const useWriteContractWithConfirmation = () => {
   const { data: hash, ...writeOptions } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
-    useWaitForTransactionReceipt({
-      hash,
-    });
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash,
+  });
   return {
     data: hash,
     ...writeOptions,

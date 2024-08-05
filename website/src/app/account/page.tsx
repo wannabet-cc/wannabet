@@ -6,13 +6,7 @@ import { useRouter } from "next/navigation";
 
 // Components
 import { BackButton } from "@/components/back-button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ContactInformation } from "./contact-information";
 import { WalletList } from "./wallet-list";
 import { ActiveWallet } from "./active-wallet";

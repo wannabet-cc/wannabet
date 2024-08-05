@@ -30,25 +30,15 @@ export function UserBets({ address }: { address: Address }) {
 }
 
 function ParticipatingBetsList({ address }: { address: Address }) {
-  const {
-    data,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status,
-  } = useInfiniteQuery({
+  const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
     queryKey: ["userBetsAsParty"],
     queryFn: ({ pageParam = "" }) =>
-      fetch(
-        `/api/bets?address=${address}&as=party&num=${10}&cursor=${pageParam}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+      fetch(`/api/bets?address=${address}&as=party&num=${10}&cursor=${pageParam}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
         },
-      )
+      })
         .then((res) => res.json())
         .then((data) => data as FormattedBets),
     initialPageParam: "",
@@ -73,25 +63,15 @@ function ParticipatingBetsList({ address }: { address: Address }) {
 }
 
 function JudgingBetsList({ address }: { address: Address }) {
-  const {
-    data,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status,
-  } = useInfiniteQuery({
+  const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
     queryKey: ["userBetsAsJudge"],
     queryFn: ({ pageParam = "" }) =>
-      fetch(
-        `/api/bets?address=${address}&as=judge&num=${10}&cursor=${pageParam}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+      fetch(`/api/bets?address=${address}&as=judge&num=${10}&cursor=${pageParam}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
         },
-      )
+      })
         .then((res) => res.json())
         .then((data) => data as FormattedBets),
     initialPageParam: "",

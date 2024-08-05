@@ -4,13 +4,7 @@ import { type FormattedBet } from "@/services/services";
 import { getTokenNameFromAddress } from "@/lib/utils";
 import { useAccount } from "wagmi";
 import { LoginButton } from "./auth/login-button";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableRow,
-} from "./ui/table";
+import { Table, TableBody, TableCaption, TableCell, TableRow } from "./ui/table";
 import { Avatar, AvatarImage } from "./ui/avatar";
 import { UserBadge } from "./misc/user-badge";
 import { TransactionButtons } from "./transaction-buttons";
@@ -31,9 +25,7 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
                 </Avatar>
               )}
               <UserBadge userAlias={bet.creatorAlias} />{" "}
-              <span className="text-xs text-muted-foreground">
-                (bet creator)
-              </span>
+              <span className="text-xs text-muted-foreground">(bet creator)</span>
               {account.address?.toLowerCase() === bet.creator && (
                 <span className="text-xs"> &lt;- you</span>
               )}
@@ -45,9 +37,7 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
                 </Avatar>
               )}
               <UserBadge userAlias={bet.participantAlias} />{" "}
-              <span className="text-xs text-muted-foreground">
-                (participant)
-              </span>
+              <span className="text-xs text-muted-foreground">(participant)</span>
               {account.address?.toLowerCase() === bet.participant && (
                 <span className="text-xs"> &lt;- you</span>
               )}
@@ -96,8 +86,7 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
             {bet.status === "settled" &&
               bet.winner &&
               (() => {
-                if (bet.winner === "0x0000000000000000000000000000000000000000")
-                  return ": tie";
+                if (bet.winner === "0x0000000000000000000000000000000000000000") return ": tie";
                 else if (bet.winner.toLowerCase() === bet.creator)
                   return `: ${bet.creatorAlias} won`;
                 else if (bet.winner.toLowerCase() === bet.participant)
@@ -105,17 +94,11 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
                 else return "";
               })()}
             <span className="text-xs text-muted-foreground">
-              {bet.status === "pending"
-                ? ` (expires ${bet.validUntil.toLocaleString()})`
-                : ""}
-              {bet.status === "expired"
-                ? ` (${bet.validUntil.toLocaleString()})`
-                : ""}
+              {bet.status === "pending" ? ` (expires ${bet.validUntil.toLocaleString()})` : ""}
+              {bet.status === "expired" ? ` (${bet.validUntil.toLocaleString()})` : ""}
             </span>
             {bet.judgementReason && (
-              <p className="text-xs text-muted-foreground">
-                reason: {bet.judgementReason}
-              </p>
+              <p className="text-xs text-muted-foreground">reason: {bet.judgementReason}</p>
             )}
           </TableCell>
         </TableRow>

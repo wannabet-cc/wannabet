@@ -39,13 +39,7 @@ function ExplorerComponent() {
   );
 }
 
-function BetListCard({
-  children,
-  title,
-}: {
-  children: ReactNode;
-  title: string;
-}) {
+function BetListCard({ children, title }: { children: ReactNode; title: string }) {
   return (
     <Card className="h-fit w-full">
       <CardHeader>

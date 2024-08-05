@@ -45,13 +45,7 @@ export function ActiveWallet() {
       <p className="flex items-center">
         <div>
           <span>Balance: </span>
-          <span>
-            {isPending
-              ? "loading..."
-              : balance
-                ? `$${formatUSDC(balance, 2)}`
-                : "$0.00"}
-          </span>
+          <span>{isPending ? "loading..." : balance ? `$${formatUSDC(balance, 2)}` : "$0.00"}</span>
         </div>
       </p>
       <AddFundsButton wallet={activeWallet!} />

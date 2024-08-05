@@ -13,14 +13,7 @@ import { LoadingSpinner } from "./ui/spinner";
 import { BetTable } from "./bet-table";
 
 export function RecentBetList() {
-  const {
-    data,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status,
-  } = useInfiniteQuery({
+  const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
     queryKey: ["recentBetData"],
     queryFn: ({ pageParam = "" }) =>
       fetch(`/api/bets?num=${10}&cursor=${pageParam}`, {
@@ -51,25 +44,15 @@ export function RecentBetList() {
 
 export function MyBetList() {
   const account = useAccount();
-  const {
-    data,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status,
-  } = useInfiniteQuery({
+  const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
     queryKey: ["myBetData"],
     queryFn: ({ pageParam = "" }) =>
-      fetch(
-        `/api/bets?address=${account.address!}&num=${10}&cursor=${pageParam}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+      fetch(`/api/bets?address=${account.address!}&num=${10}&cursor=${pageParam}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
         },
-      )
+      })
         .then((res) => res.json())
         .then((data) => data as FormattedBets),
     initialPageParam: "",

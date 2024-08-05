@@ -432,9 +432,7 @@ export const FiatTokenProxyAbi = [
     type: "function",
   },
   {
-    inputs: [
-      { internalType: "address", name: "lostAndFound", type: "address" },
-    ],
+    inputs: [{ internalType: "address", name: "lostAndFound", type: "address" }],
     name: "initializeV2_1",
     outputs: [],
     stateMutability: "nonpayable",
@@ -712,18 +710,14 @@ export const FiatTokenProxyAbi = [
     type: "function",
   },
   {
-    inputs: [
-      { internalType: "address", name: "_newBlacklister", type: "address" },
-    ],
+    inputs: [{ internalType: "address", name: "_newBlacklister", type: "address" }],
     name: "updateBlacklister",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
-    inputs: [
-      { internalType: "address", name: "_newMasterMinter", type: "address" },
-    ],
+    inputs: [{ internalType: "address", name: "_newMasterMinter", type: "address" }],
     name: "updateMasterMinter",
     outputs: [],
     stateMutability: "nonpayable",

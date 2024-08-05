@@ -8,14 +8,7 @@ import { type InfiniteData } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 // Components
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "./ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
 import { UserBadge } from "./misc/user-badge";

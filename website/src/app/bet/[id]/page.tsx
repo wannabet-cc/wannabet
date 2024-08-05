@@ -1,12 +1,6 @@
 import { getFormattedBetFromId, getMostRecentBetId } from "@/services/services";
 import { type FormattedBet } from "@/services/services";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BackButton } from "@/components/back-button";
 import { BetDetails } from "@/components/bet-details";
 
@@ -29,11 +23,7 @@ export default async function BetPage({ params }: { params: { id: number } }) {
   );
 }
 
-function BetDetailsCard({
-  currentBet,
-}: {
-  currentBet: FormattedBet | undefined;
-}) {
+function BetDetailsCard({ currentBet }: { currentBet: FormattedBet | undefined }) {
   return (
     <Card className="w-full">
       <CardHeader>
@@ -42,10 +32,7 @@ function BetDetailsCard({
         </CardTitle>
         <CardDescription>
           {currentBet ? (
-            <a
-              href={`https://basescan.org/address/${currentBet.contractAddress}`}
-              target="_blank"
-            >
+            <a href={`https://basescan.org/address/${currentBet.contractAddress}`} target="_blank">
               See on Basescan
             </a>
           ) : (

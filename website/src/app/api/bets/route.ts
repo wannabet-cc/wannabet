@@ -23,8 +23,7 @@ export async function GET(req: NextRequest) {
     const num = req.nextUrl.searchParams.get("num");
     const cursor = req.nextUrl.searchParams.get("cursor");
 
-    const { success: addressSuccess, data: parsedAddress } =
-      AddressSchema.safeParse(address);
+    const { success: addressSuccess, data: parsedAddress } = AddressSchema.safeParse(address);
     const { success: positionSuccess, data: parsedPosition } =
       AsPositionSchema.safeParse(asPosition);
     const { data: parsedNum } = NumSchema.safeParse(Number(num));
@@ -35,23 +34,11 @@ export async function GET(req: NextRequest) {
 
     if (addressSuccess) {
       if (positionSuccess && parsedPosition === "party") {
-        data = await getUserFormattedBetsAsParty(
-          parsedAddress as Address,
-          parsedNum,
-          pageObject,
-        );
+        data = await getUserFormattedBetsAsParty(parsedAddress as Address, parsedNum, pageObject);
       } else if (positionSuccess && parsedPosition === "judge") {
-        data = await getUserFormattedBetsAsJudge(
-          parsedAddress as Address,
-          parsedNum,
-          pageObject,
-        );
+        data = await getUserFormattedBetsAsJudge(parsedAddress as Address, parsedNum, pageObject);
       } else {
-        data = await getUserFormattedBets(
-          parsedAddress as Address,
-          parsedNum,
-          pageObject,
-        );
+        data = await getUserFormattedBets(parsedAddress as Address, parsedNum, pageObject);
       }
     } else {
       data = await getRecentFormattedBets(parsedNum, pageObject);

@@ -23,29 +23,21 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
           <Tooltip>
             <TooltipTrigger className="flex gap-1 *:flex-1">
               <div className="flex gap-1 *:flex-1">
-                {bet.status === "expired" && (
-                  <CreatorActions isCreator={isCreator} bet={bet} />
-                )}
+                {bet.status === "expired" && <CreatorActions isCreator={isCreator} bet={bet} />}
                 {bet.status === "pending" && (
                   <ParticipantActions isParticipant={isParticipant} bet={bet} />
                 )}
-                {bet.status === "accepted" && (
-                  <JudgeActions isJudge={isJudge} bet={bet} />
-                )}
+                {bet.status === "accepted" && <JudgeActions isJudge={isJudge} bet={bet} />}
                 {bet.status === "declined" && <>...</>}
                 {bet.status === "settled" && <>...</>}
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              {bet.status === "expired" &&
-                !isCreator &&
-                "Only creator can retrieve funds"}
+              {bet.status === "expired" && !isCreator && "Only creator can retrieve funds"}
               {bet.status === "pending" &&
                 !isParticipant &&
                 "Waiting on participant to accept the bet"}
-              {bet.status === "accepted" && !isJudge && (
-                <p>Waiting on judge to settle the bet</p>
-              )}
+              {bet.status === "accepted" && !isJudge && <p>Waiting on judge to settle the bet</p>}
             </TooltipContent>
           </Tooltip>
         ) : (
@@ -96,10 +88,7 @@ function CreatorActions(props: { isCreator: boolean; bet: FormattedBet }) {
   );
 }
 
-function ParticipantActions(props: {
-  isParticipant: boolean;
-  bet: FormattedBet;
-}) {
+function ParticipantActions(props: { isParticipant: boolean; bet: FormattedBet }) {
   const { writeContractAsync, isPending } = useWriteContract();
   const { toast } = useToast();
 

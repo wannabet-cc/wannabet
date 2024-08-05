@@ -25,9 +25,7 @@ export function LoginButton() {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline">
-            {ensName ? ensName : abbreviateHex(address, 3)}
-          </Button>
+          <Button variant="outline">{ensName ? ensName : abbreviateHex(address, 3)}</Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem asChild>
