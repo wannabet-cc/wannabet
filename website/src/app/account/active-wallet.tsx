@@ -15,14 +15,14 @@ import { formatUSDC } from "@/utils";
 
 // Contract
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
-import { BASE_USDC_ADDRESS } from "@/config";
+import { Contracts } from "@/config";
 
 export function ActiveWallet() {
   const { wallets } = useWallets();
   const { address, isConnected, isConnecting, isDisconnected } = useAccount();
   const { data: balance, isPending } = useReadContract({
     abi: FiatTokenProxyAbi,
-    address: BASE_USDC_ADDRESS,
+    address: Contracts.getAddress("base", "usdc")!,
     functionName: "balanceOf",
     args: [address as Address],
   });

@@ -1,0 +1,6 @@
+export const NEXT_PUBLIC_WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID || "";
+export const NEXT_PUBLIC_MAINNET_ALCHEMY_URL = process.env.NEXT_PUBLIC_MAINNET_ALCHEMY_URL || "";
+export const NEXT_PUBLIC_BASE_ALCHEMY_URL = process.env.NEXT_PUBLIC_BASE_ALCHEMY_URL || "";
+export const NEXT_PUBLIC_ARB_ALCHEMY_URL = process.env.NEXT_PUBLIC_ARB_ALCHEMY_URL || "";
+export const NEXT_PUBLIC_BET_API_URL = process.env.NEXT_PUBLIC_BET_API_URL || "";
+export const NEXT_PUBLIC_NEYNAR_API_KEY = process.env.NEXT_PUBLIC_NEYNAR_API_KEY || "";

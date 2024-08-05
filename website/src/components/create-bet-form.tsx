@@ -3,7 +3,7 @@
 import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { config } from "@/app/providers";
-import { BASE_BET_FACTORY_ADDRESS } from "@/config";
+import { Contracts } from "@/config";
 import { fetchEns, getAddressFromTokenName, getDecimalsFromTokenName } from "@/lib";
 import { roundFloat } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -120,7 +120,7 @@ export function CreateBetForm() {
         address: tokenAddress,
         abi: FiatTokenProxyAbi,
         functionName: "allowance",
-        args: [address!, BASE_BET_FACTORY_ADDRESS],
+        args: [address!, Contracts.getAddress("base", "betFactory")!],
       });
       if (preexistingApprovedAmount < bigintAmount) {
         setCreateStatus("4-approving");
@@ -128,7 +128,7 @@ export function CreateBetForm() {
           address: tokenAddress,
           abi: FiatTokenProxyAbi,
           functionName: "approve",
-          args: [BASE_BET_FACTORY_ADDRESS, bigintAmount],
+          args: [Contracts.getAddress("base", "betFactory")!, bigintAmount],
         });
         setCreateStatus("5-confirming-approval");
         const { status: approveStatus } = await waitForTransactionReceipt(config, {
@@ -147,7 +147,7 @@ export function CreateBetForm() {
       /** Create bet */
       setCreateStatus("6-creating-bet");
       const betHash = await writeContract(config, {
-        address: BASE_BET_FACTORY_ADDRESS,
+        address: Contracts.getAddress("base", "betFactory")!,
         abi: BetFactoryAbi,
         functionName: "createBet",
         args: [

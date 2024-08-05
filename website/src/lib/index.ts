@@ -1,4 +1,4 @@
-import { BASE_RETH_ADDRESS, BASE_USDC_ADDRESS, BASE_WETH_ADDRESS } from "@/config";
+import { Contracts } from "@/config";
 import { isAddress, type Address } from "viem";
 import { abbreviateHex, arrayToMap } from "@/utils";
 
@@ -95,16 +95,16 @@ export type EnsIdeasResponse = {
 };
 
 export function getTokenNameFromAddress(address: Address): TokenNames {
-  if (address.toLowerCase() === BASE_USDC_ADDRESS.toLowerCase()) return "USDC";
-  if (address.toLowerCase() === BASE_WETH_ADDRESS.toLowerCase()) return "WETH";
-  if (address.toLowerCase() === BASE_RETH_ADDRESS.toLowerCase()) return "rETH";
+  if (address.toLowerCase() === Contracts.getAddress("base", "usdc")!.toLowerCase()) return "USDC";
+  if (address.toLowerCase() === Contracts.getAddress("base", "weth")!.toLowerCase()) return "WETH";
+  if (address.toLowerCase() === Contracts.getAddress("base", "reth")!.toLowerCase()) return "rETH";
   else return "error";
 }
 
 export function getAddressFromTokenName(tokenName: TokenNames): Address {
-  if (tokenName === "USDC") return BASE_USDC_ADDRESS;
-  if (tokenName === "WETH") return BASE_WETH_ADDRESS;
-  if (tokenName === "rETH") return BASE_RETH_ADDRESS;
+  if (tokenName === "USDC") return Contracts.getAddress("base", "usdc")!;
+  if (tokenName === "WETH") return Contracts.getAddress("base", "weth")!;
+  if (tokenName === "rETH") return Contracts.getAddress("base", "reth")!;
   else return "0x";
 }
 
@@ -115,10 +115,10 @@ export function getDecimalsFromTokenName(tokenName: TokenNames): number {
 }
 
 export function getDecimalsFromTokenAddress(address: Address): number {
-  if (address.toLowerCase() === BASE_USDC_ADDRESS.toLowerCase()) return 6;
+  if (address.toLowerCase() === Contracts.getAddress("base", "usdc")!.toLowerCase()) return 6;
   if (
-    address.toLowerCase() === BASE_WETH_ADDRESS.toLowerCase() ||
-    address.toLowerCase() === BASE_RETH_ADDRESS.toLowerCase()
+    address.toLowerCase() === Contracts.getAddress("base", "weth")!.toLowerCase() ||
+    address.toLowerCase() === Contracts.getAddress("base", "reth")!.toLowerCase()
   )
     return 18;
   else return 0;
