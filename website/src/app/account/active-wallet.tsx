@@ -43,10 +43,8 @@ export function ActiveWallet() {
         {isDisconnected && <span> 🔴 Disconnected</span>}
       </p>
       <p className="flex items-center">
-        <div>
-          <span>Balance: </span>
-          <span>{isPending ? "loading..." : balance ? `$${formatUSDC(balance, 2)}` : "$0.00"}</span>
-        </div>
+        <span>Balance: </span>
+        <span>{isPending ? "loading..." : balance ? `$${formatUSDC(balance, 2)}` : "$0.00"}</span>
       </p>
       <AddFundsButton wallet={activeWallet!} />
     </section>
