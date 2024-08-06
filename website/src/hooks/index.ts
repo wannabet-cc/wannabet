@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { writeContract, waitForTransactionReceipt } from "@wagmi/core";
 import { useQuery } from "@tanstack/react-query";
-import { type EnsIdeasResponse, fetchEns } from "./utils";
+import { fetchEns } from "@/lib";
 import { Address } from "viem";
 
 /** Custom React Hook to fetch ENS data */

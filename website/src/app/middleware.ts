@@ -2,16 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import privy from "@/services/privy";
 
 export async function handleIdentityToken(req: NextRequest) {
-  // Get Auth token
-  const bearerHeader = req.headers.get("Authorization");
-  if (!bearerHeader) {
+  const accessToken = req.cookies.get("privy-token")?.value;
+  if (!accessToken) {
     return NextResponse.redirect(new URL("/", req.url));
   }
-  const authToken = bearerHeader.replace("Bearer ", "");
 
   // Redirect
   try {
-    const verifiedClaims = await privy.verifyAuthToken(authToken);
+    const verifiedClaims = await privy.verifyAuthToken(accessToken);
     console.log(verifiedClaims);
     return NextResponse.next();
   } catch (error) {

@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { http } from "wagmi";
 import { base, mainnet } from "wagmi/chains";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { PRIVY_APP_ID } from "@/config/client";
 
 export const config = createConfig({
   chains: [base, mainnet],
@@ -21,7 +22,7 @@ const queryClient = new QueryClient();
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <PrivyProvider
-      appId="clyyp3crh0ar0yht8gj1gzj8t"
+      appId={PRIVY_APP_ID}
       config={{
         appearance: {
           theme: "light",

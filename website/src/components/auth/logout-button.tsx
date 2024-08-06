@@ -1,16 +1,17 @@
 "use client";
 
 import { usePrivy } from "@privy-io/react-auth";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export function LogoutButton() {
   const { ready, authenticated, logout } = usePrivy();
+  const router = useRouter();
 
-  // Disable logout when Privy is not ready or the user is not authenticated
-  const disableLogout = !ready || (ready && !authenticated);
+  if (ready && !authenticated) router.push("/");
 
   return (
-    <Button variant="destructive" onClick={logout} disabled={disableLogout}>
+    <Button variant="destructive" onClick={logout} disabled={!ready}>
       Log out
     </Button>
   );

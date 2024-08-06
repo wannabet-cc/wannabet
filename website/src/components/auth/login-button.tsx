@@ -4,7 +4,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { useAccount, useEnsName } from "wagmi";
-import { abbreviateHex } from "@/lib/utils";
+import { abbreviateHex } from "@/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,

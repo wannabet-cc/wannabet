@@ -11,18 +11,18 @@ import { type ConnectedWallet, useWallets } from "@privy-io/react-auth";
 import { Button } from "@/components/ui/button";
 
 // Utility Functions
-import { formatUSDC } from "@/lib/utils";
+import { formatUSDC } from "@/utils";
 
 // Contract
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
-import { BASE_USDC_ADDRESS } from "@/config";
+import { Contracts } from "@/config";
 
-export function ActiveWallet() {
+export function SectionActiveWallet() {
   const { wallets } = useWallets();
   const { address, isConnected, isConnecting, isDisconnected } = useAccount();
   const { data: balance, isPending } = useReadContract({
     abi: FiatTokenProxyAbi,
-    address: BASE_USDC_ADDRESS,
+    address: Contracts.getAddress("base", "usdc")!,
     functionName: "balanceOf",
     args: [address as Address],
   });
@@ -43,10 +43,8 @@ export function ActiveWallet() {
         {isDisconnected && <span> 🔴 Disconnected</span>}
       </p>
       <p className="flex items-center">
-        <div>
-          <span>Balance: </span>
-          <span>{isPending ? "loading..." : balance ? `$${formatUSDC(balance, 2)}` : "$0.00"}</span>
-        </div>
+        <span>Balance: </span>
+        <span>{isPending ? "loading..." : balance ? `$${formatUSDC(balance, 2)}` : "$0.00"}</span>
       </p>
       <AddFundsButton wallet={activeWallet!} />
     </section>

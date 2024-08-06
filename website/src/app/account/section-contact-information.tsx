@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { usePrivy } from "@privy-io/react-auth";
 
-export function ContactInformation() {
+export function SectionContactInformation() {
   const { ready, authenticated, user, linkEmail, linkPhone } = usePrivy();
 
   return (

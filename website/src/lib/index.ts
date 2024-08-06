@@ -1,39 +1,7 @@
-import { BASE_RETH_ADDRESS, BASE_USDC_ADDRESS, BASE_WETH_ADDRESS } from "@/config";
-import { isAddress, formatUnits, type Hex, type Address } from "viem";
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { Contracts } from "@/config";
+import { isAddress, type Address } from "viem";
+import { abbreviateHex, arrayToMap } from "@/utils";
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
-/** Function that formats bigints to a string, rounding to a specified number of decimals */
-export function formatUSDC(value: bigint, decimals: number): string {
-  const numberValue = formatUnits(value, 6);
-  return `${numberValue.split(".")[0]}.${numberValue.split(".")[1].slice(0, decimals)}`;
-}
-
-/** Function that manually scrolls screen to an element id */
-export function scrolltoHash(element_id: string) {
-  const element = document.getElementById(element_id);
-  element?.scrollIntoView({
-    behavior: "smooth",
-    block: "start",
-    inline: "nearest",
-  });
-}
-
-/** Round a float to a specified decimal place */
-export function roundFloat(value: number, decimals: number) {
-  return Math.round(value * 10 ** decimals) / 10 ** decimals;
-}
-
-/** Make a map from an array where the array values are the keys */
-function arrayToMap<T>(arr: string[], value: T): Map<string, T> {
-  return new Map(arr.map((key) => [key, value]));
-}
-
-/** Get a map of readable aliases from an array of public addresses */
 export async function getPreferredAliases(addresses: Address[]) {
   const aliasMap = arrayToMap<{ alias: string; pfp?: string }>(addresses, {
     alias: "",
@@ -41,8 +9,6 @@ export async function getPreferredAliases(addresses: Address[]) {
   });
   const farcasterUsers = await fetchFarcasterUsers(addresses);
   for (const [address, users] of Object.entries(farcasterUsers)) {
-    // console.log("Address:", address);
-    // console.log("Users:", users);
     if (isAddress(address)) {
       const mostFollowedUser = users.reduce((mostFollowedUser, currentUser) =>
         mostFollowedUser.follower_count > currentUser.follower_count
@@ -68,17 +34,12 @@ export async function getPreferredAliases(addresses: Address[]) {
   return aliasMap;
 }
 
-/**
- * Get a readable alias from a public address
- * @deprecated
- */
 export async function getPreferredAlias(address: Address): Promise<string> {
   const ensName = (await fetchEns(address)).name;
   if (ensName) return ensName;
   return abbreviateHex(address);
 }
 
-/** Get farcaster users from an array of addresses */
 export async function fetchFarcasterUsers(addresses: Address[]) {
   const urlBase = "https://api.neynar.com/v2/farcaster/user/bulk-by-address";
   const options = {
@@ -119,7 +80,6 @@ type NeynarUserRes = {
   }[];
 };
 
-/** Get ens data (address, name, & avatar url) from an address or ens name */
 export async function fetchEns(
   nameOrAddress: `${string}.eth` | Address,
 ): Promise<EnsIdeasResponse> {
@@ -134,48 +94,34 @@ export type EnsIdeasResponse = {
   avatar: string;
 };
 
-/** Abbreviate a hex address by replacing the middle with "..." */
-export function abbreviateHex(hex: Hex, numChars: number = 3) {
-  return `${hex.slice(0, numChars + 2)}...${hex.slice(numChars * -1)}`;
-}
-
-/** Get a readable string name from the token contract address */
 export function getTokenNameFromAddress(address: Address): TokenNames {
-  if (address.toLowerCase() === BASE_USDC_ADDRESS.toLowerCase()) return "USDC";
-  if (address.toLowerCase() === BASE_WETH_ADDRESS.toLowerCase()) return "WETH";
-  if (address.toLowerCase() === BASE_RETH_ADDRESS.toLowerCase()) return "rETH";
+  if (address.toLowerCase() === Contracts.getAddress("base", "usdc")!.toLowerCase()) return "USDC";
+  if (address.toLowerCase() === Contracts.getAddress("base", "weth")!.toLowerCase()) return "WETH";
+  if (address.toLowerCase() === Contracts.getAddress("base", "reth")!.toLowerCase()) return "rETH";
   else return "error";
 }
 
-/** Get a token contract address from a readable name */
 export function getAddressFromTokenName(tokenName: TokenNames): Address {
-  if (tokenName === "USDC") return BASE_USDC_ADDRESS;
-  if (tokenName === "WETH") return BASE_WETH_ADDRESS;
-  if (tokenName === "rETH") return BASE_RETH_ADDRESS;
+  if (tokenName === "USDC") return Contracts.getAddress("base", "usdc")!;
+  if (tokenName === "WETH") return Contracts.getAddress("base", "weth")!;
+  if (tokenName === "rETH") return Contracts.getAddress("base", "reth")!;
   else return "0x";
 }
 
-type TokenNames = "USDC" | "WETH" | "rETH" | "error";
-
-/** Get a token contract address from a readable name */
 export function getDecimalsFromTokenName(tokenName: TokenNames): number {
   if (tokenName === "USDC") return 6;
   if (tokenName === "WETH" || tokenName === "rETH") return 18;
   else return 0;
 }
 
-/** Get a token contract address from a readable name */
 export function getDecimalsFromTokenAddress(address: Address): number {
-  if (address.toLowerCase() === BASE_USDC_ADDRESS.toLowerCase()) return 6;
+  if (address.toLowerCase() === Contracts.getAddress("base", "usdc")!.toLowerCase()) return 6;
   if (
-    address.toLowerCase() === BASE_WETH_ADDRESS.toLowerCase() ||
-    address.toLowerCase() === BASE_RETH_ADDRESS.toLowerCase()
+    address.toLowerCase() === Contracts.getAddress("base", "weth")!.toLowerCase() ||
+    address.toLowerCase() === Contracts.getAddress("base", "reth")!.toLowerCase()
   )
     return 18;
   else return 0;
 }
 
-/** Promise that resolves after a set number of seconds */
-export function pause(seconds: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
-}
+type TokenNames = "USDC" | "WETH" | "rETH" | "error";
