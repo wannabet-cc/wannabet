@@ -3,8 +3,7 @@
 import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { config } from "@/app/providers";
-import { Contracts } from "@/config";
-import { fetchEns, getAddressFromTokenName, getDecimalsFromTokenName } from "@/lib";
+import { fetchEns, Contracts } from "@/lib";
 import { roundFloat } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -62,7 +61,7 @@ export function CreateBetForm() {
   });
   const { toast } = useToast();
   const { data: tokenBalance } = useReadContract({
-    address: getAddressFromTokenName(form.getValues("tokenName")),
+    address: Contracts.getAddressFromTokenName(form.getValues("tokenName")),
     abi: FiatTokenProxyAbi,
     functionName: "balanceOf",
     args: [address ? address : "0x"],
@@ -73,15 +72,15 @@ export function CreateBetForm() {
 
   form.watch("tokenName");
 
-  const decimals = getDecimalsFromTokenName(form.getValues("tokenName"));
+  const decimals = Contracts.getDecimalsFromTokenName(form.getValues("tokenName"));
 
   const handleSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (values, e) => {
     e?.preventDefault();
     setCreateStatus("1-transforming-data");
     try {
       /** Transform form data */
-      const tokenAddress = getAddressFromTokenName(values.tokenName);
-      const bigintAmount = parseUnits(values.amount.toString(), getDecimalsFromTokenName(values.tokenName));
+      const tokenAddress = Contracts.getAddressFromTokenName(values.tokenName);
+      const bigintAmount = parseUnits(values.amount.toString(), Contracts.getDecimalsFromTokenName(values.tokenName));
       const validFor = BigInt(values.validForDays * 24 * 60 * 60);
       const [participantAddress, judgeAddress] = await Promise.all([
         addressRegex.test(values.participant)
