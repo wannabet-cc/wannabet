@@ -17,7 +17,7 @@ import { formatUSDC } from "@/utils";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { Contracts } from "@/config";
 
-export function ActiveWallet() {
+export function SectionActiveWallet() {
   const { wallets } = useWallets();
   const { address, isConnected, isConnecting, isDisconnected } = useAccount();
   const { data: balance, isPending } = useReadContract({

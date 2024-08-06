@@ -6,7 +6,7 @@ import { Address, type Hex } from "viem";
 // Hooks
 import { useSetActiveWallet } from "@privy-io/wagmi";
 import { type ConnectedWallet, useWallets } from "@privy-io/react-auth";
-import { useAccount, useEnsName } from "wagmi";
+import { useAccount } from "wagmi";
 
 // Components
 import {
@@ -24,7 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { abbreviateHex } from "@/utils";
 import { useFetchEns } from "@/hooks";
 
-export function WalletList() {
+export function SectionWalletList() {
   const { ready, wallets } = useWallets();
 
   if (!ready) <></>;
