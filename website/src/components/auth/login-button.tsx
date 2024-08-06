@@ -5,15 +5,10 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import { useAccount, useEnsName } from "wagmi";
 import { abbreviateHex } from "@/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
 export function LoginButton() {
-  const { ready, authenticated, login } = usePrivy();
+  const { ready, authenticated, login, logout } = usePrivy();
   const { isConnected, address } = useAccount();
   const { data: ensName } = useEnsName({
     address: address,
@@ -34,6 +29,7 @@ export function LoginButton() {
           <DropdownMenuItem asChild>
             <Link href={`/account`}>Account Settings</Link>
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     );
