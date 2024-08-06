@@ -14,8 +14,8 @@ import { type SubmitHandler, useForm } from "react-hook-form";
 import { Address, formatUnits, parseUnits } from "viem";
 import { normalize } from "viem/ens";
 import { useAccount, useReadContract } from "wagmi";
-import { Button } from "./ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
   Dialog,
   DialogClose,
@@ -25,18 +25,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "./ui/input";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { useToast } from "./ui/use-toast";
-import { LoadingSpinner } from "./ui/spinner";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/components/ui/use-toast";
+import { LoadingSpinner } from "@/components/ui/spinner";
 
 const addressRegex = /^0x[a-fA-F0-9]{40}$/;
 const ensRegex = /^.{3,}\.eth$/; // /^[a-z0-9]+\.eth$/;
-const ensOrAddressSchema = z
-  .string()
-  .refine((value) => ensRegex.test(value) || addressRegex.test(value), {
-    message: "Invalid ENS name or ethereum address",
-  });
+const ensOrAddressSchema = z.string().refine((value) => ensRegex.test(value) || addressRegex.test(value), {
+  message: "Invalid ENS name or ethereum address",
+});
 
 const formSchema = z.object({
   participant: ensOrAddressSchema,
@@ -83,10 +81,7 @@ export function CreateBetForm() {
     try {
       /** Transform form data */
       const tokenAddress = getAddressFromTokenName(values.tokenName);
-      const bigintAmount = parseUnits(
-        values.amount.toString(),
-        getDecimalsFromTokenName(values.tokenName),
-      );
+      const bigintAmount = parseUnits(values.amount.toString(), getDecimalsFromTokenName(values.tokenName));
       const validFor = BigInt(values.validForDays * 24 * 60 * 60);
       const [participantAddress, judgeAddress] = await Promise.all([
         addressRegex.test(values.participant)
@@ -184,11 +179,7 @@ export function CreateBetForm() {
     }
   };
 
-  const isLoading = !(
-    createStatus === "idle" ||
-    createStatus === "error" ||
-    createStatus === "success"
-  );
+  const isLoading = !(createStatus === "idle" || createStatus === "error" || createStatus === "success");
 
   return (
     <Form {...form}>
@@ -234,11 +225,7 @@ export function CreateBetForm() {
               <FormItem>
                 <FormLabel>Token</FormLabel>
                 <FormControl>
-                  <RadioGroup
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    className="flex space-x-2"
-                  >
+                  <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-2">
                     <FormItem className="flex items-center space-x-2 space-y-0">
                       <FormControl>
                         <RadioGroupItem value="USDC" />
@@ -267,11 +254,7 @@ export function CreateBetForm() {
         {address && (
           <div className="text-sm text-muted-foreground">
             {"Your balance: "}
-            {tokenBalance ? (
-              <span>{roundFloat(Number(formatUnits(tokenBalance, decimals)), 5)}</span>
-            ) : (
-              "..."
-            )}
+            {tokenBalance ? <span>{roundFloat(Number(formatUnits(tokenBalance, decimals)), 5)}</span> : "..."}
           </div>
         )}
         {/* message: string */}
@@ -357,9 +340,7 @@ export function CreateBetForm() {
               )}
             </DialogContent>
           </Dialog>
-          <div className="text-center text-xs text-muted-foreground">
-            * Creating a bet includes a 0.0002 ether fee
-          </div>
+          <div className="text-center text-xs text-muted-foreground">* Creating a bet includes a 0.0002 ether fee</div>
         </div>
       </form>
     </Form>
