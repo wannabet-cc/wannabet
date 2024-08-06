@@ -36,6 +36,7 @@ class NameStoneService {
       next: { revalidate: 0 },
     });
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json();
   }
 
   /** Posts to the namestone.xyz "Set Name" route */
@@ -46,7 +47,7 @@ class NameStoneService {
       address,
       text_records: avatar ? { avatar } : undefined,
     };
-    this.#postData("set-name", body);
+    return this.#postData("set-name", body);
   }
 
   /** Posts to the namestone.xyz "Claim Name" route */
@@ -57,7 +58,7 @@ class NameStoneService {
       address,
       text_records: avatar ? { avatar } : undefined,
     };
-    this.#postData("claim-name", body);
+    return this.#postData("claim-name", body);
   }
 
   /** Gets a list of names */ // ! Looking into pagination
