@@ -1,3 +1,4 @@
+import { NAMESTONE_API_KEY } from "@/config/server";
 import { Address } from "viem";
 
 class NameStoneService {
@@ -92,6 +93,6 @@ type NameStoneUser = {
   };
 };
 
-const nameStoneService = new NameStoneService(process.env.NAMESTONE_API_KEY || "");
+const nameStoneService = new NameStoneService(NAMESTONE_API_KEY || "");
 
 export { nameStoneService, NameStoneService, type NameStoneUser, type NameStoneResponse };
