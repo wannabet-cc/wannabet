@@ -14,11 +14,14 @@ export async function GET(req: NextRequest, { params }: { params: { name: string
     const validatedName = nameSchema.parse(params.name);
     // send to service
     const res = await nameStoneService.searchName(validatedName, 1);
-    const data = res[0];
+    const nameFound = res[0].name === validatedName;
     // 404 if no item found
-    if (!data) return NextResponse.json({ message: "Name not found" }, { status: 404 });
+    if (!nameFound) return NextResponse.json({ message: "Name not found" }, { status: 404 });
     // return
-    return NextResponse.json({ message: "Name fetched successfully", data }, { status: 200 });
+    return NextResponse.json(
+      { message: "Name fetched successfully", validatedName },
+      { status: 200 },
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
