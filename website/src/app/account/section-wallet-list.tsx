@@ -9,16 +9,10 @@ import { type ConnectedWallet, useWallets } from "@privy-io/react-auth";
 import { useAccount } from "wagmi";
 
 // Components
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SetNameButtonAndDialog } from "./set-name-button";
 
 // Utility Functions
 import { abbreviateHex } from "@/utils";
@@ -61,7 +55,14 @@ function WalletRow({ wallet }: { wallet: ConnectedWallet }) {
 
   return (
     <TableRow>
-      <TableCell>{isSuccess && ensRes && ensRes.name}</TableCell>
+      <TableCell>
+        {ensRes && ensRes.name ? (
+          ensRes.name
+        ) : (
+          <></>
+          // <SetNameButtonAndDialog address={wallet.address as Address} />
+        )}
+      </TableCell>
       <TableCell>{abbreviateHex(wallet.address as Hex, 4)}</TableCell>
       <TableCell>{wallet.walletClientType}</TableCell>
       <TableCell className="text-center">
