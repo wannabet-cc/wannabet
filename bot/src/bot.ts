@@ -86,17 +86,17 @@ async function handleBetCreated(log: Log) {
   await baseClient.waitForTransactionReceipt({ hash: log.transaction.hash });
   // Get contract data
   const {
-    betId,
     creator,
     participant,
     amount: bigintAmount,
     token: tokenAddress,
     message,
-    judge,
   } = await getBetDetails(newContractAddress);
   // Get aliases and transform
-  const [creatorAlias, participantAlias, judgeAlias] =
-    await getPreferredAliases([creator, participant, judge]);
+  const [creatorAlias, participantAlias] = await getPreferredAliases([
+    creator,
+    participant,
+  ]);
   const amount = formatUnits(
     bigintAmount,
     getDecimalsFromTokenAddress(tokenAddress)

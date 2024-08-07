@@ -2,6 +2,7 @@ import { Address, Hex } from "viem";
 import { baseClient } from "./viem";
 import { BetAbi } from "./contracts/BetAbi";
 import {
+  BASE_JFF_ADDRESS,
   BASE_RETH_ADDRESS,
   BASE_USDC_ADDRESS,
   BASE_WETH_ADDRESS,
@@ -154,6 +155,7 @@ export function getTokenNameFromAddress(address: Address): TokenNames {
   if (address.toLowerCase() === BASE_USDC_ADDRESS.toLowerCase()) return "USDC";
   if (address.toLowerCase() === BASE_WETH_ADDRESS.toLowerCase()) return "WETH";
   if (address.toLowerCase() === BASE_RETH_ADDRESS.toLowerCase()) return "rETH";
+  if (address.toLowerCase() === BASE_JFF_ADDRESS.toLowerCase()) return "rETH";
   else return "error";
 }
 
@@ -164,7 +166,8 @@ export function getDecimalsFromTokenAddress(address: Address): number {
   if (address.toLowerCase() === BASE_USDC_ADDRESS.toLowerCase()) return 6;
   if (
     address.toLowerCase() === BASE_WETH_ADDRESS.toLowerCase() ||
-    address.toLowerCase() === BASE_RETH_ADDRESS.toLowerCase()
+    address.toLowerCase() === BASE_RETH_ADDRESS.toLowerCase() ||
+    address.toLowerCase() === BASE_JFF_ADDRESS.toLowerCase()
   )
     return 18;
   else return 0;
