@@ -1,21 +1,26 @@
 "use client";
 
-import { WhitelistedFunToken } from "@/abis/WhitelistedFunToken";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { usePrivy } from "@privy-io/react-auth";
+// Hooks
 import { useEffect, useState } from "react";
-import { Address } from "viem";
+import { usePrivy } from "@privy-io/react-auth";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 
-const WHITELISTED_FUN_TOKEN_ADDRESS = "0xC1C9046D6356c68b478092Fb907CD256EFc0dDa2";
+// Components
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+
+// Contract Imports
+import { WhitelistedFunToken } from "@/abis/WhitelistedFunToken";
+import { baseContracts } from "@/lib";
+import type { Address } from "viem";
+
 const WHITELISTED_ROLE = "0x8429d542926e6695b59ac6fbdcd9b37e8b1aeb757afab06ab60b1bb5878c3b49";
 
 export function TokenClaimButton() {
   const { ready, authenticated } = usePrivy();
   const { address, connector } = useAccount();
   const { data: isWhitelisted, isLoading } = useReadContract({
-    address: WHITELISTED_FUN_TOKEN_ADDRESS,
+    address: baseContracts.getAddressFromName("JFF"),
     abi: WhitelistedFunToken,
     functionName: "hasRole",
     args: [WHITELISTED_ROLE, address!],
@@ -40,7 +45,7 @@ function WhitelistedDialog({ address }: { address: Address }) {
   const { writeContract } = useWriteContract();
   const { data: lastMintTime } = useReadContract({
     abi: WhitelistedFunToken,
-    address: WHITELISTED_FUN_TOKEN_ADDRESS,
+    address: baseContracts.getAddressFromName("JFF"),
     functionName: "lastMintTime",
     args: [address],
   });
@@ -51,7 +56,7 @@ function WhitelistedDialog({ address }: { address: Address }) {
   const handleClaim = () => {
     writeContract({
       abi: WhitelistedFunToken,
-      address: WHITELISTED_FUN_TOKEN_ADDRESS,
+      address: baseContracts.getAddressFromName("JFF"),
       functionName: "mint",
     });
   };

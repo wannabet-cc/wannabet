@@ -2,7 +2,7 @@ import { BetAbi } from "@/abis/BetAbi";
 import { BET_API_URL } from "@/config";
 import { baseClient } from "./viem";
 import { type Address, formatUnits } from "viem";
-import { Contracts, getPreferredAlias, getPreferredAliases } from "@/lib";
+import { baseContracts, getPreferredAlias, getPreferredAliases } from "@/lib";
 import {
   generateBetQuery,
   generateBetsQuery,
@@ -247,9 +247,7 @@ export const formatBet = async (rawBet: RawBet): Promise<FormattedBet> => {
       creatorAlias,
       participant,
       participantAlias,
-      amount: Number(
-        formatUnits(BigInt(rawBet.amount), Contracts.getDecimalsFromTokenAddress(rawBet.token as Address)),
-      ),
+      amount: Number(formatUnits(BigInt(rawBet.amount), baseContracts.getDecimalsFromAddress(rawBet.token as Address))),
       bigintAmount: rawBet.amount,
       token: rawBet.token as Address,
       message: rawBet.message,
@@ -304,7 +302,7 @@ export const formatBets = async (rawBets: RawBet[]): Promise<FormattedBet[]> => 
           creator,
           participant,
           amount: Number(
-            formatUnits(BigInt(rawBet.amount), Contracts.getDecimalsFromTokenAddress(rawBet.token as Address)),
+            formatUnits(BigInt(rawBet.amount), baseContracts.getDecimalsFromAddress(rawBet.token as Address)),
           ),
           bigintAmount: rawBet.amount,
           token: rawBet.token as Address,

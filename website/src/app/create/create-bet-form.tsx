@@ -3,7 +3,7 @@
 import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { config } from "@/app/providers";
-import { fetchEns, Contracts } from "@/lib";
+import { fetchEns, baseContracts } from "@/lib";
 import { roundFloat } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -61,7 +61,7 @@ export function CreateBetForm() {
   });
   const { toast } = useToast();
   const { data: tokenBalance } = useReadContract({
-    address: Contracts.getAddressFromTokenName(form.getValues("tokenName")),
+    address: baseContracts.getAddressFromName(form.getValues("tokenName")),
     abi: FiatTokenProxyAbi,
     functionName: "balanceOf",
     args: [address ? address : "0x"],
@@ -72,15 +72,15 @@ export function CreateBetForm() {
 
   form.watch("tokenName");
 
-  const decimals = Contracts.getDecimalsFromTokenName(form.getValues("tokenName"));
+  const decimals = baseContracts.getDecimalsFromName(form.getValues("tokenName"));
 
   const handleSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (values, e) => {
     e?.preventDefault();
     setCreateStatus("1-transforming-data");
     try {
       /** Transform form data */
-      const tokenAddress = Contracts.getAddressFromTokenName(values.tokenName);
-      const bigintAmount = parseUnits(values.amount.toString(), Contracts.getDecimalsFromTokenName(values.tokenName));
+      const tokenAddress = baseContracts.getAddressFromName(values.tokenName);
+      const bigintAmount = parseUnits(values.amount.toString(), baseContracts.getDecimalsFromName(values.tokenName));
       const validFor = BigInt(values.validForDays * 24 * 60 * 60);
       const [participantAddress, judgeAddress] = await Promise.all([
         addressRegex.test(values.participant)
@@ -114,7 +114,7 @@ export function CreateBetForm() {
         address: tokenAddress,
         abi: FiatTokenProxyAbi,
         functionName: "allowance",
-        args: [address!, Contracts.getAddress("base", "betFactory")!],
+        args: [address!, baseContracts.getAddressFromName("BetFactory")!],
       });
       if (preexistingApprovedAmount < bigintAmount) {
         setCreateStatus("4-approving");
@@ -122,7 +122,7 @@ export function CreateBetForm() {
           address: tokenAddress,
           abi: FiatTokenProxyAbi,
           functionName: "approve",
-          args: [Contracts.getAddress("base", "betFactory")!, bigintAmount],
+          args: [baseContracts.getAddressFromName("BetFactory")!, bigintAmount],
         });
         setCreateStatus("5-confirming-approval");
         const { status: approveStatus } = await waitForTransactionReceipt(config, {
@@ -141,7 +141,7 @@ export function CreateBetForm() {
       /** Create bet */
       setCreateStatus("6-creating-bet");
       const betHash = await writeContract(config, {
-        address: Contracts.getAddress("base", "betFactory")!,
+        address: baseContracts.getAddressFromName("BetFactory")!,
         abi: BetFactoryAbi,
         functionName: "createBet",
         args: [

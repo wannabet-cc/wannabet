@@ -1,7 +1,7 @@
 "use client";
 
 import { type FormattedBet } from "@/services/services";
-import { Contracts } from "@/lib";
+import { baseContracts } from "@/lib";
 import { useAccount } from "wagmi";
 import { LoginButton } from "./auth/login-button";
 import { Table, TableBody, TableCaption, TableCell, TableRow } from "./ui/table";
@@ -43,7 +43,7 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
         <TableRow>
           <TableCell>amount</TableCell>
           <TableCell>
-            {bet.amount} {Contracts.getTokenNameFromAddress(bet.token)}
+            {bet.amount} {baseContracts.getNameFromAddress(bet.token)}
           </TableCell>
         </TableRow>
         <TableRow>

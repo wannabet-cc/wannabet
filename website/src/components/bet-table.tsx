@@ -14,7 +14,7 @@ import { Button } from "./ui/button";
 import { UserBadge } from "./misc/user-badge";
 
 // Utility Functions
-import { Contracts } from "@/lib";
+import { baseContracts } from "@/lib";
 
 export function BetTable({
   data,
@@ -45,7 +45,7 @@ export function BetTable({
               <TableRow key={i} onClick={() => router.push(`/bet/${bet.betId}`)} className="cursor-pointer">
                 <TableCell className="text-center">{bet.betId}</TableCell>
                 <TableCell>
-                  {bet.amount} {Contracts.getTokenNameFromAddress(bet.token)}
+                  {bet.amount} {baseContracts.getNameFromAddress(bet.token)}
                 </TableCell>
                 <TableCell>
                   <UserBadge userAlias={bet.creatorAlias} />
