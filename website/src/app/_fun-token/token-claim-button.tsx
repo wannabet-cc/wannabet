@@ -59,10 +59,16 @@ function WhitelistedDialog({ address }: { address: Address }) {
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Congrats! You are on the whitelist for the JFF token.</DialogTitle>
+        <DialogTitle>
+          Congrats! {inCooldown ? "You have claimed your daily amount" : "You are on the whitelist for the JFF token."}
+        </DialogTitle>
       </DialogHeader>
       <div className="space-y-4 text-sm text-muted-foreground">
-        <p>JFF (i.e. &quot;Just for fun&quot;) tokens can be used on WannaBet to try the app out without risk.</p>
+        {inCooldown ? (
+          <p>Come back tomorrow to claim 100 more.</p>
+        ) : (
+          <p>JFF (i.e. &quot;Just for fun&quot;) tokens can be used on WannaBet to try the app out without risk.</p>
+        )}
       </div>
       <DialogFooter>
         <Button className="w-full" disabled={inCooldown} onClick={handleClaim}>
