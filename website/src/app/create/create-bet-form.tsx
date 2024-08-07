@@ -345,7 +345,6 @@ export function CreateBetForm() {
               )}
             </DialogContent>
           </Dialog>
-          <div className="text-center text-xs text-muted-foreground">* Creating a bet includes a 0.0002 ether fee</div>
         </div>
       </form>
     </Form>
