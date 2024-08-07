@@ -90,8 +90,8 @@ export type EnsIdeasResponse = {
 };
 
 type Chain = "base" | "arbitrum";
-type TokenNames = "USDC" | "WETH" | "rETH" | "error";
-type ContractName = "betFactory" | "usdc" | "weth" | "reth";
+type TokenNames = "USDC" | "WETH" | "rETH" | "JFF" | "error";
+type ContractName = "betFactory" | "usdc" | "weth" | "reth" | "jff";
 
 type Contract = {
   name: ContractName;
@@ -110,6 +110,7 @@ class Contracts {
       usdc: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
       weth: "0x4200000000000000000000000000000000000006",
       reth: "0xB6fe221Fe9EeF5aBa221c348bA20A1Bf5e73624c",
+      jff: "0xC1C9046D6356c68b478092Fb907CD256EFc0dDa2",
     },
     arbitrum: {
       betFactory: "0xC1C9046D6356c68b478092Fb907CD256EFc0dDa2",
@@ -119,7 +120,7 @@ class Contracts {
     },
   };
 
-  #contracts = {};
+  public static contractList: TokenNames[] = ["USDC", "WETH", "rETH", "JFF"];
 
   public static getAddress(chain: Chain, contractName: ContractName): Address | undefined {
     return this.#addresses[chain][contractName];

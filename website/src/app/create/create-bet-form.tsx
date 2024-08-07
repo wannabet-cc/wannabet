@@ -38,7 +38,7 @@ const ensOrAddressSchema = z.string().refine((value) => ensRegex.test(value) || 
 const formSchema = z.object({
   participant: ensOrAddressSchema,
   amount: z.coerce.number().positive(),
-  tokenName: z.string().refine((name) => name === "USDC" || name === "WETH" || name === "rETH"),
+  tokenName: z.string().refine((name) => name === "USDC" || name === "WETH" || name === "rETH" || name === "JFF"),
   message: z.string(),
   validForDays: z.coerce.number().positive().lte(14),
   judge: ensOrAddressSchema,
@@ -242,6 +242,12 @@ export function CreateBetForm() {
                         <RadioGroupItem value="rETH" />
                       </FormControl>
                       <FormLabel className="font-normal">rETH</FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-2 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="JFF" />
+                      </FormControl>
+                      <FormLabel className="font-normal">JFF</FormLabel>
                     </FormItem>
                   </RadioGroup>
                 </FormControl>
