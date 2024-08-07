@@ -3,7 +3,6 @@
 import { type FormattedBet } from "@/services/services";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { BetAbi } from "@/abis/BetAbi";
-import { parseUnits } from "viem";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { Button } from "./ui/button";
 import { useToast } from "./ui/use-toast";
@@ -101,7 +100,6 @@ function ParticipantActions(props: { isParticipant: boolean; bet: FormattedBet }
               address: props.bet.contractAddress,
               abi: BetAbi,
               functionName: "acceptBet",
-              value: parseUnits("0.0002", 18), // 18 decimals for Ether
             },
             { onSuccess: () => toast({ title: "Bet accepted successfully" }) },
           );

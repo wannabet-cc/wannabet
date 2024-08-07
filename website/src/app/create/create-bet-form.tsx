@@ -152,7 +152,6 @@ export function CreateBetForm() {
           judgeAddress as Address,
           validFor,
         ],
-        value: parseUnits("0.0002", 18),
       });
       setCreateStatus("7-confirming-creation");
       const { status: betStatus } = await waitForTransactionReceipt(config, {
