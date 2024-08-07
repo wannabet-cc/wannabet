@@ -13,16 +13,16 @@ const WHITELISTED_ROLE = "0x8429d542926e6695b59ac6fbdcd9b37e8b1aeb757afab06ab60b
 
 export function TokenClaimButton() {
   const { ready, authenticated } = usePrivy();
-  const { address } = useAccount();
+  const { address, connector } = useAccount();
   const { data: isWhitelisted, isLoading } = useReadContract({
     address: WHITELISTED_FUN_TOKEN_ADDRESS,
     abi: WhitelistedFunToken,
     functionName: "hasRole",
     args: [WHITELISTED_ROLE, address!],
-    query: { enabled: !!address },
+    query: { enabled: !!address && !connector?.name.startsWith("Privy") },
   });
 
-  if (!ready || !authenticated || !address) return <></>;
+  if (!ready || !authenticated || !address || connector?.name.startsWith("Privy")) return <></>;
 
   return (
     <Dialog>
