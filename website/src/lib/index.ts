@@ -130,6 +130,7 @@ class Contracts {
     if (address.toLowerCase() === this.getAddress("base", "usdc")!.toLowerCase()) return "USDC";
     if (address.toLowerCase() === this.getAddress("base", "weth")!.toLowerCase()) return "WETH";
     if (address.toLowerCase() === this.getAddress("base", "reth")!.toLowerCase()) return "rETH";
+    if (address.toLowerCase() === this.getAddress("base", "jff")!.toLowerCase()) return "JFF";
     else return "error";
   }
 
@@ -137,12 +138,13 @@ class Contracts {
     if (tokenName === "USDC") return this.getAddress("base", "usdc")!;
     if (tokenName === "WETH") return this.getAddress("base", "weth")!;
     if (tokenName === "rETH") return this.getAddress("base", "reth")!;
+    if (tokenName === "JFF") return this.getAddress("base", "jff")!;
     else return "0x";
   }
 
   public static getDecimalsFromTokenName(tokenName: TokenNames): number {
     if (tokenName === "USDC") return 6;
-    if (tokenName === "WETH" || tokenName === "rETH") return 18;
+    if (tokenName === "WETH" || tokenName === "rETH" || tokenName === "JFF") return 18;
     else return 0;
   }
 
@@ -150,7 +152,8 @@ class Contracts {
     if (address.toLowerCase() === this.getAddress("base", "usdc")!.toLowerCase()) return 6;
     if (
       address.toLowerCase() === this.getAddress("base", "weth")!.toLowerCase() ||
-      address.toLowerCase() === this.getAddress("base", "reth")!.toLowerCase()
+      address.toLowerCase() === this.getAddress("base", "weth")!.toLowerCase() ||
+      address.toLowerCase() === this.getAddress("base", "jff")!.toLowerCase()
     )
       return 18;
     else return 0;
