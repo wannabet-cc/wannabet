@@ -49,7 +49,7 @@ function WalletRow({ wallet }: { wallet: ConnectedWallet }) {
   const { setActiveWallet } = useSetActiveWallet();
   const { address } = useAccount();
 
-  const { data: ensRes, isSuccess, isLoading } = useFetchEns(wallet.address as Address);
+  const { data: ensRes } = useFetchEns(wallet.address as Address);
 
   const active = wallet.address === address;
 
