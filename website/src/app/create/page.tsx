@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CreateBetForm } from "@/components/create-bet-form";
 import { BackButton } from "@/components/back-button";
+import { CreateBetForm } from "./create-bet-form";
 
 export default function CreatePage() {
   return (

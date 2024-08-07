@@ -1,7 +1,7 @@
 "use client";
 
 import { type FormattedBet } from "@/services/services";
-import { getTokenNameFromAddress } from "@/lib";
+import { Contracts } from "@/lib";
 import { useAccount } from "wagmi";
 import { LoginButton } from "./auth/login-button";
 import { Table, TableBody, TableCaption, TableCell, TableRow } from "./ui/table";
@@ -26,9 +26,7 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
               )}
               <UserBadge userAlias={bet.creatorAlias} />{" "}
               <span className="text-xs text-muted-foreground">(bet creator)</span>
-              {account.address?.toLowerCase() === bet.creator && (
-                <span className="text-xs"> &lt;- you</span>
-              )}
+              {account.address?.toLowerCase() === bet.creator && <span className="text-xs"> &lt;- you</span>}
             </div>
             <div className="&>*:w-fit flex items-center space-x-1">
               {bet.participantPfp && (
@@ -38,16 +36,14 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
               )}
               <UserBadge userAlias={bet.participantAlias} />{" "}
               <span className="text-xs text-muted-foreground">(participant)</span>
-              {account.address?.toLowerCase() === bet.participant && (
-                <span className="text-xs"> &lt;- you</span>
-              )}
+              {account.address?.toLowerCase() === bet.participant && <span className="text-xs"> &lt;- you</span>}
             </div>
           </TableCell>
         </TableRow>
         <TableRow>
           <TableCell>amount</TableCell>
           <TableCell>
-            {bet.amount} {getTokenNameFromAddress(bet.token)}
+            {bet.amount} {Contracts.getTokenNameFromAddress(bet.token)}
           </TableCell>
         </TableRow>
         <TableRow>
@@ -63,9 +59,7 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
               </Avatar>
             )}
             <UserBadge userAlias={bet.judgeAlias} />
-            {account.address?.toLowerCase() === bet.judge && (
-              <span className="text-xs"> &lt;- you</span>
-            )}
+            {account.address?.toLowerCase() === bet.judge && <span className="text-xs"> &lt;- you</span>}
           </TableCell>
         </TableRow>
         <TableRow>
@@ -87,19 +81,15 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
               bet.winner &&
               (() => {
                 if (bet.winner === "0x0000000000000000000000000000000000000000") return ": tie";
-                else if (bet.winner.toLowerCase() === bet.creator)
-                  return `: ${bet.creatorAlias} won`;
-                else if (bet.winner.toLowerCase() === bet.participant)
-                  return `: ${bet.participantAlias} won`;
+                else if (bet.winner.toLowerCase() === bet.creator) return `: ${bet.creatorAlias} won`;
+                else if (bet.winner.toLowerCase() === bet.participant) return `: ${bet.participantAlias} won`;
                 else return "";
               })()}
             <span className="text-xs text-muted-foreground">
               {bet.status === "pending" ? ` (expires ${bet.validUntil.toLocaleString()})` : ""}
               {bet.status === "expired" ? ` (${bet.validUntil.toLocaleString()})` : ""}
             </span>
-            {bet.judgementReason && (
-              <p className="text-xs text-muted-foreground">reason: {bet.judgementReason}</p>
-            )}
+            {bet.judgementReason && <p className="text-xs text-muted-foreground">reason: {bet.judgementReason}</p>}
           </TableCell>
         </TableRow>
         <TableRow>

@@ -14,7 +14,7 @@ import { Button } from "./ui/button";
 import { UserBadge } from "./misc/user-badge";
 
 // Utility Functions
-import { getTokenNameFromAddress } from "@/lib";
+import { Contracts } from "@/lib";
 
 export function BetTable({
   data,
@@ -42,14 +42,10 @@ export function BetTable({
         <TableBody>
           {data?.pages.map((page) =>
             page.items.map((bet, i) => (
-              <TableRow
-                key={i}
-                onClick={() => router.push(`/bet/${bet.betId}`)}
-                className="cursor-pointer"
-              >
+              <TableRow key={i} onClick={() => router.push(`/bet/${bet.betId}`)} className="cursor-pointer">
                 <TableCell className="text-center">{bet.betId}</TableCell>
                 <TableCell>
-                  {bet.amount} {getTokenNameFromAddress(bet.token)}
+                  {bet.amount} {Contracts.getTokenNameFromAddress(bet.token)}
                 </TableCell>
                 <TableCell>
                   <UserBadge userAlias={bet.creatorAlias} />
@@ -81,11 +77,7 @@ export function BetTable({
                   disabled={!hasNextPage || isFetchingNextPage}
                   onClick={() => fetchNextPage()}
                 >
-                  {isFetchingNextPage
-                    ? "Loading..."
-                    : hasNextPage
-                      ? "Load More"
-                      : "Nothing more to load"}
+                  {isFetchingNextPage ? "Loading..." : hasNextPage ? "Load More" : "Nothing more to load"}
                 </Button>
               </div>
             </TableCell>

@@ -15,7 +15,7 @@ import { formatUSDC } from "@/utils";
 
 // Contract
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
-import { Contracts } from "@/config";
+import { Contracts } from "@/lib";
 
 export function SectionActiveWallet() {
   const { wallets } = useWallets();

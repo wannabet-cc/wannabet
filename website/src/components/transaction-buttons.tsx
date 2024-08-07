@@ -24,9 +24,7 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
             <TooltipTrigger className="flex gap-1 *:flex-1">
               <div className="flex gap-1 *:flex-1">
                 {bet.status === "expired" && <CreatorActions isCreator={isCreator} bet={bet} />}
-                {bet.status === "pending" && (
-                  <ParticipantActions isParticipant={isParticipant} bet={bet} />
-                )}
+                {bet.status === "pending" && <ParticipantActions isParticipant={isParticipant} bet={bet} />}
                 {bet.status === "accepted" && <JudgeActions isJudge={isJudge} bet={bet} />}
                 {bet.status === "declined" && <>...</>}
                 {bet.status === "settled" && <>...</>}
@@ -34,9 +32,7 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
             </TooltipTrigger>
             <TooltipContent>
               {bet.status === "expired" && !isCreator && "Only creator can retrieve funds"}
-              {bet.status === "pending" &&
-                !isParticipant &&
-                "Waiting on participant to accept the bet"}
+              {bet.status === "pending" && !isParticipant && "Waiting on participant to accept the bet"}
               {bet.status === "accepted" && !isJudge && <p>Waiting on judge to settle the bet</p>}
             </TooltipContent>
           </Tooltip>
@@ -44,11 +40,6 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
           "Wrong chain"
         )}
       </div>
-      {account.chainId === 8453 && bet.status === "pending" && (
-        <div className="text-center text-xs text-muted-foreground">
-          * Accepting a bet includes a 0.0002 ether fee
-        </div>
-      )}
     </div>
   );
 }
