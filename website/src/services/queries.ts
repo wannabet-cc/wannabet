@@ -1,5 +1,24 @@
 import { type Address } from "viem";
 
+/** Queries and response types for single bets */
+
+export type RawBet = {
+  id: string;
+  contractAddress: string;
+  creator: string;
+  participant: string;
+  amount: string;
+  token: string;
+  message: string;
+  judge: string;
+  createdTime: string;
+  validUntil: string;
+};
+
+export type BetQueryResponse = { data: { bet: RawBet } };
+
+export type GqlErrorResponse = { errors: { message: string; locations: { line: number; column: number }[] }[] };
+
 export const generateBetQuery = (betId: number) => `
 query MyQuery {
 	bet(id: "${betId}") {
@@ -16,6 +35,20 @@ query MyQuery {
 	}
 }
 `;
+
+/** Queries and response types for multiple bets */
+
+export type RawBets = {
+  items: RawBet[];
+  pageInfo?: {
+    hasPreviousPage: boolean;
+    startCursor: string;
+    hasNextPage: false;
+    endCursor: string;
+  };
+};
+
+export type BetsQueryResponse = { data: { bets: RawBets } };
 
 export const generateBetsQuery = (betIds: number[]) => `
 query MyQuery {
