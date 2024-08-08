@@ -22,25 +22,27 @@ class Contracts {
 
   public getDecimalsFromName(name: TokenName): number {
     const contract = this.#contracts.find((c) => c.name === name && "decimals" in c) as TokenContract | undefined;
-    if (!contract) throw new Error("Error finding token");
+    if (!contract) throw new Error("Error finding token decimals from name");
     return contract.decimals;
   }
 
   public getDecimalsFromAddress(address: Address): number {
-    const contract = this.#contracts.find((c) => c.address === address && "decimals" in c) as TokenContract | undefined;
-    if (!contract) throw new Error("Error finding token");
+    const contract = this.#contracts.find(
+      (c) => c.address.toLowerCase() === address.toLowerCase() && "decimals" in c,
+    ) as TokenContract | undefined;
+    if (!contract) throw new Error("Error finding token decimals from address");
     return contract.decimals;
   }
 
   public getNameFromAddress(address: Address): ContractName | TokenName {
-    const contract = this.#contracts.find((c) => c.address === address);
-    if (!contract) throw new Error("Error finding token");
+    const contract = this.#contracts.find((c) => c.address.toLowerCase() === address.toLowerCase());
+    if (!contract) throw new Error("Error finding token name from address");
     return contract.name;
   }
 
   public getAddressFromName(name: ContractName | TokenName): Address {
     const contract = this.#contracts.find((c) => c.name === name);
-    if (!contract) throw new Error("Error finding token");
+    if (!contract) throw new Error("Error finding token address from name");
     return contract.address;
   }
 }
