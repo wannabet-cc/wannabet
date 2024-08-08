@@ -1,6 +1,18 @@
+// Constants
 import { BET_API_URL } from "@/config/server";
-import { generateBetQuery } from "./queries";
-import type { BetQueryResponse, BetsQueryResponse, GqlErrorResponse, RawBet } from "./queries";
+// Queries
+import {
+  generateBetQuery,
+  generateBetsQuery,
+  generateMostRecentBetIdQuery,
+  generateRecentBetsQuery,
+  generateUserBetsAsJudgeQuery,
+  generateUserBetsAsPartyQuery,
+  generateUserBetsQuery,
+} from "./queries";
+// Types
+import type { RawBet, RawBets, BetQueryResponse, BetsQueryResponse, GqlErrorResponse } from "./queries";
+import type { Address } from "viem";
 
 class ApiService {
   #baseUrl = "";
@@ -10,7 +22,7 @@ class ApiService {
   }
 
   /** General function for fetching from the base graphql API */
-  async #queryGqlApi<T>(query: string, cacheRevalidate: number): Promise<T> {
+  async #queryGqlApi<T>(query: string, cacheRevalidate: number = 0): Promise<T> {
     console.log("Running #queryGqlApi...");
     try {
       // Fetch
@@ -35,6 +47,74 @@ class ApiService {
     } catch (error) {
       throw new Error(`Error in #queryGqlApi: ${error instanceof Error ? error.message : String(error)}`);
     }
+  }
+
+  public async getRawBetFromId(betId: number, cacheRevalidate: number): Promise<RawBet> {
+    console.log("Running getRawBetFromId...");
+    const query = generateBetQuery(betId);
+    const result = await this.#queryGqlApi<BetQueryResponse>(query, cacheRevalidate);
+    return result.data.bet;
+  }
+
+  public async getRawBetsFromIds(betIds: number[], cacheRevalidate: number): Promise<RawBets> {
+    console.log("Running getRawBetsFromIds...");
+    const query = generateBetsQuery(betIds);
+    const result = await this.#queryGqlApi<BetsQueryResponse>(query, cacheRevalidate);
+    return result.data.bets;
+  }
+
+  public async getRecentRawBets(
+    numBets: number,
+    cacheRevalidate: number,
+    page?: Partial<{ afterCursor: string; beforeCursor: string }>,
+  ): Promise<RawBets> {
+    console.log("Running getRecentRawBets...");
+    const query = generateRecentBetsQuery(numBets, page);
+    const result = await this.#queryGqlApi<BetsQueryResponse>(query, cacheRevalidate);
+    return result.data.bets;
+  }
+
+  public async getUserRawBets(
+    user: Address,
+    numBets: number,
+    cacheRevalidate: number,
+    page?: Partial<{ afterCursor: string; beforeCursor: string }>,
+  ): Promise<RawBets> {
+    console.log("Running getRecentRawBets...");
+    const query = generateUserBetsQuery(user, numBets, page);
+    const result = await this.#queryGqlApi<BetsQueryResponse>(query, cacheRevalidate);
+    return result.data.bets;
+  }
+
+  public async getUserRawBetsAsParty(
+    user: Address,
+    numBets: number,
+    cacheRevalidate: number,
+    page?: Partial<{ afterCursor: string; beforeCursor: string }>,
+  ): Promise<RawBets> {
+    console.log("Running getRecentRawBets...");
+    const query = generateUserBetsAsPartyQuery(user, numBets, page);
+    const result = await this.#queryGqlApi<BetsQueryResponse>(query, cacheRevalidate);
+    return result.data.bets;
+  }
+
+  public async getUserRawBetsAsJudge(
+    user: Address,
+    numBets: number,
+    cacheRevalidate: number,
+    page?: Partial<{ afterCursor: string; beforeCursor: string }>,
+  ): Promise<RawBets> {
+    console.log("Running getRecentRawBets...");
+    const query = generateUserBetsAsJudgeQuery(user, numBets, page);
+    const result = await this.#queryGqlApi<BetsQueryResponse>(query, cacheRevalidate);
+    return result.data.bets;
+  }
+
+  public async getMostRecentBetId(cacheRevalidate: number): Promise<number> {
+    console.log("Running getMostRecentBetId...");
+    const query = generateMostRecentBetIdQuery();
+    const result = await this.#queryGqlApi<BetsQueryResponse>(query, cacheRevalidate);
+    return Number(result.data.bets.items[0].id);
   }
 }
 
