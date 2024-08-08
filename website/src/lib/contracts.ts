@@ -1,17 +1,5 @@
-import { Address } from "viem";
-
-type ContractName = "BetFactory";
-type Contract = {
-  name: ContractName;
-  address: Address;
-};
-
-type TokenName = "USDC" | "WETH" | "rETH" | "JFF";
-type TokenContract = {
-  name: TokenName;
-  address: Address;
-  decimals: number;
-};
+import type { Contract, TokenContract, ContractName, TokenName } from "./types";
+import type { Address } from "viem";
 
 class Contracts {
   #contracts: (Contract | TokenContract)[];
