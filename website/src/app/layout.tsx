@@ -7,9 +7,37 @@ import { Header } from "@/components/header";
 
 const inter = Inter({ subsets: ["latin"] });
 
+const siteTitle = "WannaBet";
+const siteDesc = "Make secure, custom, non-custodial bets";
+const siteUrl = "https://wannabet.cc";
+
 export const metadata: Metadata = {
-  title: "WannaBet Web App",
-  description: "Make secure, non-custodial bets with your crypto",
+  title: siteTitle,
+  description: siteDesc,
+  openGraph: {
+    title: siteTitle,
+    description: siteDesc,
+    url: siteUrl,
+    siteName: siteTitle,
+    images: [
+      {
+        url: siteUrl + "/og.png", // Must be an absolute URL
+        width: 800,
+        height: 600,
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteTitle,
+    description: siteDesc,
+    // siteId: "1467726470533754880",
+    // creator: "@nextjs",
+    // creatorId: "1467726470533754880",
+    images: [siteUrl + "/og.png"], // Must be an absolute URL
+  },
 };
 
 export default function RootLayout({
