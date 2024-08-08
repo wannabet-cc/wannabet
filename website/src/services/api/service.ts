@@ -1,7 +1,11 @@
+// Constants
 import { BET_API_URL } from "@/config/server";
+// Classes
 import { ApiClient } from "./client";
-import { BetFormatter, type FormattedBets, type FormattedBet } from "./formatter";
+import { BetFormatter } from "./formatter";
+// Types
 import type { Address } from "viem";
+import type { FormattedBet, FormattedBets } from "./types";
 
 class ApiService {
   #apiClient = new ApiClient(BET_API_URL);

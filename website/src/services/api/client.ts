@@ -9,8 +9,9 @@ import {
   generateUserBetsQuery,
 } from "./queries";
 // Types
-import type { RawBet, RawBets, BetQueryResponse, BetsQueryResponse, GqlErrorResponse } from "./queries";
 import type { Address } from "viem";
+import type { BetQueryResponse, BetsQueryResponse, GqlErrorResponse } from "./queries";
+import type { RawBet, RawBets } from "./types";
 
 class ApiClient {
   #baseUrl = "";

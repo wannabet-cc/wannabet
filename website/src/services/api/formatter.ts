@@ -1,43 +1,13 @@
+// Constants
 import { BetAbi } from "@/abis/BetAbi";
+// Functions & Clients
 import { getPreferredAlias, getPreferredAliases } from "../server-utils";
 import { baseClient } from "../viem";
-import type { RawBet } from "./queries";
-import { formatUnits, type Address } from "viem";
+import { formatUnits } from "viem";
 import { baseContracts } from "@/lib";
-
-// Formatted bet data types
-type BetStatus = "expired" | "pending" | "accepted" | "declined" | "settled";
-export type FormattedBet = {
-  betId: number;
-  contractAddress: Address;
-  creator: Address;
-  creatorAlias: string;
-  creatorPfp?: string;
-  participant: Address;
-  participantAlias: string;
-  participantPfp?: string;
-  amount: number;
-  bigintAmount: string;
-  token: Address;
-  message: string;
-  judge: Address;
-  judgeAlias: string;
-  judgePfp?: string;
-  validUntil: Date;
-  createdTime: Date;
-  status: BetStatus | undefined;
-  winner: Address | undefined;
-  judgementReason: string | undefined;
-};
-export type FormattedBets = {
-  items: FormattedBet[];
-  pageInfo?: {
-    hasPreviousPage: boolean;
-    startCursor: string;
-    hasNextPage: false;
-    endCursor: string;
-  };
-};
+// Types
+import type { Address } from "viem";
+import type { RawBet, FormattedBet, BetStatus } from "./types";
 
 class BetFormatter {
   public async formatBet(rawBet: RawBet): Promise<FormattedBet> {

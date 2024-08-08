@@ -1,23 +1,18 @@
-import { type Address } from "viem";
+import type { Address } from "viem";
+import type { RawBet, RawBets } from "./types";
 
-/** Queries and response types for single bets */
+/** Response type for if there is a graph ql error */
 
-export type RawBet = {
-  id: string;
-  contractAddress: string;
-  creator: string;
-  participant: string;
-  amount: string;
-  token: string;
-  message: string;
-  judge: string;
-  createdTime: string;
-  validUntil: string;
+export type GqlErrorResponse = {
+  errors: {
+    message: string;
+    locations: { line: number; column: number }[];
+  }[];
 };
 
-export type BetQueryResponse = { data: { bet: RawBet } };
+/** Queries and response type for single bets */
 
-export type GqlErrorResponse = { errors: { message: string; locations: { line: number; column: number }[] }[] };
+export type BetQueryResponse = { data: { bet: RawBet } };
 
 export const generateBetQuery = (betId: number) => `
 query MyQuery {
@@ -36,17 +31,7 @@ query MyQuery {
 }
 `;
 
-/** Queries and response types for multiple bets */
-
-export type RawBets = {
-  items: RawBet[];
-  pageInfo?: {
-    hasPreviousPage: boolean;
-    startCursor: string;
-    hasNextPage: false;
-    endCursor: string;
-  };
-};
+/** Queries and response type for multiple bets */
 
 export type BetsQueryResponse = { data: { bets: RawBets } };
 
