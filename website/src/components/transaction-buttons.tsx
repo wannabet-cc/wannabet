@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormattedBet } from "@/services/services";
+import type { FormattedBet } from "@/services/api/types";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { BetAbi } from "@/abis/BetAbi";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
