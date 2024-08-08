@@ -28,28 +28,14 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
 import { LoadingSpinner } from "@/components/ui/spinner";
-
-const addressRegex = /^0x[a-fA-F0-9]{40}$/;
-const ensRegex = /^.{3,}\.eth$/; // /^[a-z0-9]+\.eth$/;
-const ensOrAddressSchema = z.string().refine((value) => ensRegex.test(value) || addressRegex.test(value), {
-  message: "Invalid ENS name or ethereum address",
-});
-
-const formSchema = z.object({
-  participant: ensOrAddressSchema,
-  amount: z.coerce.number().positive(),
-  tokenName: z.string().refine((name) => name === "USDC" || name === "WETH" || name === "rETH" || name === "JFF"),
-  message: z.string(),
-  validForDays: z.coerce.number().positive().lte(14),
-  judge: ensOrAddressSchema,
-});
+import { addressRegex, createBetFormSchema, type TCreateBetFormSchema } from "@/lib/types";
 
 export function CreateBetForm() {
   const { address } = useAccount();
   const [createStatus, setCreateStatus] = useState<createStatus>("idle");
   const [error, setError] = useState<Error>();
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<TCreateBetFormSchema>({
+    resolver: zodResolver(createBetFormSchema),
     defaultValues: {
       participant: "",
       amount: 1,
@@ -74,7 +60,7 @@ export function CreateBetForm() {
 
   const decimals = baseContracts.getDecimalsFromName(form.getValues("tokenName"));
 
-  const handleSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (values, e) => {
+  const handleSubmit: SubmitHandler<TCreateBetFormSchema> = async (values, e) => {
     e?.preventDefault();
     setCreateStatus("1-transforming-data");
     try {
