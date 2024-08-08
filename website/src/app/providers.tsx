@@ -6,14 +6,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { http } from "wagmi";
 import { base, mainnet } from "wagmi/chains";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { PRIVY_APP_ID } from "@/config/client";
+import { BASE_ALCHEMY_URL, MAINNET_ALCHEMY_URL, PRIVY_APP_ID } from "@/config/client";
 
 export const config = createConfig({
   chains: [base, mainnet],
   ssr: true,
   transports: {
-    [base.id]: http(process.env.NEXT_PUBLIC_BASE_ALCHEMY_URL),
-    [mainnet.id]: http(process.env.NEXT_PUBLIC_MAINNET_ALCHEMY_URL),
+    [base.id]: http(BASE_ALCHEMY_URL),
+    [mainnet.id]: http(MAINNET_ALCHEMY_URL),
   },
 });
 

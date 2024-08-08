@@ -94,6 +94,6 @@ type NameStoneUser = {
   };
 };
 
-const nameStoneService = new NameStoneService(NAMESTONE_API_KEY || "");
+const nameStoneService = new NameStoneService(NAMESTONE_API_KEY);
 
 export { nameStoneService, NameStoneService, type NameStoneUser, type NameStoneResponse };

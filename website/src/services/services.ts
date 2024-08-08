@@ -1,8 +1,8 @@
 import { BetAbi } from "@/abis/BetAbi";
-import { BET_API_URL } from "@/config";
+import { BET_API_URL } from "@/config/server";
 import { baseClient } from "./viem";
 import { type Address, formatUnits } from "viem";
-import { baseContracts, getPreferredAlias, getPreferredAliases } from "@/lib";
+import { baseContracts } from "@/lib";
 import {
   generateBetQuery,
   generateBetsQuery,
@@ -12,6 +12,7 @@ import {
   generateUserBetsAsPartyQuery,
   generateUserBetsQuery,
 } from "./queries";
+import { getPreferredAlias, getPreferredAliases } from "./server-utils";
 
 /**
  * General graph ql data fetching function
@@ -295,6 +296,8 @@ export const formatBets = async (rawBets: RawBet[]): Promise<FormattedBet[]> => 
             functionName: "judgementReason",
           }),
         ]);
+        console.log("Good 1");
+        console.log(rawBet);
         // return
         return {
           betId: Number(rawBet.id),
@@ -316,8 +319,11 @@ export const formatBets = async (rawBets: RawBet[]): Promise<FormattedBet[]> => 
         };
       }),
     );
+    console.log("Good 2");
     const addressList = rawBets.map((bet) => [bet.creator, bet.participant, bet.judge]).flat() as Address[];
+    console.log("Good 3");
     const aliases = await getPreferredAliases(addressList);
+    console.log("Good 4");
     return preFormattedBets.map(
       (bet) =>
         ({
