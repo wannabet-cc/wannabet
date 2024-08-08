@@ -1,8 +1,8 @@
 "use client";
 
 // Types
-import { type FormattedBets } from "@/services/services";
-import { type InfiniteData } from "@tanstack/react-query";
+import type { FormattedBets } from "@/services/api/types";
+import type { InfiniteData } from "@tanstack/react-query";
 
 // Hooks
 import { useRouter } from "next/navigation";

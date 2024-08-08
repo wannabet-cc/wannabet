@@ -1,5 +1,5 @@
-import { getFormattedBetFromId, getMostRecentBetId } from "@/services/services";
-import { type FormattedBet } from "@/services/services";
+import { apiService } from "@/services/api/service";
+import type { FormattedBet } from "@/services/api/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BackButton } from "@/components/back-button";
 import { BetDetails } from "@/components/bet-details";
@@ -12,7 +12,7 @@ import { BetDetails } from "@/components/bet-details";
 // }
 
 export default async function BetPage({ params }: { params: { id: number } }) {
-  const data = await getFormattedBetFromId(params.id);
+  const data = await apiService.getFormattedBetFromId(params.id, 15);
   return (
     <main className="flex w-full flex-col items-center">
       <div className="w-full space-y-2 md:px-8">
@@ -27,9 +27,7 @@ function BetDetailsCard({ currentBet }: { currentBet: FormattedBet | undefined }
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-lg">
-          {currentBet ? `Bet #${currentBet.betId}` : "Select a bet"}
-        </CardTitle>
+        <CardTitle className="text-lg">{currentBet ? `Bet #${currentBet.betId}` : "Select a bet"}</CardTitle>
         <CardDescription>
           {currentBet ? (
             <a href={`https://basescan.org/address/${currentBet.contractAddress}`} target="_blank">
@@ -40,9 +38,7 @@ function BetDetailsCard({ currentBet }: { currentBet: FormattedBet | undefined }
           )}
         </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-4">
-        {currentBet && <BetDetails bet={currentBet} />}
-      </CardContent>
+      <CardContent className="grid gap-4">{currentBet && <BetDetails bet={currentBet} />}</CardContent>
     </Card>
   );
 }

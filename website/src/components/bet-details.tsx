@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormattedBet } from "@/services/services";
+import type { FormattedBet } from "@/services/api/types";
 import { baseContracts } from "@/lib";
 import { useAccount } from "wagmi";
 import { LoginButton } from "./auth/login-button";

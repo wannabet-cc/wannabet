@@ -1,9 +1,4 @@
-import {
-  getRecentFormattedBets,
-  getUserFormattedBets,
-  getUserFormattedBetsAsJudge,
-  getUserFormattedBetsAsParty,
-} from "@/services/services";
+import { apiService } from "@/services/api/service";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { Address } from "viem";
@@ -24,8 +19,7 @@ export async function GET(req: NextRequest) {
     const cursor = req.nextUrl.searchParams.get("cursor");
 
     const { success: addressSuccess, data: parsedAddress } = AddressSchema.safeParse(address);
-    const { success: positionSuccess, data: parsedPosition } =
-      AsPositionSchema.safeParse(asPosition);
+    const { success: positionSuccess, data: parsedPosition } = AsPositionSchema.safeParse(asPosition);
     const { data: parsedNum } = NumSchema.safeParse(Number(num));
     const { data: parsedCursor } = CursorSchema.safeParse(cursor);
 
@@ -34,14 +28,14 @@ export async function GET(req: NextRequest) {
 
     if (addressSuccess) {
       if (positionSuccess && parsedPosition === "party") {
-        data = await getUserFormattedBetsAsParty(parsedAddress as Address, parsedNum, pageObject);
+        data = await apiService.getUserFormattedBetsAsParty(parsedAddress as Address, parsedNum, 0, pageObject);
       } else if (positionSuccess && parsedPosition === "judge") {
-        data = await getUserFormattedBetsAsJudge(parsedAddress as Address, parsedNum, pageObject);
+        data = await apiService.getUserFormattedBetsAsJudge(parsedAddress as Address, parsedNum, 0, pageObject);
       } else {
-        data = await getUserFormattedBets(parsedAddress as Address, parsedNum, pageObject);
+        data = await apiService.getUserFormattedBets(parsedAddress as Address, parsedNum, 0, pageObject);
       }
     } else {
-      data = await getRecentFormattedBets(parsedNum, pageObject);
+      data = await apiService.getRecentFormattedBets(parsedNum, 0, pageObject);
     }
     return Response.json(data, { status: 200 });
   } catch (error) {

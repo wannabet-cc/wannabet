@@ -1,8 +1,8 @@
 "use client";
 
 // Types
-import { type Address } from "viem";
-import { type FormattedBets } from "@/services/services";
+import type { Address } from "viem";
+import type { FormattedBets } from "@/services/api/types";
 
 // Hooks
 import { useInfiniteQuery } from "@tanstack/react-query";
