@@ -11,7 +11,7 @@ import {
   generateUserBetsAsJudgeQuery,
   generateUserBetsAsPartyQuery,
   generateUserBetsQuery,
-} from "./queries";
+} from "./api/queries";
 import { getPreferredAlias, getPreferredAliases } from "./server-utils";
 
 /**
@@ -296,8 +296,6 @@ export const formatBets = async (rawBets: RawBet[]): Promise<FormattedBet[]> => 
             functionName: "judgementReason",
           }),
         ]);
-        console.log("Good 1");
-        console.log(rawBet);
         // return
         return {
           betId: Number(rawBet.id),
@@ -319,11 +317,8 @@ export const formatBets = async (rawBets: RawBet[]): Promise<FormattedBet[]> => 
         };
       }),
     );
-    console.log("Good 2");
     const addressList = rawBets.map((bet) => [bet.creator, bet.participant, bet.judge]).flat() as Address[];
-    console.log("Good 3");
     const aliases = await getPreferredAliases(addressList);
-    console.log("Good 4");
     return preFormattedBets.map(
       (bet) =>
         ({

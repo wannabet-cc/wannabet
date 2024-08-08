@@ -1,5 +1,3 @@
-// Constants
-import { BET_API_URL } from "@/config/server";
 // Queries
 import {
   generateBetQuery,
@@ -14,7 +12,7 @@ import {
 import type { RawBet, RawBets, BetQueryResponse, BetsQueryResponse, GqlErrorResponse } from "./queries";
 import type { Address } from "viem";
 
-class ApiService {
+class ApiClient {
   #baseUrl = "";
 
   constructor(baseUrl: string) {
@@ -118,6 +116,4 @@ class ApiService {
   }
 }
 
-const apiService = new ApiService(BET_API_URL);
-
-export { apiService };
+export { ApiClient };
