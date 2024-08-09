@@ -4,16 +4,14 @@
 import type { FormattedBet } from "@/services/api/types";
 // Constants
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
-import { BetAbi } from "@/abis/BetAbi";
 // Hooks
 import { useMutation } from "@tanstack/react-query";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
-// Wagmi - Contract Write
-import { writeContract } from "@wagmi/core";
-import { config } from "@/app/providers";
+import { useAccount, useReadContract } from "wagmi";
 // Components
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+// Wallet Functions
+import { acceptBet, declineBet, retrieveTokens, settleBet } from "@/lib/wallet-functions";
 
 export function TransactionButtons({ bet }: { bet: FormattedBet }) {
   const account = useAccount();
@@ -50,25 +48,20 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
   );
 }
 
-function CreatorActions(props: { isCreator: boolean; bet: FormattedBet }) {
-  const { mutate, isPending, isSuccess } = useMutation({
-    mutationFn: () =>
-      writeContract(config, {
-        address: props.bet.contractAddress,
-        abi: BetAbi,
-        functionName: "retrieveTokens",
-      }),
+function CreatorActions({ isCreator, bet }: { isCreator: boolean; bet: FormattedBet }) {
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => retrieveTokens(bet.contractAddress),
   });
 
   const { data: contractBalance } = useReadContract({
-    address: props.bet.token,
+    address: bet.token,
     abi: FiatTokenProxyAbi,
     functionName: "balanceOf",
-    args: [props.bet.contractAddress],
+    args: [bet.contractAddress],
   });
 
   return Number(contractBalance) > 0 ? (
-    <Button variant="default" size="sm" disabled={isPending || !props.isCreator} onClick={() => mutate()}>
+    <Button variant="default" size="sm" disabled={isPending || !isCreator} onClick={() => mutate()}>
       Retrieve funds
     </Button>
   ) : (
@@ -78,90 +71,50 @@ function CreatorActions(props: { isCreator: boolean; bet: FormattedBet }) {
   );
 }
 
-function ParticipantActions(props: { isParticipant: boolean; bet: FormattedBet }) {
+function ParticipantActions({ isParticipant, bet }: { isParticipant: boolean; bet: FormattedBet }) {
   const { mutate: mutateAccept, isPending: isPendingAccept } = useMutation({
-    mutationFn: async () => {
-      await writeContract(config, {
-        address: props.bet.token,
-        abi: FiatTokenProxyAbi,
-        functionName: "approve",
-        args: [props.bet.contractAddress, BigInt(props.bet.bigintAmount)],
-      });
-      writeContract(config, {
-        address: props.bet.contractAddress,
-        abi: BetAbi,
-        functionName: "acceptBet",
-      });
-    },
+    mutationFn: () => acceptBet(bet.contractAddress, bet.token, BigInt(bet.bigintAmount)),
   });
   const { mutate: mutateDecline, isPending: isPendingDecline } = useMutation({
-    mutationFn: () =>
-      writeContract(config, {
-        address: props.bet.contractAddress,
-        abi: BetAbi,
-        functionName: "declineBet",
-      }),
+    mutationFn: () => declineBet(bet.contractAddress),
   });
 
   const isPending = isPendingAccept || isPendingDecline;
 
   return (
     <>
-      <Button variant="default" size="sm" disabled={isPending || !props.isParticipant} onClick={() => mutateAccept()}>
+      <Button variant="default" size="sm" disabled={isPending || !isParticipant} onClick={() => mutateAccept()}>
         Accept
       </Button>
-      <Button
-        variant="secondary"
-        size="sm"
-        disabled={isPending || !props.isParticipant}
-        onClick={() => mutateDecline()}
-      >
+      <Button variant="secondary" size="sm" disabled={isPending || !isParticipant} onClick={() => mutateDecline()}>
         Decline
       </Button>
     </>
   );
 }
 
-function JudgeActions(props: { isJudge: boolean; bet: FormattedBet }) {
-  const { mutate: mutateWinnerOne, isPending: isPendingOne } = useMutation({
-    mutationFn: () =>
-      writeContract(config, {
-        address: props.bet.contractAddress,
-        abi: BetAbi,
-        functionName: "settleBet",
-        args: [props.bet.creator, ""],
-      }),
+function JudgeActions({ isJudge, bet }: { isJudge: boolean; bet: FormattedBet }) {
+  const { mutate: mutateSettleForCreator, isPending: isPendingCreator } = useMutation({
+    mutationFn: () => settleBet(bet.contractAddress, bet.creator),
   });
-  const { mutate: mutateWinnerTwo, isPending: isPendingTwo } = useMutation({
-    mutationFn: () =>
-      writeContract(config, {
-        address: props.bet.contractAddress,
-        abi: BetAbi,
-        functionName: "settleBet",
-        args: [props.bet.participant, ""],
-      }),
+  const { mutate: mutateSettleForParticipant, isPending: isPendingParticipant } = useMutation({
+    mutationFn: () => settleBet(bet.contractAddress, bet.participant),
   });
-  const { mutate: mutateWinnerTie, isPending: isPendingTie } = useMutation({
-    mutationFn: () =>
-      writeContract(config, {
-        address: props.bet.contractAddress,
-        abi: BetAbi,
-        functionName: "settleBet",
-        args: ["0x0000000000000000000000000000000000000000", ""],
-      }),
+  const { mutate: mutateSettleTie, isPending: isPendingTie } = useMutation({
+    mutationFn: () => settleBet(bet.contractAddress, "0x0000000000000000000000000000000000000000"),
   });
 
-  const isPending = isPendingOne || isPendingTwo || isPendingTie;
+  const isPending = isPendingCreator || isPendingParticipant || isPendingTie;
 
   return (
     <>
-      <Button variant="default" size="sm" disabled={isPending || !props.isJudge} onClick={() => mutateWinnerOne()}>
-        {props.bet.creatorAlias}
+      <Button variant="default" size="sm" disabled={isPending || !isJudge} onClick={() => mutateSettleForCreator()}>
+        {bet.creatorAlias}
       </Button>
-      <Button variant="default" size="sm" disabled={isPending || !props.isJudge} onClick={() => mutateWinnerTwo()}>
-        {props.bet.participantAlias}
+      <Button variant="default" size="sm" disabled={isPending || !isJudge} onClick={() => mutateSettleForParticipant()}>
+        {bet.participantAlias}
       </Button>
-      <Button variant="secondary" size="sm" disabled={isPending || !props.isJudge} onClick={() => mutateWinnerTie()}>
+      <Button variant="secondary" size="sm" disabled={isPending || !isJudge} onClick={() => mutateSettleTie()}>
         Tie
       </Button>
     </>
