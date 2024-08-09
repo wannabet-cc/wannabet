@@ -1,12 +1,9 @@
 "use client";
 
-import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
-import { config } from "@/app/providers";
 import { baseContracts } from "@/lib";
 import { roundFloat } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { waitForTransactionReceipt, writeContract } from "@wagmi/core";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { formatUnits } from "viem";
 import { useAccount, useReadContract } from "wagmi";
@@ -17,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { LoadingSpinner } from "@/components/ui/spinner";
 import { createBetFormSchema, type TCreateBetFormSchema } from "@/lib/types";
-import { ensureTokenApproval, hasEnoughTokens } from "@/lib/wallet-functions";
+import { createBet, ensureTokenApproval, hasEnoughTokens } from "@/lib/wallet-functions";
 import { formatFormData } from "./form-utils";
 
 export function CreateBetForm() {
@@ -53,14 +50,11 @@ export function CreateBetForm() {
   const onSubmit: SubmitHandler<TCreateBetFormSchema> = async (values) => {
     try {
       if (!address) throw new Error("No user account detected");
-
       /** Transform form data */
       const formattedValues = await formatFormData(values);
-
       /** Throw if user doesn't have enough tokens */
       const hasEnough = await hasEnoughTokens(address, formattedValues.token, formattedValues.amount);
       if (!hasEnough) throw new Error("User doesn't have enough tokens");
-
       /** Approve token transfer IF tokens aren't already approved */
       await ensureTokenApproval(
         address,
@@ -68,26 +62,9 @@ export function CreateBetForm() {
         formattedValues.token,
         formattedValues.amount,
       );
-
       /** Create bet */
-      const betHash = await writeContract(config, {
-        address: baseContracts.getAddressFromName("BetFactory")!,
-        abi: BetFactoryAbi,
-        functionName: "createBet",
-        args: [
-          formattedValues.participant,
-          formattedValues.amount,
-          formattedValues.token,
-          formattedValues.message,
-          formattedValues.judge,
-          formattedValues.validFor,
-        ],
-      });
-      const { status: betStatus } = await waitForTransactionReceipt(config, {
-        hash: betHash,
-      });
-      if (betStatus === "reverted") throw new Error("Bet transaction reverted");
-
+      await createBet(formattedValues);
+      /** Reset */
       reset();
     } catch (error) {
       throw new Error("Failed to create bet: " + error);

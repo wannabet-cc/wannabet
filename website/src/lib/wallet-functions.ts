@@ -2,14 +2,16 @@
 
 // Types
 import type { Address } from "viem";
-import { type WriteContractReturnType } from "@wagmi/core";
+import type { WriteContractReturnType } from "@wagmi/core";
+import type { TCreateBetFormattedFormSchema } from "./types";
 // Wagmi
 import { readContract, waitForTransactionReceipt, writeContract } from "@wagmi/core";
 import { config } from "@/app/providers";
 // Contract Imports
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
-import { baseContracts } from "./contracts";
+import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
 import { BetAbi } from "@/abis/BetAbi";
+import { baseContracts } from "./contracts";
 
 /**
  * This file includes functions that are intended to be used on the CLIENT. Using
@@ -60,6 +62,21 @@ export async function ensureTokenApproval(
     });
     if (approveStatus === "reverted") throw new Error("Token approval reverted");
   }
+}
+
+/**
+ * Prompts the user to create a bet given a set of formatted bet values
+ */
+export async function createBet(values: TCreateBetFormattedFormSchema): Promise<WriteContractReturnType> {
+  const hash = await writeContract(config, {
+    address: baseContracts.getAddressFromName("BetFactory")!,
+    abi: BetFactoryAbi,
+    functionName: "createBet",
+    args: [values.participant, values.amount, values.token, values.message, values.judge, values.validFor],
+  });
+  const { status } = await waitForTransactionReceipt(config, { hash });
+  if (status === "reverted") throw new Error("Bet transaction reverted");
+  return hash;
 }
 
 /**
