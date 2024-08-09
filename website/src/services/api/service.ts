@@ -74,6 +74,10 @@ class ApiService {
     const formattedBets = await this.#betFormatter.formatBets(rawBets.items);
     return { items: formattedBets, pageInfo: rawBets.pageInfo };
   }
+
+  public async getMostRecentBetId(cacheRevalidate: number) {
+    return this.#apiClient.getMostRecentBetId(cacheRevalidate);
+  }
 }
 
 const apiService = new ApiService();

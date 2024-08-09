@@ -1,12 +1,15 @@
 "use client";
 
+// Types
 import type { FormattedBet } from "@/services/api/types";
+// Contract Info
 import { baseContracts } from "@/lib";
+// Hooks
 import { useAccount } from "wagmi";
-import { LoginButton } from "./auth/login-button";
-import { Table, TableBody, TableCaption, TableCell, TableRow } from "./ui/table";
-import { Avatar, AvatarImage } from "./ui/avatar";
-import { UserBadge } from "./misc/user-badge";
+// Components
+import { Table, TableBody, TableCaption, TableCell, TableRow } from "@/components/ui/table";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { UserBadge } from "@/components/misc/user-badge";
 import { TransactionButtons } from "./transaction-buttons";
 
 export function BetDetails({ bet }: { bet: FormattedBet }) {

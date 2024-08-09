@@ -1,11 +1,14 @@
+// Data Fetching
 import { apiService } from "@/services/api/service";
+// Types
 import type { FormattedBet } from "@/services/api/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+// Components
 import { BackButton } from "@/components/back-button";
-import { BetDetails } from "@/components/bet-details";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BetDetails } from "./bet-details";
 
 // export async function generateStaticParams() {
-//   const mostRecentBetId = await getMostRecentBetId();
+//   const mostRecentBetId = await apiService.getMostRecentBetId(0);
 //   return Array.from({ length: mostRecentBetId }, (_, index) => ({
 //     id: (index + 1).toString(),
 //   }));
