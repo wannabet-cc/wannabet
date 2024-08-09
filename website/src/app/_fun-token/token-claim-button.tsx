@@ -3,28 +3,25 @@
 // Hooks
 import { useEffect, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { useAccount } from "wagmi";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 // Components
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 // Contract Imports
-import { WhitelistedFunToken } from "@/abis/WhitelistedFunToken";
-import { baseContracts } from "@/lib";
 import type { Address } from "viem";
-
-const WHITELISTED_ROLE = "0x8429d542926e6695b59ac6fbdcd9b37e8b1aeb757afab06ab60b1bb5878c3b49";
+import { checkIfWhitelisted, getLastMintTime, handleClaim } from "./wallet-functions";
 
 export function TokenClaimButton() {
   const { ready, authenticated } = usePrivy();
   const { address, connector } = useAccount();
-  const { data: isWhitelisted, isLoading } = useReadContract({
-    address: baseContracts.getAddressFromName("JFF"),
-    abi: WhitelistedFunToken,
-    functionName: "hasRole",
-    args: [WHITELISTED_ROLE, address!],
-    query: { enabled: !!address && !connector?.name.startsWith("Privy") },
+
+  const { data: isWhitelisted, isLoading } = useQuery({
+    queryKey: ["isWhitelisted", address],
+    queryFn: () => checkIfWhitelisted(address!),
+    enabled: !!address && !connector?.name.startsWith("Privy"),
   });
 
   if (!ready || !authenticated || !address || connector?.name.startsWith("Privy")) return <></>;
@@ -42,27 +39,24 @@ export function TokenClaimButton() {
 }
 
 function WhitelistedDialog({ address }: { address: Address }) {
-  const { writeContract } = useWriteContract();
-  const { data: lastMintTime } = useReadContract({
-    abi: WhitelistedFunToken,
-    address: baseContracts.getAddressFromName("JFF"),
-    functionName: "lastMintTime",
-    args: [address],
+  const { data: lastMintTime } = useQuery({
+    queryKey: ["lastMintTime", address],
+    queryFn: () => getLastMintTime(address),
+  });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () =>
+      handleClaim([
+        ["isWhitelisted", address],
+        ["lastMintTime", address],
+      ]),
   });
 
   const timeLeft = Math.round(Number(lastMintTime) + 86400 - Date.now() / 1000);
   const inCooldown = timeLeft >= 0;
 
-  const handleClaim = () => {
-    writeContract({
-      abi: WhitelistedFunToken,
-      address: baseContracts.getAddressFromName("JFF"),
-      functionName: "mint",
-    });
-  };
-
   return (
-    <DialogContent>
+    <DialogContent aria-describedby="Just for fun token whitelist dialog">
       <DialogHeader>
         <DialogTitle>
           Congrats! {inCooldown ? "You have claimed your daily amount" : "You are on the whitelist for the JFF token."}
@@ -76,8 +70,14 @@ function WhitelistedDialog({ address }: { address: Address }) {
         )}
       </div>
       <DialogFooter>
-        <Button className="w-full" disabled={inCooldown} onClick={handleClaim}>
-          {inCooldown ? <CountdownButtonText lastMintTime={Number(lastMintTime)} /> : "Claim"}
+        <Button className="w-full" disabled={inCooldown || isPending} onClick={() => mutate()}>
+          {inCooldown ? (
+            <CountdownButtonText lastMintTime={Number(lastMintTime)} />
+          ) : isPending ? (
+            "Claiming..."
+          ) : (
+            "Claim"
+          )}
         </Button>
       </DialogFooter>
     </DialogContent>
@@ -96,7 +96,7 @@ function CountdownButtonText({ lastMintTime }: { lastMintTime: number }) {
 
 function NotWhitelistedDialog() {
   return (
-    <DialogContent>
+    <DialogContent aria-describedby="Just for fun token whitelist dialog">
       <DialogHeader>
         <DialogTitle>You aren&apos;t on the whitelist for JFF</DialogTitle>
       </DialogHeader>
