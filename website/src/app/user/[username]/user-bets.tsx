@@ -51,7 +51,7 @@ function ParticipatingBetsList({ address }: { address: Address }) {
       <LoadingSpinner />
     </div>
   ) : status === "error" ? (
-    "An error has occurred: " + { error }
+    "An error has occurred: " + error.message
   ) : (
     <BetTable
       data={data}
@@ -84,7 +84,7 @@ function JudgingBetsList({ address }: { address: Address }) {
       <LoadingSpinner />
     </div>
   ) : status === "error" ? (
-    "An error has occurred: " + { error }
+    "An error has occurred: " + error.message
   ) : (
     <BetTable
       data={data}

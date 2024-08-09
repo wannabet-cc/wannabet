@@ -31,7 +31,7 @@ export function RecentBetList() {
   return status === "pending" ? (
     <LoadingSpinner />
   ) : status === "error" ? (
-    "An error has occurred: " + { error }
+    "An error has occurred: " + error.message
   ) : (
     <BetTable
       data={data}
@@ -65,7 +65,7 @@ export function MyBetList() {
   ) : status === "pending" ? (
     <LoadingSpinner />
   ) : status === "error" ? (
-    "An error has occurred: " + { error }
+    "An error has occurred: " + error.message
   ) : (
     <BetTable
       data={data}
