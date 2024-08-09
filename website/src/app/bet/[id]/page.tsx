@@ -7,12 +7,12 @@ import { BackButton } from "@/components/back-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BetDetails } from "./bet-details";
 
-// export async function generateStaticParams() {
-//   const mostRecentBetId = await apiService.getMostRecentBetId(0);
-//   return Array.from({ length: mostRecentBetId }, (_, index) => ({
-//     id: (index + 1).toString(),
-//   }));
-// }
+export async function generateStaticParams() {
+  const mostRecentBetId = await apiService.getMostRecentBetId(0);
+  return Array.from({ length: mostRecentBetId }, (_, index) => ({
+    id: (index + 1).toString(),
+  }));
+}
 
 export default async function BetPage({ params }: { params: { id: number } }) {
   const data = await apiService.getFormattedBetFromId(params.id, 15);
