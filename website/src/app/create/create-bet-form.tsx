@@ -72,7 +72,7 @@ export function CreateBetForm() {
       if (!hasEnough) throw new Error("User doesn't have enough tokens");
 
       /** Approve token transfer IF tokens aren't already approved */
-      await ensureTokenApproval(address, tokenAddress, bigintAmount);
+      await ensureTokenApproval(address, baseContracts.getAddressFromName("BetFactory"), tokenAddress, bigintAmount);
 
       /** Create bet */
       const betHash = await writeContract(config, {

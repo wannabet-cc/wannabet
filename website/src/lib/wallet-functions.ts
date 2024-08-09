@@ -33,22 +33,27 @@ export async function hasEnoughTokens(account: Address, token: Address, tokenThr
 }
 
 /**
- * Prompt user to approve token transfer to the "BetFactory" contract if tokens
+ * Prompt user to approve token transfer to a given contract if tokens
  * aren't already approved.
  */
-export async function ensureTokenApproval(account: Address, token: Address, tokenAmount: bigint): Promise<void> {
+export async function ensureTokenApproval(
+  address: Address,
+  spender: Address,
+  token: Address,
+  tokenAmount: bigint,
+): Promise<void> {
   const preexistingApprovedAmount = await readContract(config, {
     address: token,
     abi: FiatTokenProxyAbi,
     functionName: "allowance",
-    args: [account, baseContracts.getAddressFromName("BetFactory")],
+    args: [address, spender],
   });
   if (preexistingApprovedAmount < tokenAmount) {
     const approveHash = await writeContract(config, {
       address: token,
       abi: FiatTokenProxyAbi,
       functionName: "approve",
-      args: [baseContracts.getAddressFromName("BetFactory"), tokenAmount],
+      args: [spender, tokenAmount],
     });
     const { status: approveStatus } = await waitForTransactionReceipt(config, {
       hash: approveHash,
