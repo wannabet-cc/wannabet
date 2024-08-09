@@ -23,10 +23,14 @@ export type TokenContract = {
 export const addressRegex = /^0x[a-fA-F0-9]{40}$/;
 export const addressSchema = z
   .string()
-  .refine((val) => addressRegex.test(val), { message: "Invalid ethereum address" });
+  .refine((val) => addressRegex.test(val), { message: "Invalid ethereum address" })
+  .transform((val) => val as Address);
 
 export const ensRegex = /^.{3,}\.eth$/;
-export const ensSchema = z.string().refine((val) => ensRegex.test(val), { message: "Invalid ens name" });
+export const ensSchema = z
+  .string()
+  .refine((val) => ensRegex.test(val), { message: "Invalid ens name" })
+  .transform((val) => val as `${string}.eth`);
 
 export const ensOrAddressSchema = z.string().refine((val) => ensRegex.test(val) || addressRegex.test(val), {
   message: "Invalid ENS name or ethereum address",
@@ -44,3 +48,14 @@ export const createBetFormSchema = z.object({
 });
 
 export type TCreateBetFormSchema = z.infer<typeof createBetFormSchema>;
+
+export const createBetFormattedFormSchema = z.object({
+  participant: addressSchema,
+  amount: z.bigint().positive(),
+  token: addressSchema,
+  message: z.string(),
+  judge: addressSchema,
+  validFor: z.bigint().positive(),
+});
+
+export type TCreateBetFormattedFormSchema = z.infer<typeof createBetFormattedFormSchema>;

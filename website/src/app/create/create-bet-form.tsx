@@ -3,13 +3,12 @@
 import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { config } from "@/app/providers";
-import { fetchEns, baseContracts } from "@/lib";
+import { baseContracts } from "@/lib";
 import { roundFloat } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { waitForTransactionReceipt, writeContract } from "@wagmi/core";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import { Address, formatUnits, parseUnits } from "viem";
-import { normalize } from "viem/ens";
+import { formatUnits } from "viem";
 import { useAccount, useReadContract } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -17,8 +16,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { LoadingSpinner } from "@/components/ui/spinner";
-import { addressRegex, createBetFormSchema, type TCreateBetFormSchema } from "@/lib/types";
+import { createBetFormSchema, type TCreateBetFormSchema } from "@/lib/types";
 import { ensureTokenApproval, hasEnoughTokens } from "@/lib/wallet-functions";
+import { formatFormData } from "./form-utils";
 
 export function CreateBetForm() {
   const { address } = useAccount();
@@ -55,24 +55,19 @@ export function CreateBetForm() {
       if (!address) throw new Error("No user account detected");
 
       /** Transform form data */
-      const tokenAddress = baseContracts.getAddressFromName(values.tokenName);
-      const bigintAmount = parseUnits(values.amount.toString(), baseContracts.getDecimalsFromName(values.tokenName));
-      const validFor = BigInt(values.validForDays * 24 * 60 * 60);
-      const [participantAddress, judgeAddress] = await Promise.all([
-        addressRegex.test(values.participant)
-          ? values.participant
-          : (await fetchEns(normalize(values.participant.trim()) as `${string}.eth`)).address,
-        addressRegex.test(values.judge)
-          ? values.judge
-          : (await fetchEns(normalize(values.judge.trim()) as `${string}.eth`)).address,
-      ]);
+      const formattedValues = await formatFormData(values);
 
       /** Throw if user doesn't have enough tokens */
-      const hasEnough = await hasEnoughTokens(address, tokenAddress, bigintAmount);
+      const hasEnough = await hasEnoughTokens(address, formattedValues.token, formattedValues.amount);
       if (!hasEnough) throw new Error("User doesn't have enough tokens");
 
       /** Approve token transfer IF tokens aren't already approved */
-      await ensureTokenApproval(address, baseContracts.getAddressFromName("BetFactory"), tokenAddress, bigintAmount);
+      await ensureTokenApproval(
+        address,
+        baseContracts.getAddressFromName("BetFactory"),
+        formattedValues.token,
+        formattedValues.amount,
+      );
 
       /** Create bet */
       const betHash = await writeContract(config, {
@@ -80,18 +75,19 @@ export function CreateBetForm() {
         abi: BetFactoryAbi,
         functionName: "createBet",
         args: [
-          participantAddress as Address,
-          bigintAmount,
-          tokenAddress as Address,
-          values.message,
-          judgeAddress as Address,
-          validFor,
+          formattedValues.participant,
+          formattedValues.amount,
+          formattedValues.token,
+          formattedValues.message,
+          formattedValues.judge,
+          formattedValues.validFor,
         ],
       });
       const { status: betStatus } = await waitForTransactionReceipt(config, {
         hash: betHash,
       });
       if (betStatus === "reverted") throw new Error("Bet transaction reverted");
+
       reset();
     } catch (error) {
       throw new Error("Failed to create bet: " + error);
