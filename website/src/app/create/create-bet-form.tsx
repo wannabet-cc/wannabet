@@ -1,21 +1,25 @@
 "use client";
 
+// Constants & Contract Imports
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { baseContracts } from "@/lib";
-import { roundFloat } from "@/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { type SubmitHandler, useForm } from "react-hook-form";
-import { formatUnits } from "viem";
 import { useAccount, useReadContract } from "wagmi";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { LoadingSpinner } from "@/components/ui/spinner";
-import { createBetFormSchema, type TCreateBetFormSchema } from "@/lib/types";
+// Utility Functions
+import { roundFloat } from "@/utils";
+import { formatUnits } from "viem";
 import { createBet, ensureTokenApproval, hasEnoughTokens } from "@/lib/wallet-functions";
 import { formatFormData } from "./form-utils";
+// Form Imports & Components
+import { type SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createBetFormSchema, type TCreateBetFormSchema } from "@/lib/types";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+// Components
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { LoadingSpinner } from "@/components/ui/spinner";
 
 export function CreateBetForm() {
   const { address } = useAccount();
