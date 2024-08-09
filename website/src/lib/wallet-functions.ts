@@ -79,18 +79,12 @@ export async function retrieveTokens(betContract: Address): Promise<WriteContrac
  * then executes "acceptBet")
  */
 export async function acceptBet(
+  address: Address,
   betContract: Address,
   token: Address,
-  amount: bigint,
+  tokenAmount: bigint,
 ): Promise<WriteContractReturnType> {
-  const hash = await writeContract(config, {
-    address: token,
-    abi: FiatTokenProxyAbi,
-    functionName: "approve",
-    args: [betContract, BigInt(amount)],
-  });
-  const { status } = await waitForTransactionReceipt(config, { hash });
-  if (status === "reverted") throw new Error("Token approval reverted");
+  await ensureTokenApproval(address, betContract, token, tokenAmount);
   return writeContract(config, {
     address: betContract,
     abi: BetAbi,
