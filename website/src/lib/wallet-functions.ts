@@ -2,12 +2,14 @@
 
 // Types
 import type { Address } from "viem";
+import { type WriteContractReturnType } from "@wagmi/core";
 // Wagmi
 import { readContract, waitForTransactionReceipt, writeContract } from "@wagmi/core";
 import { config } from "@/app/providers";
 // Contract Imports
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { baseContracts } from "./contracts";
+import { BetAbi } from "@/abis/BetAbi";
 
 /**
  * This file includes functions that are intended to be used on the CLIENT. Using
@@ -53,4 +55,64 @@ export async function ensureTokenApproval(account: Address, token: Address, toke
     });
     if (approveStatus === "reverted") throw new Error("Token approval reverted");
   }
+}
+
+/**
+ * Retrieves tokens from a bet contract if the bet is expired (i.e. executes "retrieveTokens"
+ * on a specified bet contract
+ */
+export async function retrieveTokens(betContract: Address): Promise<WriteContractReturnType> {
+  return writeContract(config, {
+    address: betContract,
+    abi: BetAbi,
+    functionName: "retrieveTokens",
+  });
+}
+
+/**
+ * Accepts a given bet contract (i.e. approves a transfer of tokens of the given bet amount
+ * then executes "acceptBet")
+ */
+export async function acceptBet(
+  betContract: Address,
+  token: Address,
+  amount: bigint,
+): Promise<WriteContractReturnType> {
+  const hash = await writeContract(config, {
+    address: token,
+    abi: FiatTokenProxyAbi,
+    functionName: "approve",
+    args: [betContract, BigInt(amount)],
+  });
+  const { status } = await waitForTransactionReceipt(config, { hash });
+  if (status === "reverted") throw new Error("Token approval reverted");
+  return writeContract(config, {
+    address: betContract,
+    abi: BetAbi,
+    functionName: "acceptBet",
+  });
+}
+
+/**
+ * Declines a given bet contract (i.e. executes "declineBet")
+ */
+export async function declineBet(betContract: Address): Promise<WriteContractReturnType> {
+  return writeContract(config, {
+    address: betContract,
+    abi: BetAbi,
+    functionName: "declineBet",
+  });
+}
+
+/**
+ * Selects the winner of a bet (i.e. executes "settleBet" on a specified
+ * bet contract for a specific account)
+ */
+export async function settleBet(betContract: Address, winner: Address): Promise<WriteContractReturnType> {
+  return writeContract(config, {
+    address: betContract,
+    abi: BetAbi,
+    functionName: "settleBet",
+    args: [winner, ""],
+  });
 }
