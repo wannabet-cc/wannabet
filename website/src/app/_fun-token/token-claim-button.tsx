@@ -15,23 +15,26 @@ import type { Address } from "viem";
 import { readIfWhitelisted, readLastMintTime, mint } from "./wallet-functions";
 
 export function TokenClaimButton() {
-  const { ready, authenticated } = usePrivy();
-  const { address, connector } = useAccount();
+  const { address, status, connector } = useAccount();
 
-  const { data: isWhitelisted, isLoading } = useQuery({
+  const {
+    data: isWhitelisted,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["isWhitelisted", address],
     queryFn: () => readIfWhitelisted(address!),
-    enabled: !!address && !connector?.name.startsWith("Privy"),
+    enabled: status === "connected" && !connector?.name.startsWith("Privy"),
   });
 
-  if (!ready || !authenticated || !address || connector?.name.startsWith("Privy")) return <></>;
+  if (status !== "connected" || connector.name.startsWith("Privy")) return <></>;
+
+  if (isLoading || isError) <></>;
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="default" disabled={isLoading}>
-          Claim JFF Tokens
-        </Button>
+        <Button variant="default">Claim JFF Tokens</Button>
       </DialogTrigger>
       {isWhitelisted ? <WhitelistedDialog address={address} /> : <NotWhitelistedDialog />}
     </Dialog>
