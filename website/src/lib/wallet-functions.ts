@@ -12,6 +12,7 @@ import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
 import { BetAbi } from "@/abis/BetAbi";
 import { baseContracts } from "./contracts";
+import { base } from "viem/chains";
 
 /**
  * This file includes functions that are intended to be used on the CLIENT. Using
@@ -29,6 +30,7 @@ export async function hasEnoughTokens(account: Address, token: Address, tokenThr
     abi: FiatTokenProxyAbi,
     functionName: "balanceOf",
     args: [account],
+    chainId: base.id,
   });
   if (!balance) throw new Error("Failed to read users' token balance");
   return balance >= tokenThreshold;
@@ -49,6 +51,7 @@ export async function ensureTokenApproval(
     abi: FiatTokenProxyAbi,
     functionName: "allowance",
     args: [address, spender],
+    chainId: base.id,
   });
   if (preexistingApprovedAmount < tokenAmount) {
     const approveHash = await writeContract(config, {
@@ -56,6 +59,7 @@ export async function ensureTokenApproval(
       abi: FiatTokenProxyAbi,
       functionName: "approve",
       args: [spender, tokenAmount],
+      chainId: base.id,
     });
     const { status: approveStatus } = await waitForTransactionReceipt(config, {
       hash: approveHash,
@@ -73,6 +77,7 @@ export async function createBet(values: TCreateBetFormattedFormSchema): Promise<
     abi: BetFactoryAbi,
     functionName: "createBet",
     args: [values.participant, values.amount, values.token, values.message, values.judge, values.validFor],
+    chainId: base.id,
   });
   const { status } = await waitForTransactionReceipt(config, { hash });
   if (status === "reverted") throw new Error("Bet transaction reverted");
@@ -88,6 +93,7 @@ export async function retrieveTokens(betContract: Address): Promise<WriteContrac
     address: betContract,
     abi: BetAbi,
     functionName: "retrieveTokens",
+    chainId: base.id,
   });
 }
 
@@ -106,6 +112,7 @@ export async function acceptBet(
     address: betContract,
     abi: BetAbi,
     functionName: "acceptBet",
+    chainId: base.id,
   });
 }
 
@@ -117,6 +124,7 @@ export async function declineBet(betContract: Address): Promise<WriteContractRet
     address: betContract,
     abi: BetAbi,
     functionName: "declineBet",
+    chainId: base.id,
   });
 }
 
@@ -130,5 +138,6 @@ export async function settleBet(betContract: Address, winner: Address): Promise<
     abi: BetAbi,
     functionName: "settleBet",
     args: [winner, ""],
+    chainId: base.id,
   });
 }
