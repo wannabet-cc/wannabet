@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { useAccount } from "wagmi";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // Components
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 
 // Contract Imports
 import type { Address } from "viem";
-import { checkIfWhitelisted, getLastMintTime, handleClaim } from "./wallet-functions";
+import { readIfWhitelisted, readLastMintTime, mint } from "./wallet-functions";
 
 export function TokenClaimButton() {
   const { ready, authenticated } = usePrivy();
@@ -20,7 +20,7 @@ export function TokenClaimButton() {
 
   const { data: isWhitelisted, isLoading } = useQuery({
     queryKey: ["isWhitelisted", address],
-    queryFn: () => checkIfWhitelisted(address!),
+    queryFn: () => readIfWhitelisted(address!),
     enabled: !!address && !connector?.name.startsWith("Privy"),
   });
 
@@ -41,15 +41,14 @@ export function TokenClaimButton() {
 function WhitelistedDialog({ address }: { address: Address }) {
   const { data: lastMintTime } = useQuery({
     queryKey: ["lastMintTime", address],
-    queryFn: () => getLastMintTime(address),
+    queryFn: () => readLastMintTime(address),
   });
 
+  const queryClient = useQueryClient();
+
   const { mutate, isPending } = useMutation({
-    mutationFn: () =>
-      handleClaim([
-        ["isWhitelisted", address],
-        ["lastMintTime", address],
-      ]),
+    mutationFn: () => mint(),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["lastMintTime", address] }),
   });
 
   const timeLeft = Math.round(Number(lastMintTime) + 86400 - Date.now() / 1000);
