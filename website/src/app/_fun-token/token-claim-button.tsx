@@ -65,7 +65,7 @@ function WhitelistedDialog({ address }: { address: Address }) {
         {inCooldown ? (
           <p>Come back tomorrow to claim 100 more.</p>
         ) : (
-          <p>JFF (i.e. &quot;Just for fun&quot;) tokens can be used on WannaBet to try the app out without risk.</p>
+          <p>JFF (i.e. &quot;Just for fun&quot;) tokens can be used on wannabet to try the app out without risk.</p>
         )}
       </div>
       <DialogFooter>
@@ -100,7 +100,7 @@ function NotWhitelistedDialog() {
         <DialogTitle>You aren&apos;t on the whitelist for JFF</DialogTitle>
       </DialogHeader>
       <div className="space-y-4 text-sm text-muted-foreground">
-        <p>JFF (i.e. &quot;Just for fun&quot;) tokens can be used on WannaBet to try the app out without risk.</p>
+        <p>JFF (i.e. &quot;Just for fun&quot;) tokens can be used on wannabet to try the app out without risk.</p>
         <p>To get added, join our telegram group and ask @limes_eth</p>
       </div>
       <DialogFooter>

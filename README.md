@@ -1,6 +1,6 @@
-# WannaBet
+# wannabet
 
-[WannaBet](https://wannabet.cc) is a public, onchain, peer-to-peer betting dapp [deployed on Base](https://basescan.org/address/0x304ac36402d551fbba8e53e04e770337022e8757). Bets are defined and placed upfront, wagers are held in an escrow contract, and a judge is assigned to determine a winner.
+[wannabet](https://wannabet.cc) is a public, onchain, peer-to-peer betting dapp [deployed on Base](https://basescan.org/address/0x304ac36402d551fbba8e53e04e770337022e8757). Bets are defined and placed upfront, wagers are held in an escrow contract, and a judge is assigned to determine a winner.
 
 ## Features
 
