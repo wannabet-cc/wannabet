@@ -24,6 +24,7 @@ export function RecentBetList() {
       })
         .then((res) => res.json())
         .then((data) => data as FormattedBets),
+    staleTime: 30 * 1000,
     initialPageParam: "",
     getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
     maxPages: 7,
@@ -55,6 +56,7 @@ export function MyBetList() {
       })
         .then((res) => res.json())
         .then((data) => data as FormattedBets),
+    staleTime: 30 * 1000,
     initialPageParam: "",
     getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
     maxPages: 7,
