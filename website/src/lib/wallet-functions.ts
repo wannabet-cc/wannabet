@@ -24,15 +24,21 @@ import { base } from "viem/chains";
  * Returns boolean for if a given address has more or equal tokens to a given threshold.
  * Function will throw if the data fetch fails.
  */
-export async function hasEnoughTokens(account: Address, token: Address, tokenThreshold: bigint): Promise<boolean> {
+export async function hasEnoughTokens(
+  address: Address,
+  token: Address,
+  tokenThreshold: bigint,
+): Promise<boolean | undefined> {
+  console.log("reading");
   const balance = await readContract(config, {
     address: token,
     abi: FiatTokenProxyAbi,
     functionName: "balanceOf",
-    args: [account],
+    args: [address],
     chainId: base.id,
   });
-  if (!balance) throw new Error("Failed to read users' token balance");
+  console.log("got balance");
+  if (!balance) return undefined;
   return balance >= tokenThreshold;
 }
 
