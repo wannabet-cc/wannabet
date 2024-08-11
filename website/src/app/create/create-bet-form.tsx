@@ -1,26 +1,27 @@
 "use client";
 
-// Constants & Contract Imports
+// Constants
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
-import { baseContracts, fetchEns } from "@/lib";
+// Hooks
 import { useAccount, useReadContract } from "wagmi";
-// Utility Functions
-import { abbreviateHex, pause, roundFloat } from "@/utils";
-import { formatUnits, parseUnits } from "viem";
-// Form Imports & Components
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { createBetFormSchema, type TCreateBetFormSchema } from "@/lib/types";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-// Components
-import { onSubmitAction } from "./form-submit";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useFetchEns } from "@/hooks";
 import { useEffect } from "react";
+// Utility Functions
+import { abbreviateHex, roundFloat } from "@/utils";
+import { formatUnits } from "viem";
+import { baseContracts } from "@/lib";
+// Form Imports & Components
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createBetFormSchema, type TCreateBetFormSchema } from "@/lib/types";
+import { onSubmitAction } from "./form-submit";
+// Components
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const NAME_RESOLVING_ERROR_MSG = "Error finding user. Try another name.";
 
