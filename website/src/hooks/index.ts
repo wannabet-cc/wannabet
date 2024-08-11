@@ -7,10 +7,11 @@ import { fetchEns } from "@/lib";
 import { Address } from "viem";
 
 /** Custom React Hook to fetch ENS data */
-export function useFetchEns(nameOrAddress: `${string}.eth` | Address) {
+export function useFetchEns(nameOrAddress: `${string}.eth` | Address, enabled: boolean = true) {
   return useQuery({
     queryKey: ["ensData", { nameOrAddress }],
     queryFn: () => fetchEns(nameOrAddress),
+    enabled,
   });
 }
 
@@ -75,10 +76,7 @@ export function useSequentialWriteContracts() {
   };
 
   const isPending =
-    status === "submitting-1" ||
-    status === "submitting-2" ||
-    status === "confirming-1" ||
-    status === "confirming-2";
+    status === "submitting-1" || status === "submitting-2" || status === "confirming-1" || status === "confirming-2";
   const isSuccess = status === "completed";
 
   return { executeTxns, status, isPending, isSuccess };
