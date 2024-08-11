@@ -16,6 +16,7 @@ import { formatUSDC } from "@/utils";
 // Contract
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
 import { baseContracts } from "@/lib";
+import { base } from "viem/chains";
 
 export function SectionActiveWallet() {
   const { wallets } = useWallets();
@@ -25,6 +26,7 @@ export function SectionActiveWallet() {
     address: baseContracts.getAddressFromName("USDC")!,
     functionName: "balanceOf",
     args: [address as Address],
+    chainId: base.id,
   });
 
   const activeWallet = wallets.find((wallet) => wallet.address === address);

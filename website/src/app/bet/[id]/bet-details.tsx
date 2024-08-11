@@ -16,7 +16,7 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
   const account = useAccount();
   return (
     <Table>
-      <TableCaption>Details of WannaBet #{bet.betId}</TableCaption>
+      <TableCaption>Details of wannabet #{bet.betId}</TableCaption>
       <TableBody>
         <TableRow>
           <TableCell>parties</TableCell>

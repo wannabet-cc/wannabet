@@ -4,7 +4,7 @@ import { PrivyProvider } from "@privy-io/react-auth";
 import { createConfig, WagmiProvider } from "@privy-io/wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { http } from "wagmi";
-import { base, mainnet } from "wagmi/chains";
+import { base, mainnet } from "viem/chains";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BASE_ALCHEMY_URL, MAINNET_ALCHEMY_URL, PRIVY_APP_ID } from "@/config/client";
 
@@ -17,7 +17,7 @@ export const config = createConfig({
   },
 });
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (

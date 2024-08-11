@@ -6,15 +6,30 @@ import Link from "next/link";
 import { useAccount, useEnsName } from "wagmi";
 import { abbreviateHex } from "@/utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { base } from "viem/chains";
+import { useActiveWallet } from "@/hooks/useActiveWallet";
 
 export function LoginButton() {
   const { ready, authenticated, login, logout } = usePrivy();
+  const activeWallet = useActiveWallet();
   const { isConnected, address } = useAccount();
   const { data: ensName } = useEnsName({
     address: address,
     chainId: 1,
     query: { enabled: isConnected },
   });
+
+  if (activeWallet?.chainId !== `eip155:${base.id.toString()}`)
+    return (
+      <Button
+        variant="default"
+        onClick={() => {
+          activeWallet?.switchChain(base.id);
+        }}
+      >
+        Switch to Base
+      </Button>
+    );
 
   if (ready && authenticated && address) {
     return (

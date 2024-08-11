@@ -1,28 +1,34 @@
 "use client";
 
-import { BetFactoryAbi } from "@/abis/BetFactoryAbi";
+// Constants
 import { FiatTokenProxyAbi } from "@/abis/FiatTokenProxyAbi";
-import { config } from "@/app/providers";
-import { fetchEns, baseContracts } from "@/lib";
-import { roundFloat } from "@/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { waitForTransactionReceipt, writeContract } from "@wagmi/core";
-import { type SubmitHandler, useForm } from "react-hook-form";
-import { Address, formatUnits, parseUnits } from "viem";
-import { normalize } from "viem/ens";
+// Hooks
 import { useAccount, useReadContract } from "wagmi";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useFetchEns } from "@/hooks";
+import { useEffect } from "react";
+// Utility Functions
+import { abbreviateHex, roundFloat } from "@/utils";
+import { formatUnits } from "viem";
+import { baseContracts } from "@/lib";
+// Form Imports & Components
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createBetFormSchema, type TCreateBetFormSchema } from "@/lib/types";
+import { onSubmitAction } from "./form-submit";
+// Components
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { LoadingSpinner } from "@/components/ui/spinner";
-import { addressRegex, createBetFormSchema, type TCreateBetFormSchema } from "@/lib/types";
-import { ensureTokenApproval, hasEnoughTokens } from "@/lib/wallet-functions";
+
+const NAME_RESOLVING_ERROR_MSG = "Error finding user. Try another name.";
 
 export function CreateBetForm() {
   const { address } = useAccount();
-
+  const queryClient = useQueryClient();
+  const router = useRouter();
   const form = useForm<TCreateBetFormSchema>({
     resolver: zodResolver(createBetFormSchema),
     defaultValues: {
@@ -33,74 +39,62 @@ export function CreateBetForm() {
       validForDays: 7,
       judge: "",
     },
+    mode: "onTouched",
+    reValidateMode: "onBlur",
   });
 
-  const { reset, getValues, formState } = form;
-  const { isValid, isSubmitting } = formState;
-
+  // Token Balance State
+  const tokenName = form.watch("tokenName");
   const { data: tokenBalance } = useReadContract({
-    address: baseContracts.getAddressFromName(getValues("tokenName")),
+    address: baseContracts.getAddressFromName(tokenName),
     abi: FiatTokenProxyAbi,
     functionName: "balanceOf",
     args: [address ? address : "0x"],
     query: { enabled: !!address },
   });
 
-  form.watch("tokenName");
+  // Participant Address State
+  const participant = form.watch("participant");
+  const participantIsReady =
+    !!participant &&
+    form.getFieldState("participant", form.formState).isTouched &&
+    !form.getFieldState("participant", form.formState).invalid;
+  const { data: participantEnsRes } = useFetchEns(participant as any, participantIsReady);
+  useEffect(() => {
+    if (!participantEnsRes) return;
+    form.setValue("participantAddress", participantEnsRes.address);
+  }, [participantEnsRes]);
 
-  const decimals = baseContracts.getDecimalsFromName(getValues("tokenName"));
+  // Judge Address State
+  const judge = form.watch("judge");
+  const judgeIsReady =
+    !!judge &&
+    form.getFieldState("judge", form.formState).isTouched &&
+    !form.getFieldState("judge", form.formState).invalid;
+  const { data: judgeEnsRes } = useFetchEns(judge as any, judgeIsReady);
+  useEffect(() => {
+    if (!judgeEnsRes) return;
+    form.setValue("judgeAddress", judgeEnsRes.address);
+  }, [judgeEnsRes]);
 
-  const onSubmit: SubmitHandler<TCreateBetFormSchema> = async (values) => {
-    try {
-      if (!address) throw new Error("No user account detected");
+  // Handle Submit
+  async function onSubmit(data: TCreateBetFormSchema) {
+    console.log("submitting");
+    if (!address) return;
 
-      /** Transform form data */
-      const tokenAddress = baseContracts.getAddressFromName(values.tokenName);
-      const bigintAmount = parseUnits(values.amount.toString(), baseContracts.getDecimalsFromName(values.tokenName));
-      const validFor = BigInt(values.validForDays * 24 * 60 * 60);
-      const [participantAddress, judgeAddress] = await Promise.all([
-        addressRegex.test(values.participant)
-          ? values.participant
-          : (await fetchEns(normalize(values.participant.trim()) as `${string}.eth`)).address,
-        addressRegex.test(values.judge)
-          ? values.judge
-          : (await fetchEns(normalize(values.judge.trim()) as `${string}.eth`)).address,
-      ]);
+    const resData = await onSubmitAction(address, data);
+    console.log(resData);
+    if (resData?.issues) return;
 
-      /** Throw if user doesn't have enough tokens */
-      const hasEnough = await hasEnoughTokens(address, tokenAddress, bigintAmount);
-      if (!hasEnough) throw new Error("User doesn't have enough tokens");
-
-      /** Approve token transfer IF tokens aren't already approved */
-      await ensureTokenApproval(address, tokenAddress, bigintAmount);
-
-      /** Create bet */
-      const betHash = await writeContract(config, {
-        address: baseContracts.getAddressFromName("BetFactory")!,
-        abi: BetFactoryAbi,
-        functionName: "createBet",
-        args: [
-          participantAddress as Address,
-          bigintAmount,
-          tokenAddress as Address,
-          values.message,
-          judgeAddress as Address,
-          validFor,
-        ],
-      });
-      const { status: betStatus } = await waitForTransactionReceipt(config, {
-        hash: betHash,
-      });
-      if (betStatus === "reverted") throw new Error("Bet transaction reverted");
-      reset();
-    } catch (error) {
-      throw new Error("Failed to create bet: " + error);
-    }
-  };
+    await queryClient.invalidateQueries({ queryKey: ["recentBetData"] });
+    await queryClient.invalidateQueries({ queryKey: ["myBetData"] });
+    form.reset();
+    router.push("/");
+  }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+      <form onSubmit={form.handleSubmit(onSubmit, console.log)} className="space-y-2">
         {/* bet participant: ens name or address */}
         <FormField
           control={form.control}
@@ -112,6 +106,16 @@ export function CreateBetForm() {
                 <FormControl>
                   <Input {...field} placeholder="abc.eth or 0xabc..." type="text" />
                 </FormControl>
+                {participantIsReady && (
+                  <>
+                    {participantEnsRes && participantEnsRes.address && (
+                      <FormDescription>Resolves to: {abbreviateHex(participantEnsRes.address, 4)}</FormDescription>
+                    )}
+                    {participantEnsRes && participantEnsRes.address === null && (
+                      <FormDescription>{NAME_RESOLVING_ERROR_MSG}</FormDescription>
+                    )}
+                  </>
+                )}
                 <FormMessage />
               </FormItem>
             );
@@ -169,16 +173,26 @@ export function CreateBetForm() {
                     </FormItem>
                   </RadioGroup>
                 </FormControl>
+
                 <FormMessage />
               </FormItem>
             );
           }}
         />
         {address && (
-          <div className="text-sm text-muted-foreground">
+          <FormDescription>
             {"Your balance: "}
-            {tokenBalance ? <span>{roundFloat(Number(formatUnits(tokenBalance, decimals)), 5)}</span> : "..."}
-          </div>
+            {tokenBalance ? (
+              <span>
+                {roundFloat(
+                  Number(formatUnits(tokenBalance, baseContracts.getDecimalsFromName(form.getValues("tokenName")))),
+                  5,
+                )}
+              </span>
+            ) : (
+              "..."
+            )}
+          </FormDescription>
         )}
         {/* message: string */}
         <FormField
@@ -223,26 +237,25 @@ export function CreateBetForm() {
                 <FormControl>
                   <Input {...field} placeholder="abc.eth or 0xabc..." type="text" />
                 </FormControl>
+                {judgeIsReady && (
+                  <>
+                    {judgeEnsRes && judgeEnsRes.address && (
+                      <FormDescription>Resolves to: {abbreviateHex(judgeEnsRes.address, 4)}</FormDescription>
+                    )}
+                    {judgeEnsRes && judgeEnsRes.address === null && (
+                      <FormDescription>{NAME_RESOLVING_ERROR_MSG}</FormDescription>
+                    )}
+                  </>
+                )}
                 <FormMessage />
               </FormItem>
             );
           }}
         />
-        {/* submit */}
-        <div className="flex flex-col space-y-2 pt-4">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button type="submit" disabled={!isValid || !address || isSubmitting}>
-                {isSubmitting ? "Submitting..." : "Submit"}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Creating new bet</DialogTitle>
-              </DialogHeader>
-              <LoadingSpinner />
-            </DialogContent>
-          </Dialog>
+        <div className="w-full pt-6 *:w-full">
+          <Button type="submit" disabled={!address || form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? "Submitting..." : "Submit"}
+          </Button>
         </div>
       </form>
     </Form>

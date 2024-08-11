@@ -7,7 +7,7 @@ import { Header } from "@/components/header";
 
 const inter = Inter({ subsets: ["latin"] });
 
-const siteTitle = "WannaBet";
+const siteTitle = "wannabet";
 const siteDesc = "Make secure, custom, non-custodial bets";
 const siteUrl = "https://wannabet.cc";
 

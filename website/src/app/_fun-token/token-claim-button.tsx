@@ -3,38 +3,38 @@
 // Hooks
 import { useEffect, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { useAccount } from "wagmi";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // Components
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 // Contract Imports
-import { WhitelistedFunToken } from "@/abis/WhitelistedFunToken";
-import { baseContracts } from "@/lib";
 import type { Address } from "viem";
-
-const WHITELISTED_ROLE = "0x8429d542926e6695b59ac6fbdcd9b37e8b1aeb757afab06ab60b1bb5878c3b49";
+import { readIfWhitelisted, readLastMintTime, mint } from "./wallet-functions";
 
 export function TokenClaimButton() {
-  const { ready, authenticated } = usePrivy();
-  const { address, connector } = useAccount();
-  const { data: isWhitelisted, isLoading } = useReadContract({
-    address: baseContracts.getAddressFromName("JFF"),
-    abi: WhitelistedFunToken,
-    functionName: "hasRole",
-    args: [WHITELISTED_ROLE, address!],
-    query: { enabled: !!address && !connector?.name.startsWith("Privy") },
+  const { address, status, connector } = useAccount();
+
+  const {
+    data: isWhitelisted,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["isWhitelisted", address],
+    queryFn: () => readIfWhitelisted(address!),
+    enabled: status === "connected" && !connector?.name.startsWith("Privy"),
   });
 
-  if (!ready || !authenticated || !address || connector?.name.startsWith("Privy")) return <></>;
+  if (status !== "connected" || connector.name.startsWith("Privy")) return <></>;
+
+  if (isLoading || isError) <></>;
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="default" disabled={isLoading}>
-          Claim JFF Tokens
-        </Button>
+        <Button variant="default">Claim JFF Tokens</Button>
       </DialogTrigger>
       {isWhitelisted ? <WhitelistedDialog address={address} /> : <NotWhitelistedDialog />}
     </Dialog>
@@ -42,27 +42,23 @@ export function TokenClaimButton() {
 }
 
 function WhitelistedDialog({ address }: { address: Address }) {
-  const { writeContract } = useWriteContract();
-  const { data: lastMintTime } = useReadContract({
-    abi: WhitelistedFunToken,
-    address: baseContracts.getAddressFromName("JFF"),
-    functionName: "lastMintTime",
-    args: [address],
+  const { data: lastMintTime } = useQuery({
+    queryKey: ["lastMintTime", address],
+    queryFn: () => readLastMintTime(address),
+  });
+
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => mint(),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["lastMintTime", address] }),
   });
 
   const timeLeft = Math.round(Number(lastMintTime) + 86400 - Date.now() / 1000);
   const inCooldown = timeLeft >= 0;
 
-  const handleClaim = () => {
-    writeContract({
-      abi: WhitelistedFunToken,
-      address: baseContracts.getAddressFromName("JFF"),
-      functionName: "mint",
-    });
-  };
-
   return (
-    <DialogContent>
+    <DialogContent aria-describedby="Just for fun token whitelist dialog">
       <DialogHeader>
         <DialogTitle>
           Congrats! {inCooldown ? "You have claimed your daily amount" : "You are on the whitelist for the JFF token."}
@@ -72,12 +68,18 @@ function WhitelistedDialog({ address }: { address: Address }) {
         {inCooldown ? (
           <p>Come back tomorrow to claim 100 more.</p>
         ) : (
-          <p>JFF (i.e. &quot;Just for fun&quot;) tokens can be used on WannaBet to try the app out without risk.</p>
+          <p>JFF (i.e. &quot;Just for fun&quot;) tokens can be used on wannabet to try the app out without risk.</p>
         )}
       </div>
       <DialogFooter>
-        <Button className="w-full" disabled={inCooldown} onClick={handleClaim}>
-          {inCooldown ? <CountdownButtonText lastMintTime={Number(lastMintTime)} /> : "Claim"}
+        <Button className="w-full" disabled={inCooldown || isPending} onClick={() => mutate()}>
+          {inCooldown ? (
+            <CountdownButtonText lastMintTime={Number(lastMintTime)} />
+          ) : isPending ? (
+            "Claiming..."
+          ) : (
+            "Claim"
+          )}
         </Button>
       </DialogFooter>
     </DialogContent>
@@ -96,12 +98,12 @@ function CountdownButtonText({ lastMintTime }: { lastMintTime: number }) {
 
 function NotWhitelistedDialog() {
   return (
-    <DialogContent>
+    <DialogContent aria-describedby="Just for fun token whitelist dialog">
       <DialogHeader>
         <DialogTitle>You aren&apos;t on the whitelist for JFF</DialogTitle>
       </DialogHeader>
       <div className="space-y-4 text-sm text-muted-foreground">
-        <p>JFF (i.e. &quot;Just for fun&quot;) tokens can be used on WannaBet to try the app out without risk.</p>
+        <p>JFF (i.e. &quot;Just for fun&quot;) tokens can be used on wannabet to try the app out without risk.</p>
         <p>To get added, join our telegram group and ask @limes_eth</p>
       </div>
       <DialogFooter>
