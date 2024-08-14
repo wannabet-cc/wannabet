@@ -29,10 +29,16 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           accentColor: "#676FFF",
           // logo: "https://your-logo-url",
         },
-        loginMethods: ["wallet", "email"],
-        embeddedWallets: {
-          createOnLogin: "users-without-wallets",
+        loginMethods: ["wallet"],
+        externalWallets: {
+          coinbaseWallet: {
+            connectionOptions: "all",
+          },
         },
+        embeddedWallets: {
+          createOnLogin: "off",
+        },
+        defaultChain: base,
       }}
     >
       <QueryClientProvider client={queryClient}>
