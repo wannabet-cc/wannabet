@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LoginButton } from "./auth/login-button";
+import { LoginButton } from "@/components/auth/login-button";
 import { TokenClaimButton } from "@/app/_fun-token/token-claim-button";
 
 export function Header() {
