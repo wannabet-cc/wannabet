@@ -15,6 +15,7 @@ import { UserBadge } from "./misc/user-badge";
 
 // Utility Functions
 import { baseContracts } from "@/lib";
+import Link from "next/link";
 
 export function BetTable({
   data,
@@ -37,12 +38,13 @@ export function BetTable({
             <TableHead>amount</TableHead>
             <TableHead>participants</TableHead>
             <TableHead className="text-center">status</TableHead>
+            <TableHead />
           </TableRow>
         </TableHeader>
         <TableBody>
           {data?.pages.map((page) =>
             page.items.map((bet, i) => (
-              <TableRow key={i} onClick={() => router.push(`/b/${bet.betId}`)} className="cursor-pointer">
+              <TableRow key={i} className="cursor-pointer">
                 <TableCell className="text-center">{bet.betId}</TableCell>
                 <TableCell>
                   {bet.amount} {baseContracts.getNameFromAddress(bet.token)}
@@ -65,11 +67,16 @@ export function BetTable({
                     "..."
                   )}
                 </TableCell>
+                <TableCell className="flex justify-end">
+                  <Button asChild variant="secondary" size="xs">
+                    <Link href={`/b/${bet.betId}`}>See Bet</Link>
+                  </Button>
+                </TableCell>
               </TableRow>
             )),
           )}
           <TableRow>
-            <TableCell colSpan={4}>
+            <TableCell colSpan={5}>
               <div className="mx-auto w-fit">
                 <Button
                   variant="outline"
