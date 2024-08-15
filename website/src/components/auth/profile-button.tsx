@@ -16,6 +16,9 @@ import Link from "next/link";
 import { abbreviateHex } from "@/utils";
 import { Address } from "viem";
 import { TokenClaimButton } from "@/app/_fun-token/token-claim-button";
+import { useQuery } from "@tanstack/react-query";
+import { WannaBetUser } from "@/lib/types/wb-user";
+import { useMemo } from "react";
 
 export function ProfileButton() {
   const { ready, authenticated } = usePrivy();
@@ -49,20 +52,47 @@ export function ProfileButton() {
   return (
     <div className="flex space-x-2">
       <TokenClaimButton />
-      <ProfileDropdown user={wallet.address} />
+      <NamedProfileDropdown address={wallet.address as Address} />
     </div>
   );
 }
 
-function ProfileDropdown({ user }: { user: string }) {
+function NamedProfileDropdown({ address }: { address: Address }) {
+  const { data, isSuccess } = useQuery({
+    queryKey: ["user", address],
+    queryFn: async () => {
+      const res = await fetch(`/api/names/${address}`);
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const json = await res.json();
+      return json.data as WannaBetUser;
+    },
+  });
+
+  const user = useMemo(() => {
+    return isSuccess && data
+      ? data
+      : ({
+          type: "Address",
+          name: abbreviateHex(address),
+          address: address as Address,
+          path: `/u/${address}`,
+        } satisfies WannaBetUser);
+  }, [isSuccess, data, address]);
+
+  return <ProfileDropdown user={user} />;
+}
+
+function ProfileDropdown({ user }: { user: WannaBetUser }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">{abbreviateHex(user as Address, 3)}</Button>
+        <Button variant="outline">{user.name}</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>
-          <Link href={`/u/${user}`}>My Profile</Link>
+          <Link href={user.path}>My Profile</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href={`/account`}>Account Settings</Link>
