@@ -18,16 +18,10 @@ export async function GET(req: NextRequest, { params }: { params: { name: string
     // 404 if no item found
     if (!nameFound) return NextResponse.json({ message: "Name not found" }, { status: 404 });
     // return
-    return NextResponse.json(
-      { message: "Name fetched successfully", validatedName },
-      { status: 200 },
-    );
+    return NextResponse.json({ message: "Name fetched successfully", data: res[0] }, { status: 200 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Validation failed", details: error.errors },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Validation failed", details: error.errors }, { status: 400 });
     }
     NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
