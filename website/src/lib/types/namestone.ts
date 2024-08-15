@@ -5,3 +5,5 @@ export const nameStone_NameSchema = z
   .min(1)
   .max(18)
   .regex(/^[a-zA-Z0-9]+$/, "Only alphanumeric characters are allowed");
+
+export type TNameStoneName = z.infer<typeof nameStone_NameSchema>;

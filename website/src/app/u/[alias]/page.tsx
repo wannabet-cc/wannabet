@@ -8,52 +8,22 @@ import { UserBets } from "./user-bets";
 import { UserAvatar } from "./user-avatar";
 import { nameStone_NameSchema } from "@/lib/types/namestone";
 import { nameStoneService } from "@/services/namestone";
-import { Address } from "viem";
 import { ensSchema } from "@/lib/types";
+import { WBUser } from "@/lib/types/user";
+import { UserResolver } from "@/lib/user-resolver";
 
-type User = {
-  name: string;
-  address: Address;
-  avatar?: string;
-};
+export default async function UserPage({ params }: { params: { alias: string } }) {
+  const user = await UserResolver.getUser(params.alias);
 
-export default async function UserPage({ params }: { params: { username: string } }) {
-  // Namestone
-  const validatedName = nameStone_NameSchema.safeParse(params.username);
-  if (validatedName.success) {
-    const res = await nameStoneService.searchName(validatedName.data, 1);
-    if (res.length > 0 && res[0].name === validatedName.data) {
-      const user: User = {
-        name: res[0].name,
-        address: res[0].address,
-        avatar: res[0].text_records && res[0].text_records.avatar,
-      };
-      return (
-        <main className="flex w-full flex-col items-center">
-          <div className="w-full space-y-2 md:px-8">
-            <BackButton />
-            <ProfileCard user={user} />
-          </div>
-        </main>
-      );
-    }
-  }
-
-  // ENS
-  const validatedEnsName = ensSchema.safeParse(params.username);
-  if (validatedEnsName.success) {
-    const account = await fetchEns(normalize(params.username) as `${string}.eth`);
-    if (account.address) {
-      const user: User = { name: params.username, address: account.address, avatar: account.avatar || undefined };
-      return (
-        <main className="flex w-full flex-col items-center">
-          <div className="w-full space-y-2 md:px-8">
-            <BackButton />
-            <ProfileCard user={user} />
-          </div>
-        </main>
-      );
-    }
+  if (user) {
+    return (
+      <main className="flex w-full flex-col items-center">
+        <div className="w-full space-y-2 md:px-8">
+          <BackButton />
+          <ProfileCard user={user} />
+        </div>
+      </main>
+    );
   }
 
   // Fallback
@@ -67,7 +37,7 @@ export default async function UserPage({ params }: { params: { username: string 
   );
 }
 
-function ProfileCard({ user }: { user: User }) {
+function ProfileCard({ user }: { user: WBUser }) {
   return (
     <Card className="w-full">
       <CardHeader>
