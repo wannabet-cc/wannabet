@@ -89,8 +89,8 @@ type NameStoneUser = {
   name: string;
   address: Address;
   domain: string; // ens name
-  textRecords: {
-    avatar: string; // url
+  text_records?: {
+    avatar?: string; // url
   };
 };
 
