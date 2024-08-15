@@ -2,7 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export function UserAvatar(props: { avatar: string; name: string }) {
+export function UserAvatar(props: { avatar?: string; name: string }) {
   return (
     <Avatar>
       <AvatarImage src={props.avatar} />
