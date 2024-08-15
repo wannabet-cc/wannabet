@@ -5,8 +5,7 @@ import { ensSchema } from "./types/ens";
 import { nameStone_NameSchema } from "./types/namestone";
 import { addressSchema } from "./types";
 import { z } from "zod";
-import { Address } from "viem";
-import { WannaBetUser } from "./wb-user";
+import type { WannaBetUser } from "./types/wb-user";
 
 /**
  * This is class must be executed on the server side.
@@ -14,7 +13,7 @@ import { WannaBetUser } from "./wb-user";
 
 class UserResolver {
   /** Validates and returns a WannaBetUser */
-  static async getUser(userAlias: string): Promise<WannaBetUser | null> {
+  static async getPreferredUser(userAlias: string): Promise<WannaBetUser | null> {
     try {
       // NameStone
       const validated_nameStoneAlias = nameStone_NameSchema.safeParse(userAlias);
@@ -26,12 +25,13 @@ class UserResolver {
           throw new Error("Name not found");
         }
         // Return
-        return new WannaBetUser({
+        return {
           type: "NameStone",
           name: res[0].name,
           address: res[0].address,
           avatar: res[0].text_records && res[0].text_records.avatar,
-        });
+          path: `/u/${res[0].name}`,
+        } as WannaBetUser;
       }
 
       // ENS
@@ -44,23 +44,55 @@ class UserResolver {
           throw new Error("No matching record for ENS found");
         }
         // Return
-        return new WannaBetUser({
+        const nameStoneRes = await nameStoneService.getName(res.address);
+        if (nameStoneRes) {
+          return {
+            type: "NameStone",
+            name: nameStoneRes.name,
+            address: nameStoneRes.address,
+            avatar: nameStoneRes.text_records && nameStoneRes.text_records.avatar,
+            path: `/u/${nameStoneRes.name}`,
+          } as WannaBetUser;
+        }
+        return {
           type: "ENS",
           name: res.name,
           address: res.address,
           avatar: res.avatar || undefined,
-        });
+          path: `/u/${res.name}`,
+        } as WannaBetUser;
       }
 
       // Address
       const validated_addressAlias = addressSchema.safeParse(userAlias);
       if (validated_addressAlias.success) {
         // Return
-        return new WannaBetUser({
+        const nameStoneRes = await nameStoneService.getName(validated_addressAlias.data);
+        if (nameStoneRes) {
+          return {
+            type: "NameStone",
+            name: nameStoneRes.name,
+            address: nameStoneRes.address,
+            avatar: nameStoneRes.text_records && nameStoneRes.text_records.avatar,
+            path: `/u/${nameStoneRes.name}`,
+          } as WannaBetUser;
+        }
+        const ensRes = await fetchEns(validated_addressAlias.data);
+        if (ensRes.name) {
+          return {
+            type: "ENS",
+            name: ensRes.name,
+            address: ensRes.address,
+            avatar: ensRes.avatar || undefined,
+            path: `/u/${ensRes.name}`,
+          } as WannaBetUser;
+        }
+        return {
           type: "Address",
           name: abbreviateHex(validated_addressAlias.data),
           address: validated_addressAlias.data,
-        });
+          path: `/u/${validated_addressAlias.data}`,
+        } as WannaBetUser;
       }
 
       // Fallback

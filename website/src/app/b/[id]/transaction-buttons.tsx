@@ -20,9 +20,9 @@ import { revalidatePath } from "next/cache";
 export function TransactionButtons({ bet }: { bet: FormattedBet }) {
   const { address } = useAccount();
 
-  const isCreator = address?.toLowerCase() === bet.creator,
-    isParticipant = address?.toLowerCase() === bet.participant,
-    isJudge = address?.toLowerCase() === bet.judge;
+  const isCreator = address?.toLowerCase() === bet.creator.address.toLowerCase(),
+    isParticipant = address?.toLowerCase() === bet.participant.address.toLowerCase(),
+    isJudge = address?.toLowerCase() === bet.judge.address.toLowerCase();
 
   return (
     <div className="flex flex-col space-y-2">
@@ -114,11 +114,11 @@ function ParticipantActions({
 
 function JudgeActions({ isJudge, bet }: { isJudge: boolean; bet: FormattedBet }) {
   const { mutate: mutateSettleForCreator, isPending: isPendingCreator } = useMutation({
-    mutationFn: () => settleBet(bet.contractAddress, bet.creator),
+    mutationFn: () => settleBet(bet.contractAddress, bet.creator.address),
     onSuccess: () => revalidatePath(`/b/${bet.betId}`),
   });
   const { mutate: mutateSettleForParticipant, isPending: isPendingParticipant } = useMutation({
-    mutationFn: () => settleBet(bet.contractAddress, bet.participant),
+    mutationFn: () => settleBet(bet.contractAddress, bet.participant.address),
     onSuccess: () => revalidatePath(`/b/${bet.betId}`),
   });
   const { mutate: mutateSettleTie, isPending: isPendingTie } = useMutation({
@@ -131,10 +131,10 @@ function JudgeActions({ isJudge, bet }: { isJudge: boolean; bet: FormattedBet })
   return (
     <>
       <Button variant="default" size="sm" disabled={isPending || !isJudge} onClick={() => mutateSettleForCreator()}>
-        {bet.creatorAlias}
+        {bet.creator.name}
       </Button>
       <Button variant="default" size="sm" disabled={isPending || !isJudge} onClick={() => mutateSettleForParticipant()}>
-        {bet.participantAlias}
+        {bet.participant.name}
       </Button>
       <Button variant="secondary" size="sm" disabled={isPending || !isJudge} onClick={() => mutateSettleTie()}>
         Tie

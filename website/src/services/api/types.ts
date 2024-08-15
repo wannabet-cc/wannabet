@@ -1,3 +1,4 @@
+import { WannaBetUser } from "@/lib/types/wb-user";
 import { Address } from "viem";
 
 type BetsWithPagination<T> = {
@@ -34,19 +35,13 @@ export type BetStatus = "expired" | "pending" | "accepted" | "declined" | "settl
 export type FormattedBet = {
   betId: number;
   contractAddress: Address;
-  creator: Address;
-  creatorAlias: string;
-  creatorPfp?: string;
-  participant: Address;
-  participantAlias: string;
-  participantPfp?: string;
+  creator: WannaBetUser;
+  participant: WannaBetUser;
   amount: number;
   bigintAmount: string;
   token: Address;
   message: string;
-  judge: Address;
-  judgeAlias: string;
-  judgePfp?: string;
+  judge: WannaBetUser;
   validUntil: Date;
   createdTime: Date;
   status: BetStatus | undefined;

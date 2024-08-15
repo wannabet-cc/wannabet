@@ -3,12 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link";
 import React from "react";
 import { UserBets } from "./user-bets";
-import { UserAvatar } from "./user-avatar";
+import { UserAvatar } from "@/components/misc/user-avatar";
 import { UserResolver } from "@/lib/wb-user-resolver";
-import { WannaBetUser } from "@/lib/wb-user";
+import { WannaBetUser } from "@/lib/types/wb-user";
 
 export default async function UserPage({ params }: { params: { alias: string } }) {
-  const user = await UserResolver.getUser(params.alias);
+  const user = await UserResolver.getPreferredUser(params.alias);
 
   if (user) {
     return (

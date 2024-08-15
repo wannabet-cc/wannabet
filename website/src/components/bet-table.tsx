@@ -48,9 +48,9 @@ export function BetTable({
                   {bet.amount} {baseContracts.getNameFromAddress(bet.token)}
                 </TableCell>
                 <TableCell>
-                  <UserBadge userAlias={bet.creatorAlias} />
+                  <UserBadge user={bet.creator} />
                   <span className="text-muted-foreground"> vs </span>
-                  <UserBadge userAlias={bet.participantAlias} />
+                  <UserBadge user={bet.participant} />
                 </TableCell>
                 <TableCell className="text-center">
                   {bet.status === "pending" ? (
