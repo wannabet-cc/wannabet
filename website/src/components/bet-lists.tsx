@@ -5,12 +5,13 @@ import type { FormattedBets } from "@/services/api/types";
 
 // Hooks
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useAccount } from "wagmi";
+import { usePrivy } from "@privy-io/react-auth";
+import { useActiveWallet } from "@/hooks/useActiveWallet";
 
 // Components
-import { LoginButton } from "./auth/login-button";
 import { LoadingSpinner } from "./ui/spinner";
 import { BetTable } from "./bet-table";
+import { NaiveSignInButton } from "./auth/sign-in-button";
 
 export function RecentBetList() {
   const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
@@ -29,11 +30,11 @@ export function RecentBetList() {
     getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
     maxPages: 7,
   });
-  return status === "pending" ? (
-    <LoadingSpinner />
-  ) : status === "error" ? (
-    "An error has occurred: " + error.message
-  ) : (
+
+  if (status === "pending") return <LoadingSpinner />;
+  if (status === "error") return "An error has occurred: " + error.message;
+
+  return (
     <BetTable
       data={data}
       hasNextPage={hasNextPage}
@@ -44,11 +45,12 @@ export function RecentBetList() {
 }
 
 export function MyBetList() {
-  const account = useAccount();
+  const { ready, authenticated } = usePrivy();
+  const wallet = useActiveWallet();
   const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
     queryKey: ["myBetData"],
     queryFn: ({ pageParam = "" }) =>
-      fetch(`/api/bets?address=${account.address!}&num=${10}&cursor=${pageParam}`, {
+      fetch(`/api/bets?address=${wallet!.address}&num=${10}&cursor=${pageParam}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -60,15 +62,14 @@ export function MyBetList() {
     initialPageParam: "",
     getNextPageParam: (lastPage, _) => lastPage.pageInfo?.endCursor,
     maxPages: 7,
-    enabled: account.isConnected,
+    enabled: ready && authenticated && !!wallet,
   });
-  return account.isDisconnected ? (
-    <LoginButton />
-  ) : status === "pending" ? (
-    <LoadingSpinner />
-  ) : status === "error" ? (
-    "An error has occurred: " + error.message
-  ) : (
+
+  if (!ready || !authenticated || !wallet) return <NaiveSignInButton />;
+  if (status === "pending") return <LoadingSpinner />;
+  if (status === "error") return "An error has occurred: " + error.message;
+
+  return (
     <BetTable
       data={data}
       hasNextPage={hasNextPage}

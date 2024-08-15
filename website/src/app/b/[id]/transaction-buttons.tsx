@@ -20,9 +20,9 @@ import { revalidatePath } from "next/cache";
 export function TransactionButtons({ bet }: { bet: FormattedBet }) {
   const { address } = useAccount();
 
-  const isCreator = address?.toLowerCase() === bet.creator,
-    isParticipant = address?.toLowerCase() === bet.participant,
-    isJudge = address?.toLowerCase() === bet.judge;
+  const isCreator = address?.toLowerCase() === bet.creator.address.toLowerCase(),
+    isParticipant = address?.toLowerCase() === bet.participant.address.toLowerCase(),
+    isJudge = address?.toLowerCase() === bet.judge.address.toLowerCase();
 
   return (
     <div className="flex flex-col space-y-2">
@@ -53,7 +53,7 @@ export function TransactionButtons({ bet }: { bet: FormattedBet }) {
 function CreatorActions({ isCreator, bet }: { isCreator: boolean; bet: FormattedBet }) {
   const { mutate, isPending } = useMutation({
     mutationFn: () => retrieveTokens(bet.contractAddress),
-    onSuccess: () => revalidatePath(`/bet/${bet.betId}`),
+    onSuccess: () => revalidatePath(`/b/${bet.betId}`),
   });
 
   const { data: contractBalance } = useReadContract({
@@ -86,11 +86,11 @@ function ParticipantActions({
 }) {
   const { mutate: mutateAccept, isPending: isPendingAccept } = useMutation({
     mutationFn: () => acceptBet(address!, bet.contractAddress, bet.token, BigInt(bet.bigintAmount)),
-    onSuccess: () => revalidatePath(`/bet/${bet.betId}`),
+    onSuccess: () => revalidatePath(`/b/${bet.betId}`),
   });
   const { mutate: mutateDecline, isPending: isPendingDecline } = useMutation({
     mutationFn: () => declineBet(bet.contractAddress),
-    onSuccess: () => revalidatePath(`/bet/${bet.betId}`),
+    onSuccess: () => revalidatePath(`/b/${bet.betId}`),
   });
 
   const isPending = isPendingAccept || isPendingDecline;
@@ -114,16 +114,16 @@ function ParticipantActions({
 
 function JudgeActions({ isJudge, bet }: { isJudge: boolean; bet: FormattedBet }) {
   const { mutate: mutateSettleForCreator, isPending: isPendingCreator } = useMutation({
-    mutationFn: () => settleBet(bet.contractAddress, bet.creator),
-    onSuccess: () => revalidatePath(`/bet/${bet.betId}`),
+    mutationFn: () => settleBet(bet.contractAddress, bet.creator.address),
+    onSuccess: () => revalidatePath(`/b/${bet.betId}`),
   });
   const { mutate: mutateSettleForParticipant, isPending: isPendingParticipant } = useMutation({
-    mutationFn: () => settleBet(bet.contractAddress, bet.participant),
-    onSuccess: () => revalidatePath(`/bet/${bet.betId}`),
+    mutationFn: () => settleBet(bet.contractAddress, bet.participant.address),
+    onSuccess: () => revalidatePath(`/b/${bet.betId}`),
   });
   const { mutate: mutateSettleTie, isPending: isPendingTie } = useMutation({
     mutationFn: () => settleBet(bet.contractAddress, "0x0000000000000000000000000000000000000000"),
-    onSuccess: () => revalidatePath(`/bet/${bet.betId}`),
+    onSuccess: () => revalidatePath(`/b/${bet.betId}`),
   });
 
   const isPending = isPendingCreator || isPendingParticipant || isPendingTie;
@@ -131,10 +131,10 @@ function JudgeActions({ isJudge, bet }: { isJudge: boolean; bet: FormattedBet })
   return (
     <>
       <Button variant="default" size="sm" disabled={isPending || !isJudge} onClick={() => mutateSettleForCreator()}>
-        {bet.creatorAlias}
+        {bet.creator.name}
       </Button>
       <Button variant="default" size="sm" disabled={isPending || !isJudge} onClick={() => mutateSettleForParticipant()}>
-        {bet.participantAlias}
+        {bet.participant.name}
       </Button>
       <Button variant="secondary" size="sm" disabled={isPending || !isJudge} onClick={() => mutateSettleTie()}>
         Tie

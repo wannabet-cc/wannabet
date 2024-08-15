@@ -1,15 +1,13 @@
-import { Badge } from "../ui/badge";
+"use client";
 
-export function UserBadge({ userAlias }: { userAlias: string }) {
-  return userAlias.startsWith("@") ? (
-    <a href={`https://warpcast.com/${userAlias.slice(1)}`} target="_blank">
-      <Badge variant="user-farcaster">{userAlias}</Badge>
-    </a>
-  ) : userAlias.endsWith(".eth") ? (
-    <a href={`https://app.ens.domains/${userAlias}`} target="_blank">
-      <Badge variant="user-ens">{userAlias}</Badge>
-    </a>
-  ) : (
-    <Badge variant="user-address">{userAlias}</Badge>
+import Link from "next/link";
+import { Badge } from "../ui/badge";
+import { WannaBetUser } from "@/lib/types/wb-user";
+
+export function UserBadge({ user }: { user: WannaBetUser }) {
+  return (
+    <Link href={user.path}>
+      <Badge variant={user.name.endsWith(".eth") ? "user-ens" : "user-address"}>{user.name}</Badge>
+    </Link>
   );
 }

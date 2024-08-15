@@ -10,7 +10,7 @@ export async function fetchEns(nameOrAddress: `${string}.eth` | Address): Promis
 
 export type EnsIdeasResponse = {
   address: Address;
-  name: string;
+  name: string | null;
   displayName: string;
-  avatar: string;
+  avatar: string | null;
 };

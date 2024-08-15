@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LoginButton } from "@/components/auth/login-button";
-import { TokenClaimButton } from "@/app/_fun-token/token-claim-button";
+import { ProfileButton } from "@/components/auth/profile-button";
 
 export function Header() {
   return (
@@ -11,10 +10,7 @@ export function Header() {
         wannabet 🤝
       </Link>
 
-      <div className="space-x-2">
-        <TokenClaimButton />
-        <LoginButton />
-      </div>
+      <ProfileButton />
     </header>
   );
 }

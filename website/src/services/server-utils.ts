@@ -1,41 +1,16 @@
 import { fetchEns } from "@/lib";
-import { abbreviateHex, arrayToMap } from "@/utils";
-import { Address, isAddress } from "viem";
+import { abbreviateHex } from "@/utils";
+import { Address } from "viem";
 import { NEYNAR_API_KEY } from "@/config/server";
-
-export async function getPreferredAliases(addresses: Address[]) {
-  const aliasMap = arrayToMap<{ alias: string; pfp?: string }>(addresses, {
-    alias: "",
-    pfp: undefined,
-  });
-  const farcasterUsers = await fetchFarcasterUsers(addresses);
-  for (const [address, users] of Object.entries(farcasterUsers)) {
-    if (isAddress(address)) {
-      const mostFollowedUser = users.reduce((mostFollowedUser, currentUser) =>
-        mostFollowedUser.follower_count > currentUser.follower_count ? mostFollowedUser : currentUser,
-      );
-      aliasMap.set(address, {
-        alias: `@${mostFollowedUser.username}`,
-        pfp: mostFollowedUser.pfp_url,
-      });
-    }
-  }
-  for (const [address, alias] of aliasMap) {
-    if (alias.alias === "") {
-      const ensName = (await fetchEns(address as Address)).name;
-      if (ensName) {
-        aliasMap.set(address, { alias: ensName });
-      } else {
-        aliasMap.set(address, { alias: abbreviateHex(address as Address) });
-      }
-    }
-  }
-  return aliasMap;
-}
+import { nameStoneService } from "./namestone";
 
 export async function getPreferredAlias(address: Address): Promise<string> {
-  const ensName = (await fetchEns(address)).name;
-  if (ensName) return ensName;
+  const nameStoneRes = await nameStoneService.getName(address);
+  if (nameStoneRes) return nameStoneRes.name;
+
+  const ensRes = await fetchEns(address);
+  if (ensRes.name) return ensRes.name;
+
   return abbreviateHex(address);
 }
 

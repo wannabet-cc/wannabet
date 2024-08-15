@@ -18,7 +18,7 @@ class NameStoneService {
         "Content-Type": "application/json",
         Authorization: this.#apiKey,
       },
-      next: { revalidate: 0 },
+      next: { revalidate: 86400 },
     });
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     return res.json() as Promise<T>;
@@ -89,8 +89,8 @@ type NameStoneUser = {
   name: string;
   address: Address;
   domain: string; // ens name
-  textRecords: {
-    avatar: string; // url
+  text_records?: {
+    avatar?: string; // url
   };
 };
 

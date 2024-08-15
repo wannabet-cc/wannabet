@@ -11,6 +11,7 @@ import { Table, TableBody, TableCaption, TableCell, TableRow } from "@/component
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { UserBadge } from "@/components/misc/user-badge";
 import { TransactionButtons } from "./transaction-buttons";
+import { UserAvatar } from "@/components/misc/user-avatar";
 
 export function BetDetails({ bet }: { bet: FormattedBet }) {
   const account = useAccount();
@@ -22,24 +23,18 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
           <TableCell>parties</TableCell>
           <TableCell className="flex flex-col space-y-1">
             <div className="&>*:w-fit flex items-center space-x-1">
-              {bet.creatorPfp && (
-                <Avatar>
-                  <AvatarImage src={bet.creatorPfp} />
-                </Avatar>
+              {bet.creator.avatar && <UserAvatar avatar={bet.creator.avatar} name={bet.creator.name} />}
+              <UserBadge user={bet.creator} /> <span className="text-xs text-muted-foreground">(bet creator)</span>
+              {account.address?.toLowerCase() === bet.creator.address.toLowerCase() && (
+                <span className="text-xs"> &lt;- you</span>
               )}
-              <UserBadge userAlias={bet.creatorAlias} />{" "}
-              <span className="text-xs text-muted-foreground">(bet creator)</span>
-              {account.address?.toLowerCase() === bet.creator && <span className="text-xs"> &lt;- you</span>}
             </div>
             <div className="&>*:w-fit flex items-center space-x-1">
-              {bet.participantPfp && (
-                <Avatar>
-                  <AvatarImage src={bet.participantPfp} />
-                </Avatar>
+              {bet.participant.avatar && <UserAvatar avatar={bet.participant.avatar} name={bet.participant.name} />}
+              <UserBadge user={bet.participant} /> <span className="text-xs text-muted-foreground">(participant)</span>
+              {account.address?.toLowerCase() === bet.participant.address.toLowerCase() && (
+                <span className="text-xs"> &lt;- you</span>
               )}
-              <UserBadge userAlias={bet.participantAlias} />{" "}
-              <span className="text-xs text-muted-foreground">(participant)</span>
-              {account.address?.toLowerCase() === bet.participant && <span className="text-xs"> &lt;- you</span>}
             </div>
           </TableCell>
         </TableRow>
@@ -56,13 +51,15 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
         <TableRow>
           <TableCell>judge</TableCell>
           <TableCell className="&>*:w-fit flex items-center space-x-1">
-            {bet.judgePfp && (
+            {bet.judge.avatar && (
               <Avatar>
-                <AvatarImage src={bet.judgePfp} />
+                <AvatarImage src={bet.judge.avatar} />
               </Avatar>
             )}
-            <UserBadge userAlias={bet.judgeAlias} />
-            {account.address?.toLowerCase() === bet.judge && <span className="text-xs"> &lt;- you</span>}
+            <UserBadge user={bet.judge} />
+            {account.address?.toLowerCase() === bet.judge.address.toLowerCase() && (
+              <span className="text-xs"> &lt;- you</span>
+            )}
           </TableCell>
         </TableRow>
         <TableRow>
@@ -84,8 +81,10 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
               bet.winner &&
               (() => {
                 if (bet.winner === "0x0000000000000000000000000000000000000000") return ": tie";
-                else if (bet.winner.toLowerCase() === bet.creator) return `: ${bet.creatorAlias} won`;
-                else if (bet.winner.toLowerCase() === bet.participant) return `: ${bet.participantAlias} won`;
+                else if (bet.winner.toLowerCase() === bet.creator.address.toLowerCase())
+                  return `: ${bet.creator.name} won`;
+                else if (bet.winner.toLowerCase() === bet.participant.address.toLowerCase())
+                  return `: ${bet.participant.name} won`;
                 else return "";
               })()}
             <span className="text-xs text-muted-foreground">
