@@ -1,5 +1,5 @@
 import { addressSchema } from "@/lib/types";
-import { api_nameSchema } from "@/lib/types/api";
+import { nameStone_NameSchema } from "@/lib/types/namestone";
 import { nameStoneService } from "@/services/namestone";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -7,7 +7,7 @@ import { z } from "zod";
 export async function GET(req: NextRequest, { params }: { params: { user: string } }) {
   try {
     // validate name
-    const validatedName = api_nameSchema.safeParse(params.user);
+    const validatedName = nameStone_NameSchema.safeParse(params.user);
     if (validatedName.success) {
       // send to service
       const res = await nameStoneService.searchName(validatedName.data, 1);
