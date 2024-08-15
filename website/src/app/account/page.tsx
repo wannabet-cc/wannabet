@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { SectionContactInformation } from "./section-contact-information";
 import { SectionWalletList } from "./section-wallet-list";
 import { SectionActiveWallet } from "./section-active-wallet";
-import { LogoutButton } from "@/components/auth/logout-button";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 
 export default function AccountPage() {
   return (
@@ -21,7 +21,7 @@ export default function AccountPage() {
             <SectionActiveWallet />
           </CardContent>
           <CardFooter className="pt-12">
-            <LogoutButton />
+            <SignOutButton />
           </CardFooter>
         </Card>
       </div>
