@@ -1,16 +1,11 @@
 import { BackButton } from "@/components/back-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { fetchEns } from "@/lib";
 import Link from "next/link";
 import React from "react";
-import { normalize } from "viem/ens";
 import { UserBets } from "./user-bets";
 import { UserAvatar } from "./user-avatar";
-import { nameStone_NameSchema } from "@/lib/types/namestone";
-import { nameStoneService } from "@/services/namestone";
-import { ensSchema } from "@/lib/types";
-import { WBUser } from "@/lib/types/user";
-import { UserResolver } from "@/lib/user-resolver";
+import { UserResolver } from "@/lib/wb-user-resolver";
+import { WannaBetUser } from "@/lib/wb-user";
 
 export default async function UserPage({ params }: { params: { alias: string } }) {
   const user = await UserResolver.getUser(params.alias);
@@ -37,7 +32,7 @@ export default async function UserPage({ params }: { params: { alias: string } }
   );
 }
 
-function ProfileCard({ user }: { user: WBUser }) {
+function ProfileCard({ user }: { user: WannaBetUser }) {
   return (
     <Card className="w-full">
       <CardHeader>
