@@ -42,7 +42,7 @@ export function BetTable({
         <TableBody>
           {data?.pages.map((page) =>
             page.items.map((bet, i) => (
-              <TableRow key={i} onClick={() => router.push(`/bet/${bet.betId}`)} className="cursor-pointer">
+              <TableRow key={i} onClick={() => router.push(`/b/${bet.betId}`)} className="cursor-pointer">
                 <TableCell className="text-center">{bet.betId}</TableCell>
                 <TableCell>
                   {bet.amount} {baseContracts.getNameFromAddress(bet.token)}
