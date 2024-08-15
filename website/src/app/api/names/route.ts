@@ -24,3 +24,23 @@ export async function POST(req: NextRequest) {
     NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+
+const limitSchema = z.number().int().positive().max(100);
+
+export async function GET(req: NextRequest) {
+  try {
+    // validate
+    const validatedLimit = limitSchema.parse(req.nextUrl.searchParams.get("limit") || 10);
+    // send to service
+    const res = await nameStoneService.getNames(validatedLimit);
+    // 404 if no items found
+    if (res.length <= 0) return NextResponse.json({ message: "Fetch failed" }, { status: 404 });
+    // return
+    return NextResponse.json({ message: "Names fetched successfully", data: res }, { status: 200 });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: "Validation failed", details: error.errors }, { status: 400 });
+    }
+    NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
