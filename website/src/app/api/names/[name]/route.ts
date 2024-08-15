@@ -9,9 +9,10 @@ export async function GET(req: NextRequest, { params }: { params: { name: string
     const validatedName = api_nameSchema.parse(params.name);
     // send to service
     const res = await nameStoneService.searchName(validatedName, 1);
-    const nameFound = res[0].name === validatedName;
     // 404 if no item found
-    if (!nameFound) return NextResponse.json({ message: "Name not found" }, { status: 404 });
+    if (res.length === 0 || res[0].name === validatedName) {
+      return NextResponse.json({ message: "Name not found" }, { status: 404 });
+    }
     // return
     return NextResponse.json({ message: "Name fetched successfully", data: res[0] }, { status: 200 });
   } catch (error) {
