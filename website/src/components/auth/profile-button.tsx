@@ -59,7 +59,7 @@ export function ProfileButton() {
 
 function NamedProfileDropdown({ address }: { address: Address }) {
   const { data } = useQuery({
-    queryKey: ["user", address],
+    queryKey: ["username", address],
     queryFn: async () => {
       const res = await fetch(`/api/names/${address}`);
       if (!res.ok) {
