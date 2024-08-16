@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import privy from "@/services/privy";
 
 export async function handleIdentityToken(req: NextRequest) {
+  console.log("Fetching a settings route...");
+
   const accessToken = req.cookies.get("privy-token")?.value;
   if (!accessToken) {
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 
   // Redirect
@@ -20,10 +22,10 @@ export async function handleIdentityToken(req: NextRequest) {
 
 // This function can be marked `async` if using `await` inside
 export async function middleware(req: NextRequest) {
-  await handleIdentityToken(req);
+  return await handleIdentityToken(req);
 }
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: "/account/:path*",
+  matcher: "/~/:path*",
 };
