@@ -81,6 +81,15 @@ class NameStoneService {
     const data = await this.#getData<NameStoneResponse>("search-names", queryParams);
     return data;
   }
+
+  /** Revokes a name */
+  async revokeName(name: string) {
+    const body = {
+      domain: this.#DOMAIN,
+      name,
+    };
+    return await this.#postData("revoke-name", body);
+  }
 }
 
 type NameStoneResponse = NameStoneUser[];
