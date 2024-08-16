@@ -58,7 +58,7 @@ export function ProfileButton() {
 }
 
 function NamedProfileDropdown({ address }: { address: Address }) {
-  const { data, isSuccess } = useQuery({
+  const { data } = useQuery({
     queryKey: ["user", address],
     queryFn: async () => {
       const res = await fetch(`/api/names/${address}`);
@@ -68,10 +68,11 @@ function NamedProfileDropdown({ address }: { address: Address }) {
       const json = await res.json();
       return json.data as WannaBetUser;
     },
+    staleTime: Infinity,
   });
 
   const user = useMemo(() => {
-    return isSuccess && data
+    return data
       ? data
       : ({
           type: "Address",
@@ -79,7 +80,7 @@ function NamedProfileDropdown({ address }: { address: Address }) {
           address: address as Address,
           path: `/u/${address}`,
         } satisfies WannaBetUser);
-  }, [isSuccess, data, address]);
+  }, [data, address]);
 
   return <ProfileDropdown user={user} />;
 }
