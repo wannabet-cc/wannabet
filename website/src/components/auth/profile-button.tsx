@@ -93,10 +93,10 @@ function ProfileDropdown({ user }: { user: WannaBetUser }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>
-          <Link href={user.path}>My Profile</Link>
+          <Link href={user.path}>Profile</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={`/account`}>Account Settings</Link>
+          <Link href={`/~/account`}>Account</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownSignOutButton />
