@@ -16,7 +16,7 @@ export async function handleIdentityToken(req: NextRequest) {
     return NextResponse.next();
   } catch (error) {
     console.error(error);
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 }
 
@@ -27,5 +27,5 @@ export async function middleware(req: NextRequest) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: "/~/:path*",
+  matcher: ["/~/:path*", "/api/names"],
 };
