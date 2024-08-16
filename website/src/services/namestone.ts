@@ -11,14 +11,14 @@ class NameStoneService {
   }
 
   /** General purpose function for sending a GET request to namestone.xyz api */
-  async #getData<T>(path: "get-names" | "search-names", queryParams: string): Promise<T> {
+  async #getData<T>(path: "get-names" | "search-names", queryParams: string, cacheTags?: string[]): Promise<T> {
     const res = await fetch(`${this.#BASE_URL}${path}?domain=${this.#DOMAIN}&${queryParams}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: this.#apiKey,
       },
-      next: { revalidate: 86400 },
+      next: cacheTags ? { revalidate: 0, tags: cacheTags } : { revalidate: 86400 },
     });
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     return res.json() as Promise<T>;
@@ -71,14 +71,14 @@ class NameStoneService {
   /** Gets a single name matching an address */
   async getName(address: Address): Promise<NameStoneUser | null> {
     const queryParams = `address=${address}&limit=${1}`;
-    const data = await this.#getData<NameStoneResponse>("get-names", queryParams);
+    const data = await this.#getData<NameStoneResponse>("get-names", queryParams, [address]);
     return data[0] || null;
   }
 
   /** Searches names based on a string query */ // ! Looking into pagination
   async searchName(query: string, limit: number): Promise<NameStoneResponse> {
     const queryParams = `name=${query}&limit=${limit}`;
-    const data = await this.#getData<NameStoneResponse>("search-names", queryParams);
+    const data = await this.#getData<NameStoneResponse>("search-names", queryParams, [query]);
     return data;
   }
 
