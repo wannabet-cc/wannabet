@@ -58,8 +58,8 @@ export function ProfileButton() {
 }
 
 function NamedProfileDropdown({ address }: { address: Address }) {
-  const { data, isSuccess } = useQuery({
-    queryKey: ["user", address],
+  const { data } = useQuery({
+    queryKey: ["username", address],
     queryFn: async () => {
       const res = await fetch(`/api/names/${address}`);
       if (!res.ok) {
@@ -68,10 +68,11 @@ function NamedProfileDropdown({ address }: { address: Address }) {
       const json = await res.json();
       return json.data as WannaBetUser;
     },
+    staleTime: Infinity,
   });
 
   const user = useMemo(() => {
-    return isSuccess && data
+    return data
       ? data
       : ({
           type: "Address",
@@ -79,7 +80,7 @@ function NamedProfileDropdown({ address }: { address: Address }) {
           address: address as Address,
           path: `/u/${address}`,
         } satisfies WannaBetUser);
-  }, [isSuccess, data, address]);
+  }, [data, address]);
 
   return <ProfileDropdown user={user} />;
 }
@@ -92,10 +93,10 @@ function ProfileDropdown({ user }: { user: WannaBetUser }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>
-          <Link href={user.path}>My Profile</Link>
+          <Link href={user.path}>Profile</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={`/account`}>Account Settings</Link>
+          <Link href={`/~/account`}>Account</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownSignOutButton />

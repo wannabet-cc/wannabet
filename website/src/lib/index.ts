@@ -5,7 +5,11 @@ export { baseContracts, arbitrumContracts };
 
 export async function fetchEns(nameOrAddress: `${string}.eth` | Address): Promise<EnsIdeasResponse> {
   const ensIdeasUrl = "https://api.ensideas.com/ens/resolve/";
-  return fetch(ensIdeasUrl + nameOrAddress).then((res) => res.json());
+  return fetch(ensIdeasUrl + nameOrAddress, {
+    next: {
+      revalidate: 86400,
+    },
+  }).then((res) => res.json());
 }
 
 export type EnsIdeasResponse = {

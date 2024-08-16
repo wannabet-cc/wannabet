@@ -25,7 +25,7 @@ export function SectionWalletList() {
 
   return (
     <section className="space-y-2 text-sm">
-      <h4 className="mb-4 font-semibold">Wallet List</h4>
+      <h4 className="mb-4 font-semibold">Wallets</h4>
       <Table>
         <TableHeader>
           <TableRow>

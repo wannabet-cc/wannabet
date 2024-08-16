@@ -19,18 +19,14 @@ class UserResolver {
       const validated_nameStoneAlias = nameStone_NameSchema.safeParse(userAlias);
       if (validated_nameStoneAlias.success) {
         // Send to service
-        const res = await nameStoneService.searchName(validated_nameStoneAlias.data, 1);
-        // Throw if not found
-        if (res.length === 0 || res[0].name !== validated_nameStoneAlias.data) {
-          throw new Error("Name not found");
-        }
+        const res = await nameStoneService.searchName(validated_nameStoneAlias.data);
         // Return
         return {
           type: "NameStone",
-          name: res[0].name,
-          address: res[0].address,
-          avatar: res[0].text_records && res[0].text_records.avatar,
-          path: `/u/${res[0].name}`,
+          name: res.name,
+          address: res.address,
+          avatar: res.text_records && res.text_records.avatar,
+          path: `/u/${res.name}`,
         } as WannaBetUser;
       }
 
