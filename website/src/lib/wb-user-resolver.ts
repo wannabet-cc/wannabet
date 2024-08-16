@@ -23,10 +23,10 @@ class UserResolver {
         // Return
         return {
           type: "NameStone",
-          name: res[0].name,
-          address: res[0].address,
-          avatar: res[0].text_records && res[0].text_records.avatar,
-          path: `/u/${res[0].name}`,
+          name: res.name,
+          address: res.address,
+          avatar: res.text_records && res.text_records.avatar,
+          path: `/u/${res.name}`,
         } as WannaBetUser;
       }
 
