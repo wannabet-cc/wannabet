@@ -83,13 +83,22 @@ class NameStoneService {
   }
 
   /** Searches a name. Throws if an exact match is not found */
-  async searchName(name: string): Promise<NameStoneResponse> {
+  async searchName(name: string): Promise<NameStoneUser> {
     const queryParams = `name=${name}&limit=1`;
     const data = await this.#getData<NameStoneResponse>("search-names", queryParams, [name]);
     if (data.length === 0 || data[0].name !== name) {
       throw new Error(`No user found matching name: ${name}`);
     }
-    return data;
+    return data[0];
+  }
+
+  async isNameTaken(name: string): Promise<boolean> {
+    try {
+      await this.searchName(name);
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   /** Revokes a name */

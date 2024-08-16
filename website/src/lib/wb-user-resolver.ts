@@ -19,11 +19,7 @@ class UserResolver {
       const validated_nameStoneAlias = nameStone_NameSchema.safeParse(userAlias);
       if (validated_nameStoneAlias.success) {
         // Send to service
-        const res = await nameStoneService.searchName(validated_nameStoneAlias.data, 1);
-        // Throw if not found
-        if (res.length === 0 || res[0].name !== validated_nameStoneAlias.data) {
-          throw new Error("Name not found");
-        }
+        const res = await nameStoneService.searchName(validated_nameStoneAlias.data);
         // Return
         return {
           type: "NameStone",
