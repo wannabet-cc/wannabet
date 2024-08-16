@@ -1,8 +1,6 @@
+import { PRIVY_APP_ID, PRIVY_APP_SECRET } from "@/config/server";
 import { PrivyClient } from "@privy-io/server-auth";
 
-const privy = new PrivyClient(
-  "clyyp3crh0ar0yht8gj1gzj8t",
-  "521nfBBy7dXj8de25ArTvLnd2YFAeSa5x6tRQg5AcXnxrQ6jBtKPC6uXbMtNF8LW7qhv8gPeUFmW2qCY3fwEAdY1",
-);
+const privy = new PrivyClient(PRIVY_APP_ID, PRIVY_APP_SECRET);
 
 export default privy;
