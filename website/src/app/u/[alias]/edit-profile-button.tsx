@@ -17,7 +17,7 @@ export function EditProfileButton({ address }: { address: Address }) {
     <Button variant="outline" asChild>
       <Link href={`/~/edit-profile`} className="block space-x-2">
         <Pencil1Icon className="-ml-1" />
-        <span className="inline-block">Edit Profile</span>
+        <span className="inline-block">Set Name</span>
       </Link>
     </Button>
   );
