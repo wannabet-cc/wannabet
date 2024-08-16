@@ -1,77 +1,95 @@
+"use client";
+
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { nameStoneService } from "@/services/namestone";
-import { useAccount } from "wagmi";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { nameStone_NameSchema } from "@/lib/types/namestone";
+import { useActiveWallet } from "@/hooks/useActiveWallet";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 const schema = z.object({
-  name: z.string().trim().min(3).max(20),
+  name: nameStone_NameSchema,
 });
 
 type FormData = z.infer<typeof schema>;
 
-const SetNameForm: React.FC = () => {
-  const { address } = useAccount();
+const EditProfileForm: React.FC<{ currentName: string }> = ({ currentName }) => {
+  const router = useRouter();
+  const wallet = useActiveWallet();
+  const queryClient = useQueryClient();
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: "",
+      name: currentName,
     },
   });
 
   async function onSubmit(data: FormData) {
     console.log("submitting");
-    if (!address) throw new Error("No address found");
+    if (!wallet) throw new Error("No address found");
 
     try {
+      // Send to server
       const res = await fetch("/api/names", {
         method: "POST",
         body: JSON.stringify({
           name: data.name,
-          address,
+          address: wallet.address,
         }),
         headers: {
           "Content-Type": "application/json",
         },
       });
-
       if (!res.ok) {
-        throw new Error("Error claiming name");
+        const data = await res.json();
+        throw new Error(data.error);
       }
-
-      const result = await res.json();
-      console.log(result.message);
+      // Invalidate local cache
+      queryClient.invalidateQueries({ queryKey: ["username", wallet.address] });
+      // Redirect to account page
+      router.push(`/u/${data.name}`);
     } catch (error) {
       console.error("Error claiming name:", error);
+      const errorMessage = error instanceof Error ? error.message : "An error occurred";
+      form.setError("name", { message: errorMessage });
     }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit, console.log)}>
+      <form onSubmit={form.handleSubmit(onSubmit, console.log)} className="space-y-2">
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => {
             return (
               <FormItem>
-                <FormLabel>Participant</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="abc.eth or 0xabc..." type="text" />
+                <FormLabel className="sr-only">Name</FormLabel>
+                <FormControl className="flex">
+                  <div className="flex items-center space-x-1">
+                    <Input {...field} placeholder="example" type="text" />
+                    <div>.wannabet.eth</div>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             );
           }}
         />
-        <button type="submit">Submit</button>
+        <div className="w-full pt-2 *:w-full">
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? "Submitting..." : "Submit"}
+          </Button>
+        </div>
       </form>
     </Form>
   );
 };
 
-export default SetNameForm;
+export default EditProfileForm;

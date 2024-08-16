@@ -1,25 +1,26 @@
 import { BackButton } from "@/components/back-button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import EditProfileForm from "./edit-profile-form";
 
-export default function SetNamePage() {
+export default function EditProfilePage() {
   return (
     <main className="flex w-full flex-col items-center">
-      <div className="w-full space-y-2 md:px-8">
+      <div className="w-full max-w-md space-y-2 md:px-8">
         <BackButton />
-        <SetNameCard />
+        <EditProfileCard />
       </div>
     </main>
   );
 }
 
-function SetNameCard() {
+function EditProfileCard() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Edit Profile</CardTitle>
+        <CardTitle>Set Name</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <p>Set your name to be displayed on the platform.</p>
+        <EditProfileForm currentName="" />
       </CardContent>
     </Card>
   );
