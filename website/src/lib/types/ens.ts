@@ -2,7 +2,7 @@ import { z } from "zod";
 import { addressRegex } from "./address";
 import type { Address } from "viem";
 
-export const ensRegex = /^.{3,}\.eth$/;
+export const ensRegex = /^.{3,}\.[a-zA-Z]{2,}$/;
 export const ensSchema = z
   .string()
   .trim()
