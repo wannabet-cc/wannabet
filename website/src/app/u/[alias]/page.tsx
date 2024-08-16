@@ -6,6 +6,7 @@ import { UserBets } from "./user-bets";
 import { UserAvatar } from "@/components/misc/user-avatar";
 import { UserResolver } from "@/lib/wb-user-resolver";
 import { WannaBetUser } from "@/lib/types/wb-user";
+import { EditProfileButton } from "./edit-profile-button";
 
 export default async function UserPage({ params }: { params: { alias: string } }) {
   const user = await UserResolver.getPreferredUser(params.alias);
@@ -37,9 +38,12 @@ function ProfileCard({ user }: { user: WannaBetUser }) {
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center justify-between text-lg">
-          <div className="flex items-center space-x-2">
-            <UserAvatar avatar={user.avatar} name={user.name} />
-            <p>{user.name}</p>
+          <div className="flex w-full items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <UserAvatar avatar={user.avatar} name={user.name} />
+              <p>{user.name}</p>
+            </div>
+            <EditProfileButton address={user.address} />
           </div>
         </CardTitle>
       </CardHeader>
