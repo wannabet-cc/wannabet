@@ -2,30 +2,46 @@ import { NextRequest, NextResponse } from "next/server";
 import privy from "@/services/privy";
 
 export async function handleIdentityToken(req: NextRequest) {
-  console.log("Fetching a settings route...");
+  console.log("Fetching a protected route...");
 
-  const accessToken = req.cookies.get("privy-token")?.value;
-  if (!accessToken) {
-    return NextResponse.redirect(new URL("/sign-in", req.url));
+  let redirectRes;
+  if (req.method === "GET") {
+    redirectRes = NextResponse.redirect(new URL("/sign-in", req.url));
+  } else {
+    redirectRes = NextResponse.json({ error: "Authentication required" }, { status: 401 });
   }
 
-  // Redirect
+  // Get access token from cookies
+  const accessToken = req.cookies.get("privy-token")?.value;
+  if (!accessToken) {
+    return redirectRes;
+  }
+
+  // Verify the access token
   try {
     const verifiedClaims = await privy.verifyAuthToken(accessToken);
     console.log(verifiedClaims);
     return NextResponse.next();
   } catch (error) {
     console.error(error);
-    return NextResponse.redirect(new URL("/sign-in", req.url));
+    return redirectRes;
   }
 }
 
-// This function can be marked `async` if using `await` inside
 export async function middleware(req: NextRequest) {
-  return await handleIdentityToken(req);
+  console.log("Middleware called");
+
+  if (req.nextUrl.pathname.startsWith("/~")) {
+    return await handleIdentityToken(req);
+  }
+
+  if (req.nextUrl.pathname === "/api/names") {
+    return await handleIdentityToken(req);
+  }
+
+  return NextResponse.next();
 }
 
-// See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/~/:path*", "/api/names"],
+  matcher: ["/~/:path*", "/api/:path*"],
 };
