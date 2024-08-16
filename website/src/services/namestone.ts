@@ -70,15 +70,25 @@ class NameStoneService {
 
   /** Gets a single name matching an address */
   async getName(address: Address): Promise<NameStoneUser | null> {
-    const queryParams = `address=${address}&limit=${1}`;
+    const queryParams = `address=${address}&limit=1`;
     const data = await this.#getData<NameStoneResponse>("get-names", queryParams, [address]);
     return data[0] || null;
   }
 
   /** Searches names based on a string query */ // ! Looking into pagination
-  async searchName(query: string, limit: number): Promise<NameStoneResponse> {
+  async searchNames(query: string, limit: number): Promise<NameStoneResponse> {
     const queryParams = `name=${query}&limit=${limit}`;
     const data = await this.#getData<NameStoneResponse>("search-names", queryParams, [query]);
+    return data;
+  }
+
+  /** Searches a name. Throws if an exact match is not found */
+  async searchName(name: string): Promise<NameStoneResponse> {
+    const queryParams = `name=${name}&limit=1`;
+    const data = await this.#getData<NameStoneResponse>("search-names", queryParams, [name]);
+    if (data.length === 0 || data[0].name !== name) {
+      throw new Error(`No user found matching name: ${name}`);
+    }
     return data;
   }
 
