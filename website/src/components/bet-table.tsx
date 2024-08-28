@@ -4,9 +4,6 @@
 import type { FormattedBets } from "@/services/api/types";
 import type { InfiniteData } from "@tanstack/react-query";
 
-// Hooks
-import { useRouter } from "next/navigation";
-
 // Components
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { ScrollArea } from "./ui/scroll-area";
@@ -28,11 +25,10 @@ export function BetTable({
   isFetchingNextPage: boolean;
   fetchNextPage: any;
 }) {
-  const router = useRouter();
   return (
     <ScrollArea className="h-80 w-full pr-2">
       <Table>
-        <TableHeader className="sticky top-0 bg-card">
+        <TableHeader className="sticky top-0 z-50 bg-card">
           <TableRow>
             <TableHead className="text-center">bet</TableHead>
             <TableHead>amount</TableHead>
@@ -44,15 +40,17 @@ export function BetTable({
         <TableBody>
           {data?.pages.map((page) =>
             page.items.map((bet, i) => (
-              <TableRow key={i} className="cursor-pointer">
+              <TableRow key={i}>
                 <TableCell className="text-center">{bet.betId}</TableCell>
                 <TableCell>
                   {bet.amount} {baseContracts.getNameFromAddress(bet.token)}
                 </TableCell>
                 <TableCell>
-                  <UserBadge user={bet.creator} />
-                  <span className="text-muted-foreground"> vs </span>
-                  <UserBadge user={bet.participant} />
+                  <div className="flex items-center space-x-1">
+                    <UserBadge user={bet.creator} />
+                    <span className="text-muted-foreground"> vs </span>
+                    <UserBadge user={bet.participant} />
+                  </div>
                 </TableCell>
                 <TableCell className="text-center">
                   {bet.status === "pending" ? (
@@ -67,9 +65,11 @@ export function BetTable({
                     "..."
                   )}
                 </TableCell>
-                <TableCell className="flex justify-end">
+                <TableCell>
                   <Button asChild variant="secondary" size="xs">
-                    <Link href={`/b/${bet.betId}`}>See Bet</Link>
+                    <Link href={`/b/${bet.betId}`} className="h-full w-full">
+                      See Bet
+                    </Link>
                   </Button>
                 </TableCell>
               </TableRow>

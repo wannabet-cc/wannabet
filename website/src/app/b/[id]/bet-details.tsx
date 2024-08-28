@@ -8,10 +8,8 @@ import { baseContracts } from "@/lib";
 import { useAccount } from "wagmi";
 // Components
 import { Table, TableBody, TableCaption, TableCell, TableRow } from "@/components/ui/table";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { UserBadge } from "@/components/misc/user-badge";
 import { TransactionButtons } from "./transaction-buttons";
-import { UserAvatar } from "@/components/misc/user-avatar";
 
 export function BetDetails({ bet }: { bet: FormattedBet }) {
   const account = useAccount();
@@ -23,14 +21,12 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
           <TableCell>parties</TableCell>
           <TableCell className="flex flex-col space-y-1">
             <div className="&>*:w-fit flex items-center space-x-1">
-              {bet.creator.avatar && <UserAvatar avatar={bet.creator.avatar} name={bet.creator.name} />}
               <UserBadge user={bet.creator} /> <span className="text-xs text-muted-foreground">(bet creator)</span>
               {account.address?.toLowerCase() === bet.creator.address.toLowerCase() && (
                 <span className="text-xs"> &lt;- you</span>
               )}
             </div>
             <div className="&>*:w-fit flex items-center space-x-1">
-              {bet.participant.avatar && <UserAvatar avatar={bet.participant.avatar} name={bet.participant.name} />}
               <UserBadge user={bet.participant} /> <span className="text-xs text-muted-foreground">(participant)</span>
               {account.address?.toLowerCase() === bet.participant.address.toLowerCase() && (
                 <span className="text-xs"> &lt;- you</span>
@@ -51,11 +47,6 @@ export function BetDetails({ bet }: { bet: FormattedBet }) {
         <TableRow>
           <TableCell>judge</TableCell>
           <TableCell className="&>*:w-fit flex items-center space-x-1">
-            {bet.judge.avatar && (
-              <Avatar>
-                <AvatarImage src={bet.judge.avatar} />
-              </Avatar>
-            )}
             <UserBadge user={bet.judge} />
             {account.address?.toLowerCase() === bet.judge.address.toLowerCase() && (
               <span className="text-xs"> &lt;- you</span>
