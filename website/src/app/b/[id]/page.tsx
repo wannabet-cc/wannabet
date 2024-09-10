@@ -33,8 +33,8 @@ function BetDetailsCard({ currentBet }: { currentBet: FormattedBet | undefined }
         <CardTitle className="text-lg">{currentBet ? `Bet #${currentBet.betId}` : "Select a bet"}</CardTitle>
         <CardDescription>
           {currentBet ? (
-            <a href={`https://basescan.org/address/${currentBet.contractAddress}`} target="_blank">
-              See on Basescan
+            <a href={`https://base.blockscout.com/address/${currentBet.contractAddress}`} target="_blank">
+              See on Blockscout
             </a>
           ) : (
             ""
